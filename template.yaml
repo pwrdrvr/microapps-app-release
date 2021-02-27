@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  NextDemoApp-SAM-Debug
+
+  Debugging template for the .serverless-next.js app code
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+  Api:
+    BinaryMediaTypes:
+      - image~1jpeg
+      - image~1png
+      - image~1svg
+      - image~1webp
+
+Resources:
+  NextDemoAppHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: 'prod'
+      Tags:
+        Tag: Value
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 200
+      RouteSettings:
+        "GET /{proxy+}":
+      StageVariables:
+        StageVar: Value
+      FailOnWarnings: True
+
+  NextDemoApp:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./.serverless_nextjs/
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Events:
+        ApiEvent:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: "/{proxy+}"
+            Method: GET
+            ApiId:
+              Ref: NextDemoAppHttpApi
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  # HelloWorldApi:
+  #   Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+  #   Value: !Sub "https://${NextDemoApp}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  # HelloWorldFunction:
+  #   Description: "Hello World Lambda Function ARN"
+  #   Value: !GetAtt HelloWorldFunction.Arn
+  # HelloWorldFunctionIamRole:
+  #   Description: "Implicit IAM Role created for Hello World function"
+  #   Value: !GetAtt HelloWorldFunctionRole.Arn

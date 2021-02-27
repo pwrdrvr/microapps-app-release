@@ -1,0 +1,5 @@
+nextApp:
+  component: /Users/huntharo/pwrdrvr/serverless-next.js/packages/serverless-components/nextjs-component
+  inputs:
+    deploy: false
+    uploadStaticAssetsFromBuild: false

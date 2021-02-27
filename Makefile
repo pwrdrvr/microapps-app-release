@@ -15,12 +15,15 @@ help:
 
 
 copy-router: ../serverless-nextjs-router/dist/index.js ## Copy compiled Next.js Router to output
-	rm .serverless_nextjs/index.js && cp ../serverless-nextjs-router/dist/index.js .serverless_nextjs/
+	-rm .serverless_nextjs/index.js
+	cp ../serverless-nextjs-router/dist/index.js .serverless_nextjs/
 
 start: ## Start App Docker Container
 	docker-compose up --build
 
 sam-debug: ## Start App w/SAM Local for VS Code Debugging
+	-rm .serverless_nextjs/config.json
+	cp config.json .serverless_nextjs/
 	sam local start-api --debug-port 5859 --warm-containers EAGER
 
 #
@@ -59,3 +62,10 @@ aws-update-alias-svc: ## Update the lambda function to use latest image
 	@echo "New Lambda Version: ${ECR_REPO}/${VERSION}"
 	@aws lambda update-alias --function-name ${ECR_REPO} \
 		--name ${LAMBDA_ALIAS} --function-version '${VERSION}' --region=${REGION}
+
+#
+# MicroApps - Publishing New App Version / Updated HTML
+#
+
+microapps-publish: ## publishes a new version of the microapp OR updates HTML
+	@dotnet run --project ~/pwrdrvr/microapps-cdk/src/PwrDrvr.MicroApps.DeployTool/
