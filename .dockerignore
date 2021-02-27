@@ -1,0 +1,7 @@
+**/.serverless_nextjs/assets/*
+docker-compose.yaml
+Dockerfile
+README.md
+.serverless
+.next
+**/node_modules/*
