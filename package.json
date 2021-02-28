@@ -1,6 +1,6 @@
 {
   "name": "release",
-  "version": "0.0.3",
+  "version": "0.0.0",
   "private": true,
   "proxy": "https://4jssqkktsg.execute-api.us-east-2.amazonaws.com",
   "scripts": {

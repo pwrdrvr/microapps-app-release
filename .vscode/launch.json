@@ -17,7 +17,7 @@
         "TS_NODE_PROJECT": "./bin/tsconfig.json",
       },
       "runtimeArgs": ["-r", "ts-node/register/transpile-only"],
-      "args": ["${workspaceFolder}/bin/versions-update.ts", "--newversion", "0.0.3"]
+      "args": ["${workspaceFolder}/bin/versions-update.ts", "--newversion", "0.0.4", "--leave"]
     },
     {
       "type": "node",
