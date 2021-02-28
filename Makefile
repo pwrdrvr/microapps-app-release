@@ -4,8 +4,8 @@ AWS_ACCOUNT ?= 239161478713
 REGION ?= us-east-2
 ECR_HOST ?= ${AWS_ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com
 ECR_REPO ?= app-release
-IMAGE_TAG ?= ${ECR_REPO}:0.0.1
-LAMBDA_ALIAS ?= v0_0_1
+IMAGE_TAG ?= ${ECR_REPO}:0.0.3
+LAMBDA_ALIAS ?= v0_0_3
 
 help:
 	@echo "Commands:"

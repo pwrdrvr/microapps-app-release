@@ -38,7 +38,7 @@ export default function Home(context): JSX.Element {
 // This gets called on every request
 Home.getInitialProps = async function (): Promise<IPageProps> {
   try {
-    const client = new ApplicationClient(undefined, { fetch });
+    const client = new ApplicationClient(process.env.DEPLOYER_BASE_URL ?? undefined, { fetch });
 
     const apps = await client.get();
 

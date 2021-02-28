@@ -1,7 +1,7 @@
 {
   "AppName": "release",
-  "SemVer": "0.0.1",
+  "SemVer": "0.0.3",
   "DefaultFile": "",
-  "StaticAssetsPath": "./.serverless_nextjs/assets/release/0.0.1/",
-  "LambdaARN": "arn:aws:lambda:us-east-2:239161478713:function:app-release:v0_0_1"
+  "StaticAssetsPath": "./.serverless_nextjs/assets/release/0.0.3/",
+  "LambdaARN": "arn:aws:lambda:us-east-2:239161478713:function:app-release:v0_0_3"
 }

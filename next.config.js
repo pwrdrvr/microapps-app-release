@@ -5,7 +5,7 @@
 // next-images
 // const withImages = require('next-images')
 
-const appRoot = '/release/0.0.1';
+const appRoot = '/release/0.0.3';
 
 // eslint-disable-next-line no-undef
 module.exports = {
