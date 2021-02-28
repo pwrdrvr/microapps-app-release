@@ -1,0 +1,9 @@
+{
+  "module": "commons",
+  "compilerOptions": {
+    "moduleResolution": "node",
+      "target": "ES2017", // For NodeJS 8 compat, see https://www.typescriptlang.org/tsconfig#target for more info
+      "paths": 
+        { "node_modules": ["../node_modules/"] }
+    }
+}

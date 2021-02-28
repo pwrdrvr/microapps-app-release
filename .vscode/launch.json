@@ -5,6 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "update-version",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "runtimeVersion": "15.3.0",
+      "env": {
+        "TS_NODE_PROJECT": "./bin/tsconfig.json",
+      },
+      "runtimeArgs": ["-r", "ts-node/register/transpile-only"],
+      "args": ["${workspaceFolder}/bin/versions-update.ts", "--newversion", "0.0.3"]
+    },
+    {
       "type": "node",
       "request": "attach",
       "name": "Attach to npm run debug",
