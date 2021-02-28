@@ -38,19 +38,19 @@ export async function UpdateVersion(): Promise<void> {
     // Put the old files back when succeeded or failed
     for (const fileToModify of filesToModify) {
       const stats = await fs.stat(`${fileToModify.path}.original`);
-      if (!stats.isFile) {
+      if (stats.isFile) {
         // Remove the possibly modified file
-        fs.unlink(fileToModify.path);
+        await fs.unlink(fileToModify.path);
 
         // Move the original file back
-        fs.rename(`${fileToModify.path}.original`, fileToModify.path);
+        await fs.rename(`${fileToModify.path}.original`, fileToModify.path);
       }
     }
   }
 }
 
 function createVersions(version: string): { version: string; alias: string } {
-  return { version, alias: `v${version.replace(/\./g, '_')}` };
+  return { version, alias: `v${version.replaceAll('.', '_')}` };
 }
 
 async function writeNewVersions(
@@ -75,7 +75,7 @@ async function writeNewVersions(
       // The required placeholder is missing
       return false;
     } else {
-      fileText = fileText.replace(placeHolder, requiredVersions[key]);
+      fileText = fileText.replaceAll(placeHolder, requiredVersions[key]);
     }
   }
 
