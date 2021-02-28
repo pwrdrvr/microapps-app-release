@@ -11,7 +11,23 @@ Program.version('1.0.0')
   .option('-l, --leave', 'Leave a copy of the modifed files as .modified')
   .parse(process.argv);
 
-export async function UpdateVersion(): Promise<void> {
+interface IDeployConfig {
+  AppName: string;
+  SemVer: string;
+  DefaultFile: string;
+  StaticAssetsPath: string;
+  LambdaARN: string;
+  AWSAccountID: string;
+  AWSRegion: string;
+  ServerlessNextRouterPath: string;
+}
+
+interface IVersions {
+  version: string;
+  alias?: string;
+}
+
+async function UpdateVersion(): Promise<void> {
   const version = Program.newversion as string;
   const leaveFiles = Program.leave as boolean;
   const versionAndAlias = createVersions(version);
@@ -21,17 +37,41 @@ export async function UpdateVersion(): Promise<void> {
     { path: 'package.json', versions: versionOnly },
     { path: 'deploy.json', versions: versionAndAlias },
     { path: 'next.config.js', versions: versionOnly },
-  ] as { path: string; versions: { version: string; alias?: string } }[];
-
-  console.log('hello:', versionAndAlias);
+  ] as { path: string; versions: IVersions }[];
 
   try {
     // Modify the existing files with the new version
     for (const fileToModify of filesToModify) {
+      console.log(`Patching version (${versionAndAlias.version}) into ${fileToModify.path}`);
       if (!(await writeNewVersions(fileToModify.path, fileToModify.versions, leaveFiles))) {
         console.log(`Failed modifying file: ${fileToModify.path}`);
       }
     }
+
+    // Read in the deploy.json config file for DeployTool
+    const deployConfig = JSON.parse(await fs.readFile('deploy.json', 'utf8')) as IDeployConfig;
+
+    console.log(`Invoking serverless next.js build for ${deployConfig.AppName}/${version}`);
+
+    // Run the serverless next.js build
+    await asyncExec('npx serverless');
+
+    if (deployConfig.ServerlessNextRouterPath !== undefined) {
+      console.log('Copying Serverless Next.js router to build output directory');
+      await fs.copyFile(deployConfig.ServerlessNextRouterPath, './serverless_nextjs');
+    }
+
+    // Docker, build, tag, push to ECR
+    // Note: Need to already have AWS env vars set
+    await publishToECR(deployConfig, versionAndAlias);
+
+    // TODO: Create Lambda version
+
+    // TODO: Publish Lambda version
+
+    // TODO: Create Lambda alias pointing to version
+
+    // TODO: Invoke DeployTool
   } catch (error) {
     console.log(`Caught exception: ${error.message}`);
   } finally {
@@ -49,13 +89,13 @@ export async function UpdateVersion(): Promise<void> {
   }
 }
 
-function createVersions(version: string): { version: string; alias: string } {
+function createVersions(version: string): IVersions {
   return { version, alias: `v${version.replaceAll('.', '_')}` };
 }
 
 async function writeNewVersions(
   path: string,
-  requiredVersions: { version: string; alias?: string },
+  requiredVersions: IVersions,
   leaveFiles: boolean,
 ): Promise<boolean> {
   const stats = await fs.stat(path);
@@ -89,6 +129,26 @@ async function writeNewVersions(
   }
 
   return true;
+}
+
+async function publishToECR(deployConfig: IDeployConfig, versions: IVersions): Promise<void> {
+  const ECR_HOST = `${deployConfig.AWSAccountID}.dkr.ecr.${deployConfig.AWSRegion}.amazonaws.com`;
+  const ECR_REPO = `app-${deployConfig.AppName}`;
+  const IMAGE_TAG = `${ECR_REPO}:${versions.alias}`;
+
+  // Make sure we're logged into ECR for the Docker push
+  console.log('Logging into ECR');
+  await asyncExec(
+    `aws ecr get-login-password --region ${deployConfig.AWSRegion} | docker login --username AWS --password-stdin ${ECR_HOST}`,
+  );
+
+  console.log('Starting Docker build');
+  await asyncExec(`docker build -f Dockerfile -t ${IMAGE_TAG}  .`);
+  await asyncExec(`docker tag ${IMAGE_TAG} ${ECR_HOST}/${IMAGE_TAG}`);
+  await asyncExec(`docker tag ${IMAGE_TAG} ${ECR_HOST}/${ECR_REPO}:latest`);
+  console.log('Starting Docker push to ECR');
+  await asyncExec(`docker push ${ECR_HOST}/${IMAGE_TAG}`);
+  await asyncExec(`docker push ${ECR_HOST}/${ECR_REPO}:latest`);
 }
 
 Promise.all([UpdateVersion()]);

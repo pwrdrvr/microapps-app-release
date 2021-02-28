@@ -6,7 +6,8 @@
     "lib": [
       "esnext"
     ],
-    "paths": 
-      { "node_modules": ["../node_modules/"] }
+    "paths": {
+      "node_modules": ["../node_modules/"]
+    }
   }
 }
