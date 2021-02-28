@@ -8,260 +8,208 @@
 // ReSharper disable InconsistentNaming
 
 export class ApplicationClient {
-  private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-  private baseUrl: string;
-  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-  constructor(
-    baseUrl?: string,
-    http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> },
-  ) {
-    this.http = http ? http : <any>window;
-    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : 'http://localhost:5000';
-  }
-
-  get(): Promise<Application[]> {
-    let url_ = this.baseUrl + '/deployer/Application';
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_ = <RequestInit>{
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processGet(_response);
-    });
-  }
-
-  protected processGet(response: Response): Promise<Application[]> {
-    const status = response.status;
-    let _headers: any = {};
-    if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : <any>window;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:5000";
     }
-    if (status === 200) {
-      return response.text().then((_responseText) => {
-        let result200: any = null;
-        result200 =
-          _responseText === ''
-            ? null
-            : <Application[]>JSON.parse(_responseText, this.jsonParseReviver);
-        return result200;
-      });
-    } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
-        return throwException(
-          'An unexpected server error occurred.',
-          status,
-          _responseText,
-          _headers,
-        );
-      });
+
+    get(): Promise<ApplicationResponse[]> {
+        let url_ = this.baseUrl + "/deployer/Application";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGet(_response);
+        });
     }
-    return Promise.resolve<Application[]>(<any>null);
-  }
 
-  post(appBody: ApplicationBody): Promise<void> {
-    let url_ = this.baseUrl + '/deployer/Application';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(appBody);
-
-    let options_ = <RequestInit>{
-      body: content_,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processPost(_response);
-    });
-  }
-
-  protected processPost(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {};
-    if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    protected processGet(response: Response): Promise<ApplicationResponse[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : <ApplicationResponse[]>JSON.parse(_responseText, this.jsonParseReviver);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ApplicationResponse[]>(<any>null);
     }
-    if (status === 200) {
-      return response.text().then((_responseText) => {
-        return;
-      });
-    } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
-        return throwException(
-          'An unexpected server error occurred.',
-          status,
-          _responseText,
-          _headers,
-        );
-      });
+
+    post(appBody: ApplicationBody): Promise<void> {
+        let url_ = this.baseUrl + "/deployer/Application";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(appBody);
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processPost(_response);
+        });
     }
-    return Promise.resolve<void>(<any>null);
-  }
+
+    protected processPost(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(<any>null);
+    }
 }
 
 export class VersionClient {
-  private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-  private baseUrl: string;
-  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-  constructor(
-    baseUrl?: string,
-    http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> },
-  ) {
-    this.http = http ? http : <any>window;
-    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : 'http://localhost:5000';
-  }
-
-  get(appName: string | null, version: string | null): Promise<void> {
-    let url_ = this.baseUrl + '/deployer/Version/{appName}/{version}';
-    if (appName === undefined || appName === null)
-      throw new Error("The parameter 'appName' must be defined.");
-    url_ = url_.replace('{appName}', encodeURIComponent('' + appName));
-    if (version === undefined || version === null)
-      throw new Error("The parameter 'version' must be defined.");
-    url_ = url_.replace('{version}', encodeURIComponent('' + version));
-    url_ = url_.replace(/[?&]$/, '');
-
-    let options_ = <RequestInit>{
-      method: 'GET',
-      headers: {},
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processGet(_response);
-    });
-  }
-
-  protected processGet(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {};
-    if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : <any>window;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:5000";
     }
-    if (status === 200) {
-      return response.text().then((_responseText) => {
-        return;
-      });
-    } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
-        return throwException(
-          'An unexpected server error occurred.',
-          status,
-          _responseText,
-          _headers,
-        );
-      });
+
+    get(appName: string | null, version: string | null): Promise<void> {
+        let url_ = this.baseUrl + "/deployer/Version/{appName}/{version}";
+        if (appName === undefined || appName === null)
+            throw new Error("The parameter 'appName' must be defined.");
+        url_ = url_.replace("{appName}", encodeURIComponent("" + appName));
+        if (version === undefined || version === null)
+            throw new Error("The parameter 'version' must be defined.");
+        url_ = url_.replace("{version}", encodeURIComponent("" + version));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGet(_response);
+        });
     }
-    return Promise.resolve<void>(<any>null);
-  }
 
-  post(versionBody: VersionBody): Promise<void> {
-    let url_ = this.baseUrl + '/deployer/Version';
-    url_ = url_.replace(/[?&]$/, '');
-
-    const content_ = JSON.stringify(versionBody);
-
-    let options_ = <RequestInit>{
-      body: content_,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processPost(_response);
-    });
-  }
-
-  protected processPost(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {};
-    if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    protected processGet(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(<any>null);
     }
-    if (status === 200) {
-      return response.text().then((_responseText) => {
-        return;
-      });
-    } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
-        return throwException(
-          'An unexpected server error occurred.',
-          status,
-          _responseText,
-          _headers,
-        );
-      });
+
+    post(versionBody: VersionBody): Promise<void> {
+        let url_ = this.baseUrl + "/deployer/Version";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(versionBody);
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processPost(_response);
+        });
     }
-    return Promise.resolve<void>(<any>null);
-  }
+
+    protected processPost(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(<any>null);
+    }
 }
 
-export interface Application {
-  pk?: string | undefined;
-  sk?: string | undefined;
-  appName?: string | undefined;
-  displayName?: string | undefined;
+export interface ApplicationResponse {
+    appName?: string | undefined;
+    displayName?: string | undefined;
 }
 
 export interface ApplicationBody {
-  appName?: string | undefined;
+    appName?: string | undefined;
 }
 
 export interface VersionBody {
-  appName?: string | undefined;
-  semVer?: string | undefined;
-  s3SourceURI?: string | undefined;
-  lambdaARN?: string | undefined;
-  defaultFile?: string | undefined;
+    appName?: string | undefined;
+    semVer?: string | undefined;
+    s3SourceURI?: string | undefined;
+    lambdaARN?: string | undefined;
+    defaultFile?: string | undefined;
 }
 
 export class ApiException extends Error {
-  message: string;
-  status: number;
-  response: string;
-  headers: { [key: string]: any };
-  result: any;
+    message: string;
+    status: number;
+    response: string;
+    headers: { [key: string]: any; };
+    result: any;
 
-  constructor(
-    message: string,
-    status: number,
-    response: string,
-    headers: { [key: string]: any },
-    result: any,
-  ) {
-    super();
+    constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
+        super();
 
-    this.message = message;
-    this.status = status;
-    this.response = response;
-    this.headers = headers;
-    this.result = result;
-  }
+        this.message = message;
+        this.status = status;
+        this.response = response;
+        this.headers = headers;
+        this.result = result;
+    }
 
-  protected isApiException = true;
+    protected isApiException = true;
 
-  static isApiException(obj: any): obj is ApiException {
-    return obj.isApiException === true;
-  }
+    static isApiException(obj: any): obj is ApiException {
+        return obj.isApiException === true;
+    }
 }
 
-function throwException(
-  message: string,
-  status: number,
-  response: string,
-  headers: { [key: string]: any },
-  result?: any,
-): any {
-  if (result !== null && result !== undefined) throw result;
-  else throw new ApiException(message, status, response, headers, null);
+function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): any {
+    if (result !== null && result !== undefined)
+        throw result;
+    else
+        throw new ApiException(message, status, response, headers, null);
 }
