@@ -43,3 +43,11 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 - Publishing updated app HTML
   - Not necessary if updating code (not HTML) of existing version
   - `aws-vault exec [staging-publish-profile] -- make microapps-publish`
+
+## Deploying Using versions-update Tool
+
+```
+.nvm use
+aws-vault exec [profile] -- /bin/bash -l
+./bin/versions-update.ts --newversion 0.0.8
+```
