@@ -7,5 +7,5 @@
   "AWSAccountID": "239161478713",
   "AWSRegion": "us-east-2",
   "ServerlessNextRouterPath": "../serverless-nextjs-router/dist/index.js",
-  "DeployToolCommand": "dotnet run --project ~/pwrdrvr/microapps-cdk/src/PwrDrvr.MicroApps.DeployTool/"
+  "DeployToolCommand": "dotnet run --project ~/pwrdrvr/microapps-core/src/PwrDrvr.MicroApps.DeployTool/"
 }
