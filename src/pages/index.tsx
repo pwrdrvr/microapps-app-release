@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { ApplicationClient, ApplicationResponse } from '../clients/DeployerClient';
-import fetch from 'node-fetch';
 import { NextPageContext } from 'next';
 
 interface IPageProps {
