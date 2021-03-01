@@ -12,7 +12,19 @@ const staticList = Immutable.List(generateRandomList());
 
 export default class GridExample extends React.PureComponent {
   static contextTypes = {
-    list: PropTypes.instanceOf(Immutable.List).isRequired,
+    list: Immutable.List,
+  };
+
+  public state: {
+    columnCount: number;
+    height: number;
+    overscanColumnCount: number;
+    overscanRowCount: number;
+    rowHeight: number;
+    rowCount: number;
+    scrollToColumn?: number;
+    scrollToRow?: number;
+    useDynamicRowHeight: boolean;
   };
 
   constructor(props, context) {
@@ -59,7 +71,7 @@ export default class GridExample extends React.PureComponent {
     } = this.state;
 
     return (
-      <ContentBox>
+      <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
         <ContentBoxHeader
           text="Grid"
           sourceLink="https://github.com/bvaughn/react-virtualized/blob/master/source/Grid/Grid.example.js"
@@ -78,7 +90,7 @@ export default class GridExample extends React.PureComponent {
               aria-label="Use dynamic row height?"
               className={styles.checkbox}
               type="checkbox"
-              value={useDynamicRowHeight}
+              value={useDynamicRowHeight ? 'true' : 'false'}
               onChange={(event) => this._updateUseDynamicRowHeights(event.target.checked)}
             />
             Use dynamic row height?
@@ -176,7 +188,7 @@ export default class GridExample extends React.PureComponent {
 
   _cellRenderer({ columnIndex, key, rowIndex, style }) {
     if (columnIndex === 0) {
-      return this._renderLeftSideCell({ columnIndex, key, rowIndex, style });
+      return this._renderLeftSideCell({ key, rowIndex, style });
     } else {
       return this._renderBodyCell({ columnIndex, key, rowIndex, style });
     }

@@ -1,3 +1,6 @@
+.ContentBox {
+  margin-top: 10px;
+}
 .GridRow {
   margin-top: 15px;
   display: flex;
