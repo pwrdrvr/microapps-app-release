@@ -16,6 +16,7 @@
       "env": {
         "TS_NODE_PROJECT": "./bin/tsconfig.json",
       },
+      "envFile": "${workspaceFolder}/.env",
       "runtimeArgs": ["-r", "ts-node/register/transpile-only"],
       "args": ["${workspaceFolder}/bin/versions-update.ts", "--newversion", "0.0.4", "--leave"]
     },
