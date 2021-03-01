@@ -2,14 +2,13 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { ApplicationClient, ApplicationResponse } from '../clients/DeployerClient';
 import fetch from 'node-fetch';
+import { NextPageContext } from 'next';
 
 interface IPageProps {
-  props: {
-    apps: ApplicationResponse[];
-  };
+  apps: ApplicationResponse[];
 }
 
-export default function Home(context): JSX.Element {
+export default function Home(props: IPageProps): JSX.Element {
   return (
     <div className={styles.container}>
       <Head>
@@ -23,7 +22,7 @@ export default function Home(context): JSX.Element {
         <section>
           <h2>Applications</h2>
           <ul>
-            {context.props?.apps.map(({ appName, displayName }) => (
+            {props.apps.map(({ appName, displayName }) => (
               <li key={appName}>
                 <a>{displayName}</a>
               </li>
@@ -36,7 +35,7 @@ export default function Home(context): JSX.Element {
 }
 
 // This gets called on every request
-Home.getInitialProps = async function (): Promise<IPageProps> {
+export async function getServerSideProps(ctx: NextPageContext): Promise<{ props: IPageProps }> {
   try {
     const client = new ApplicationClient(process.env.DEPLOYER_BASE_URL ?? undefined, { fetch });
 
@@ -50,4 +49,4 @@ Home.getInitialProps = async function (): Promise<IPageProps> {
     console.log(`Error getting apps: ${error.message}}`);
     return { props: { apps: [{ appName: 'cat', displayName: 'dog' }] } };
   }
-};
+}
