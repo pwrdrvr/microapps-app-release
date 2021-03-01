@@ -41,7 +41,7 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
 
     const apps = await client.get();
 
-    console.log(`Got apps: ${apps}`);
+    console.log(`Got apps:`, apps);
 
     // Pass data to the page via props
     return { props: { apps } };
