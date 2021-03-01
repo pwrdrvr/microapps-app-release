@@ -132,7 +132,9 @@ async function UpdateVersion(): Promise<void> {
 
     // Invoke DeployTool
     console.log('Invoking DeployTool to deploy MicroApp version');
-    await asyncExec(deployConfig.DeployToolCommand);
+    const { stdout, stderr } = await asyncExec(deployConfig.DeployToolCommand);
+    console.log(stdout);
+    console.log(stderr);
   } catch (error) {
     console.log(`Caught exception: ${error.message}`);
   } finally {
