@@ -18,7 +18,7 @@
       },
       "envFile": "${workspaceFolder}/.env",
       "runtimeArgs": ["-r", "ts-node/register/transpile-only"],
-      "args": ["${workspaceFolder}/bin/versions-update.ts", "--newversion", "0.0.4", "--leave"]
+      "args": ["${workspaceFolder}/bin/versions-update.ts", "--newversion", "0.0.6", "--leave"]
     },
     {
       "type": "node",

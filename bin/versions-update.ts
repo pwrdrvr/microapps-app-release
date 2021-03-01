@@ -115,17 +115,17 @@ async function UpdateVersion(): Promise<void> {
 
     console.log(`Invoking serverless next.js build for ${deployConfig.AppName}/${version}`);
 
-    // // Run the serverless next.js build
-    // await asyncExec('npx serverless');
+    // Run the serverless next.js build
+    await asyncExec('npx serverless');
 
-    // if (deployConfig.ServerlessNextRouterPath !== undefined) {
-    //   console.log('Copying Serverless Next.js router to build output directory');
-    //   await fs.copyFile(deployConfig.ServerlessNextRouterPath, './.serverless_nextjs/');
-    // }
+    if (deployConfig.ServerlessNextRouterPath !== undefined) {
+      console.log('Copying Serverless Next.js router to build output directory');
+      await fs.copyFile(deployConfig.ServerlessNextRouterPath, './.serverless_nextjs/index.js');
+    }
 
-    // // Docker, build, tag, push to ECR
-    // // Note: Need to already have AWS env vars set
-    // await publishToECR(deployConfig, versionAndAlias);
+    // Docker, build, tag, push to ECR
+    // Note: Need to already have AWS env vars set
+    await publishToECR(deployConfig, versionAndAlias);
 
     // Update the Lambda function
     await deployToLambda(deployConfig, versionAndAlias);
@@ -215,7 +215,7 @@ async function publishToECR(deployConfig: IDeployConfig, versions: IVersions): P
 async function deployToLambda(deployConfig: IDeployConfig, versions: IVersions): Promise<void> {
   const ECR_HOST = `${deployConfig.AWSAccountID}.dkr.ecr.${deployConfig.AWSRegion}.amazonaws.com`;
   const ECR_REPO = `app-${deployConfig.AppName}`;
-  const IMAGE_TAG = `${ECR_REPO}:${versions.alias}`;
+  const IMAGE_TAG = `${ECR_REPO}:${versions.version}`;
   const IMAGE_URI = `${ECR_HOST}/${IMAGE_TAG}`;
 
   // Create Lambda version
