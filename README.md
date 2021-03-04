@@ -51,3 +51,13 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 aws-vault exec [profile] -- /bin/bash -l
 ./bin/versions-update.ts --newversion 0.0.8
 ```
+
+# Login to GitHub NPM
+
+```
+npm login --scope=@pwrdrvr --registry=https://npm.pkg.github.com
+
+# Supply: github username
+# GitHub Personal Access Token
+# Public NPM Email
+```

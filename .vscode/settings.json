@@ -1,7 +1,7 @@
 {
   "files.exclude": {
     "cdk.out": true,
-    "**/package-lock.json": true
+    //"**/package-lock.json": true
   },
   "editor.formatOnSave": true,
   "editor.insertSpaces": true,

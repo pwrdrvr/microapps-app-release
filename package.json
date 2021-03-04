@@ -1,5 +1,5 @@
 {
-  "name": "release",
+  "name": "@pwrdrvr/microapps-app-release",
   "version": "0.0.0",
   "private": true,
   "proxy": "https://4jssqkktsg.execute-api.us-east-2.amazonaws.com",
@@ -12,6 +12,7 @@
     "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix"
   },
   "dependencies": {
+    "@pwrdrvr/microapps-datalib": "^0.9.0",
     "clsx": "^1.1.1",
     "immutable": "^4.0.0-rc.12",
     "next": "10.0.7",
