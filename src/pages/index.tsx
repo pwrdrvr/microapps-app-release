@@ -1,10 +1,16 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { ApplicationClient, ApplicationResponse } from '../clients/DeployerClient';
 import { NextPageContext } from 'next';
+import Manager, { Application } from '@pwrdrvr/microapps-datalib';
+import * as dynamodb from '@aws-sdk/client-dynamodb';
+
+interface IApplication {
+  AppName: string;
+  DisplayName: string;
+}
 
 interface IPageProps {
-  apps: ApplicationResponse[];
+  apps: IApplication[];
 }
 
 export default function Home(props: IPageProps): JSX.Element {
@@ -21,9 +27,9 @@ export default function Home(props: IPageProps): JSX.Element {
         <section>
           <h2>Applications</h2>
           <ul>
-            {props.apps.map(({ appName, displayName }) => (
-              <li key={appName}>
-                <a>{displayName}</a>
+            {props.apps.map(({ AppName, DisplayName }) => (
+              <li key={AppName}>
+                <a>{DisplayName}</a>
               </li>
             ))}
           </ul>
@@ -33,12 +39,22 @@ export default function Home(props: IPageProps): JSX.Element {
   );
 }
 
+let dbclient: dynamodb.DynamoDB;
+let manager: Manager;
+
 // This gets called on every request
 export async function getServerSideProps(ctx: NextPageContext): Promise<{ props: IPageProps }> {
   try {
-    const client = new ApplicationClient(process.env.DEPLOYER_BASE_URL ?? undefined, { fetch });
+    if (manager === undefined) {
+      dbclient = new dynamodb.DynamoDB({});
+      manager = new Manager(dbclient);
+    }
+    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
 
-    const apps = await client.get();
+    const apps = [] as IApplication[];
+    for (const app of appsRaw) {
+      apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
+    }
 
     console.log(`Got apps:`, apps);
 
@@ -46,6 +62,6 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     return { props: { apps } };
   } catch (error) {
     console.log(`Error getting apps: ${error.message}}`);
-    return { props: { apps: [{ appName: 'cat', displayName: 'dog' }] } };
+    return { props: { apps: [{ AppName: 'cat', DisplayName: 'dog' }] } };
   }
 }

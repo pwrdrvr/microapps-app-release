@@ -12,7 +12,7 @@
     "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix"
   },
   "dependencies": {
-    "@pwrdrvr/microapps-datalib": "^0.9.0",
+    "@pwrdrvr/microapps-datalib": "^0.9.5",
     "clsx": "^1.1.1",
     "immutable": "^4.0.0-rc.12",
     "next": "10.0.7",
