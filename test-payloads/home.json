@@ -1,0 +1,44 @@
+{
+  "version": "2.0",
+  "routeKey": "ANY /release/0.0.13",
+  "rawPath": "/release/0.0.13",
+  "rawQueryString": "",
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-US,en;q=0.9",
+    "content-length": "0",
+    "host": "apps.pwrdrvr.com",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 Edg/88.0.705.68",
+    "via": "2.0 edf4d9eb8e5d775f8b1cd6b4e97dd4c6.cloudfront.net (CloudFront)",
+    "x-amz-cf-id": "OQ90cBE6PHgp5ZhZOq9kyqLqc0VLF2YEWECm2GvFtzWWROCtSJigWA==",
+    "x-amzn-trace-id": "Root=1-6033064f-37056f62012474e661860953",
+    "x-forwarded-for": "68.192.58.143, 52.46.46.148",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "requestContext": {
+    "accountId": "239161478713",
+    "apiId": "4jssqkktsg",
+    "domainName": "apps.pwrdrvr.com",
+    "domainPrefix": "apps",
+    "http": {
+      "method": "GET",
+      "path": "/release/0.0.13",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "68.192.58.143",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 Edg/88.0.705.68"
+    },
+    "requestId": "bH3sggjcCYcEPxg=",
+    "routeKey": "ANY /release/0.0.13",
+    "stage": "$default",
+    "time": "22/Feb/2021:01:18:07 +0000",
+    "timeEpoch": 1613956687917
+  },
+  "isBase64Encoded": false
+}

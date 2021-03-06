@@ -69,3 +69,13 @@ aws-update-alias-svc: ## Update the lambda function to use latest image
 
 microapps-publish: ## publishes a new version of the microapp OR updates HTML
 	@dotnet run --project ~/pwrdrvr/microapps-cdk/src/PwrDrvr.MicroApps.DeployTool/
+
+
+#
+# Docker API Gateway Tests
+#
+
+curl-home: ## Send test request to local app
+	@curl -v -XPOST -H "Content-Type: application/json" \
+		http://localhost:9000/2015-03-31/functions/function/invocations \
+		--data-binary "@test-payloads/home.json"

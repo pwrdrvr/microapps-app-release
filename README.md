@@ -49,7 +49,7 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 ```
 .nvm use
 aws-vault exec [profile] -- /bin/bash -l
-./bin/versions-update.ts --newversion 0.0.8
+./bin/versions-update.ts --newversion 0.0.10
 ```
 
 # Login to GitHub NPM
