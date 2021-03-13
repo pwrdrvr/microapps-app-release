@@ -1,5 +1,4 @@
-import Immutable, { List } from 'immutable';
-import PropTypes from 'prop-types';
+import Immutable from 'immutable';
 import * as React from 'react';
 import { ContentBox, ContentBoxHeader, ContentBoxParagraph } from '../../components/ContentBox';
 import { LabeledInput, InputRow } from '../../components/LabeledInput';

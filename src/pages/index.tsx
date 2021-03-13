@@ -3,6 +3,7 @@ import styles from '../styles/Home.module.css';
 import { NextPageContext } from 'next';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
+import { createLogger } from '../utils/logger';
 
 interface IApplication {
   AppName: string;
@@ -44,6 +45,8 @@ let manager: Manager;
 
 // This gets called on every request
 export async function getServerSideProps(ctx: NextPageContext): Promise<{ props: IPageProps }> {
+  const log = createLogger('pages:index', ctx.req.url);
+
   try {
     if (manager === undefined) {
       dbclient = new dynamodb.DynamoDB({});
@@ -56,12 +59,13 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
     }
 
-    console.log(`Got apps:`, apps);
+    log.info(`got apps`, apps);
 
     // Pass data to the page via props
     return { props: { apps } };
   } catch (error) {
-    console.log(`Error getting apps: ${error.message}}`);
+    log.error(`error getting apps: ${error.message}}`);
+    log.error(error);
     return { props: { apps: [{ AppName: 'cat', DisplayName: 'dog' }] } };
   }
 }
