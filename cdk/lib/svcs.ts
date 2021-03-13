@@ -25,6 +25,7 @@ export class SvcsStack extends cdk.Stack {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
         NODE_ENV: 'production',
       },
+      memorySize: 1024,
       timeout: cdk.Duration.seconds(15),
     });
 

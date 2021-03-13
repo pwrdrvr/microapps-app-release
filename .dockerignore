@@ -1,4 +1,5 @@
-**/.serverless_nextjs/assets/*
+.serverless_nextjs/assets/*
+.serverless_nextjs/image-lambda/node_modules/*
 README.md
 .serverless
 .next

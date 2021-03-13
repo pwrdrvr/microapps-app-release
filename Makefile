@@ -26,6 +26,12 @@ sam-debug: ## Start App w/SAM Local for VS Code Debugging
 	cp config.json .serverless_nextjs/
 	sam local start-api --debug-port 5859 --warm-containers EAGER
 
+sam-run: ## Start App w/SAM (no debug) for testing of HTTP request routing
+	-rm .serverless_nextjs/config.json
+	cp config.json .serverless_nextjs/
+	sam local start-api
+
+
 #
 # Lambda ECR Publishing
 #
