@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { NextPageContext } from 'next';
 import { Grid, AutoSizer } from 'react-virtualized';
@@ -7,6 +6,7 @@ import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
 import clsx from 'clsx';
+import { ContentBox } from '../components/ContentBox';
 
 interface IApplication {
   AppName: string;
@@ -48,39 +48,25 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
     const { columnCount, height, rowHeight, rowCount } = this.state;
 
     return (
-      <div className={styles.container}>
-        <Head>
-          <title>Release Console</title>
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-
-        <main className={styles.main}>
-          <h1 className={styles.title}>Release Console</h1>
-
-          <section>
-            <h2>Applications</h2>
-            <div>
-              <AutoSizer disableHeight>
-                {({ width }) => (
-                  <Grid
-                    cellRenderer={this._cellRenderer}
-                    className={styles.BodyGrid}
-                    columnWidth={this._getColumnWidth}
-                    columnCount={columnCount}
-                    height={height}
-                    noContentRenderer={this._noContentRenderer}
-                    overscanColumnCount={0}
-                    overscanRowCount={10}
-                    rowHeight={rowHeight}
-                    rowCount={rowCount}
-                    width={width}
-                  />
-                )}
-              </AutoSizer>
-            </div>
-          </section>
-        </main>
-      </div>
+      <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
+        <AutoSizer disableHeight>
+          {({ width }) => (
+            <Grid
+              cellRenderer={this._cellRenderer}
+              className={styles.BodyGrid}
+              columnWidth={this._getColumnWidth}
+              columnCount={columnCount}
+              height={height}
+              noContentRenderer={this._noContentRenderer}
+              overscanColumnCount={0}
+              overscanRowCount={10}
+              rowHeight={rowHeight}
+              rowCount={rowCount}
+              width={width}
+            />
+          )}
+        </AutoSizer>
+      </ContentBox>
     );
   }
 
@@ -107,9 +93,9 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
       case 0:
         return 50;
       case 1:
-        return 100;
+        return 200;
       case 2:
-        return 300;
+        return 400;
       default:
         return 80;
     }
