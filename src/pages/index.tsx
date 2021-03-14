@@ -24,8 +24,8 @@ interface IPageState {
 }
 
 export default class Home extends React.PureComponent<IPageProps, IPageState> {
-  constructor(props: IPageProps, context: NextPageContext) {
-    super(props, context);
+  constructor(props: IPageProps) {
+    super(props);
 
     this.state = {
       columnCount: 3,
