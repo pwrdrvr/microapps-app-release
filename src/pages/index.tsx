@@ -1,16 +1,18 @@
 import styles from '../styles/Home.module.css';
 import { NextPageContext } from 'next';
-import Manager, { Application, IVersionsAndRules } from '@pwrdrvr/microapps-datalib';
+import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
 import AppGrid, { IApplication } from '../components/AppGrid';
 import { ContentBox } from '../components/ContentBox';
 import VersionGrid, { IVersion } from '../components/VersionGrid';
+import RulesGrid, { IRules } from '../components/RulesGrid';
 
 interface IPageProps {
   apps: IApplication[];
   versions: IVersion[];
+  rules: IRules;
 }
 
 interface IPageState {
@@ -20,6 +22,7 @@ interface IPageState {
   rowCount: number;
   apps: IApplication[];
   versions: IVersion[];
+  rules: IRules;
 }
 
 export default class Home extends React.PureComponent<IPageProps, IPageState> {
@@ -33,6 +36,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
       rowCount: this.props.apps.length,
       apps: this.props.apps,
       versions: this.props.versions,
+      rules: this.props.rules,
     };
   }
 
@@ -41,6 +45,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
       <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
         <AppGrid apps={this.props.apps}></AppGrid>
         <VersionGrid vers={this.props.versions}></VersionGrid>
+        <RulesGrid rules={this.props.rules}></RulesGrid>
       </ContentBox>
     );
   }
@@ -82,8 +87,25 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     }
     log.info(`got versions`, versions);
 
+    // Get the rules
+    const rules = {} as IRules;
+    rules.AppName = versionsRaw.Rules.AppName;
+    rules.RuleSet = [];
+    for (const key of Object.keys(versionsRaw.Rules.RuleSet)) {
+      const rule = versionsRaw.Rules.RuleSet[key];
+      rules.RuleSet.push({
+        key,
+        rule: {
+          AttributeName: rule.AttributeName ?? '',
+          AttributeValue: rule.AttributeValue ?? '',
+          SemVer: rule.SemVer,
+        },
+      });
+    }
+    log.info(`got rules`, versions);
+
     // Pass data to the page via props
-    return { props: { apps, versions } };
+    return { props: { apps, versions, rules } };
   } catch (error) {
     log.error(`error getting apps: ${error.message}}`);
     log.error(error);
@@ -100,6 +122,12 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
             Type: 'next.js',
           },
         ],
+        rules: {
+          AppName: 'cat',
+          RuleSet: [
+            { key: 'default', rule: { SemVer: '0.0.0', AttributeName: '', AttributeValue: '' } },
+          ],
+        },
       },
     };
   }
