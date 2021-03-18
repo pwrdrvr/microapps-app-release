@@ -1,18 +1,16 @@
 import styles from '../styles/Home.module.css';
 import { NextPageContext } from 'next';
-import Manager, { Application } from '@pwrdrvr/microapps-datalib';
+import Manager, { Application, IVersionsAndRules } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
-import AppGrid from '../components/AppGrid';
-
-interface IApplication {
-  AppName: string;
-  DisplayName: string;
-}
+import AppGrid, { IApplication } from '../components/AppGrid';
+import { ContentBox } from '../components/ContentBox';
+import VersionGrid, { IVersion } from '../components/VersionGrid';
 
 interface IPageProps {
   apps: IApplication[];
+  versions: IVersion[];
 }
 
 interface IPageState {
@@ -21,6 +19,7 @@ interface IPageState {
   rowHeight: number;
   rowCount: number;
   apps: IApplication[];
+  versions: IVersion[];
 }
 
 export default class Home extends React.PureComponent<IPageProps, IPageState> {
@@ -33,11 +32,17 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
       rowHeight: 40,
       rowCount: this.props.apps.length,
       apps: this.props.apps,
+      versions: this.props.versions,
     };
   }
 
   render(): JSX.Element {
-    return <AppGrid apps={this.props.apps}></AppGrid>;
+    return (
+      <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
+        <AppGrid apps={this.props.apps}></AppGrid>
+        <VersionGrid vers={this.props.versions}></VersionGrid>
+      </ContentBox>
+    );
   }
 }
 
@@ -53,20 +58,49 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
       dbclient = new dynamodb.DynamoDB({});
       manager = new Manager(dbclient);
     }
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
 
+    // Get the apps
+    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
     }
-
     log.info(`got apps`, apps);
 
+    // Get the versions
+    const versionsRaw = await manager.GetVersionsAndRules('release');
+    const versions = [] as IVersion[];
+    for (const version of versionsRaw.Versions) {
+      versions.push({
+        AppName: version.AppName,
+        SemVer: version.SemVer,
+        Type: version.Type,
+        Status: version.Status,
+        //DefaultFile: version.DefaultFile,
+        IntegrationID: version.IntegrationID,
+      });
+    }
+    log.info(`got versions`, versions);
+
     // Pass data to the page via props
-    return { props: { apps } };
+    return { props: { apps, versions } };
   } catch (error) {
     log.error(`error getting apps: ${error.message}}`);
     log.error(error);
-    return { props: { apps: [{ AppName: 'cat', DisplayName: 'dog' }] } };
+    return {
+      props: {
+        apps: [{ AppName: 'cat', DisplayName: 'dog' }],
+        versions: [
+          {
+            AppName: 'cat',
+            SemVer: '0.0.0',
+            DefaultFile: 'index.html',
+            Status: 'done?',
+            IntegrationID: 'none',
+            Type: 'next.js',
+          },
+        ],
+      },
+    };
   }
 }

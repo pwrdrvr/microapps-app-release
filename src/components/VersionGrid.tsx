@@ -4,13 +4,17 @@ import React from 'react';
 import clsx from 'clsx';
 import { ContentBox } from '../components/ContentBox';
 
-export interface IApplication {
+export interface IVersion {
   AppName: string;
-  DisplayName: string;
+  SemVer: string;
+  Type: string;
+  Status: string;
+  DefaultFile?: string;
+  IntegrationID: string;
 }
 
 interface IPageProps {
-  apps: IApplication[];
+  vers: IVersion[];
 }
 
 interface IPageState {
@@ -18,10 +22,10 @@ interface IPageState {
   height: number;
   rowHeight: number;
   rowCount: number;
-  apps: IApplication[];
+  vers: IVersion[];
 }
 
-export default class AppGrid extends React.PureComponent<IPageProps, IPageState> {
+export default class VersionGrid extends React.PureComponent<IPageProps, IPageState> {
   constructor(props: IPageProps) {
     super(props);
 
@@ -29,8 +33,8 @@ export default class AppGrid extends React.PureComponent<IPageProps, IPageState>
       columnCount: 3,
       height: 300,
       rowHeight: 40,
-      rowCount: this.props.apps.length,
-      apps: this.props.apps,
+      rowCount: this.props.vers.length,
+      vers: this.props.vers,
     };
 
     this._cellRenderer = this._cellRenderer.bind(this);
@@ -97,10 +101,10 @@ export default class AppGrid extends React.PureComponent<IPageProps, IPageState>
     }
   }
 
-  _getDatum(index: number): IApplication {
-    const { apps } = this.state;
+  _getDatum(index: number): IVersion {
+    const { vers } = this.state;
 
-    return apps[index];
+    return vers[index];
   }
 
   _getRowClassName(row: number): string {
@@ -137,7 +141,7 @@ export default class AppGrid extends React.PureComponent<IPageProps, IPageState>
         content = datum.AppName;
         break;
       case 2:
-        content = datum.DisplayName;
+        content = datum.SemVer;
         break;
       default:
         content = `r:${rowIndex}, c:${columnIndex}`;
@@ -173,7 +177,7 @@ export default class AppGrid extends React.PureComponent<IPageProps, IPageState>
     // Since Grid caches and re-uses them, they aren't safe to modify.
     style = {
       ...style,
-      backgroundColor: 'blue',
+      backgroundColor: 'green',
     };
 
     return (
