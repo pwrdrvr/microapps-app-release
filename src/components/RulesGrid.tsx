@@ -1,8 +1,7 @@
 import styles from '../styles/AppGrid.module.css';
-import { Grid, AutoSizer } from 'react-virtualized';
+import { Grid } from 'react-virtualized';
 import React from 'react';
 import clsx from 'clsx';
-import { ContentBox } from '../components/ContentBox';
 import { IRule } from '@pwrdrvr/microapps-datalib/dist/models/rules';
 
 interface IFlatRule {
