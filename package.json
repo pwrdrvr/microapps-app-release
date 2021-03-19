@@ -21,7 +21,9 @@
     "prop-types": "^15.7.2",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-virtualized": "^9.22.3"
+    "react-virtualized": "^9.22.3",
+    "react-virtualized-auto-sizer": "^1.0.5",
+    "react-window": "^1.8.6"
   },
   "devDependencies": {
     "@pwrdrvr/microapps-publish": "^0.9.3",
@@ -29,7 +31,10 @@
     "@types/lambda-log": "^2.2.0",
     "@types/node": "^14.14.31",
     "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
     "@types/react-virtualized": "^9.21.11",
+    "@types/react-virtualized-auto-sizer": "^1.0.0",
+    "@types/react-window": "^1.8.2",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
     "commander": "^4.1.1",
