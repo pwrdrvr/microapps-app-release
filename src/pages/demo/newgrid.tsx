@@ -12,9 +12,20 @@ const Row = ({ index, style }) => (
 const Example = () => (
   <AutoSizer>
     {({ height, width }) => (
-      <List className={styles.List} height={height} itemCount={1000} itemSize={35} width={width}>
-        {Row}
-      </List>
+      <div style={{ flexDirection: 'column' }}>
+        <List className={styles.List} height={35} itemCount={1} itemSize={35} width={width}>
+          {Row}
+        </List>
+        <List
+          className={styles.List}
+          height={height - 25}
+          itemCount={1000}
+          itemSize={35}
+          width={width}
+        >
+          {Row}
+        </List>
+      </div>
     )}
   </AutoSizer>
 );
