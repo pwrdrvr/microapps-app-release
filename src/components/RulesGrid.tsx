@@ -17,11 +17,12 @@ export interface IRules {
 
 interface IPageProps {
   rules: IRules;
+  height: number;
+  width: number;
 }
 
 interface IPageState {
   columnCount: number;
-  height: number;
   rowHeight: number;
   rowCount: number;
   rules: IRules;
@@ -33,7 +34,6 @@ export default class RulesGrid extends React.PureComponent<IPageProps, IPageStat
 
     this.state = {
       columnCount: 5,
-      height: 300,
       rowHeight: 40,
       rowCount: this.props.rules.RuleSet.length,
       rules: this.props.rules,
@@ -47,28 +47,22 @@ export default class RulesGrid extends React.PureComponent<IPageProps, IPageStat
   }
 
   render(): JSX.Element {
-    const { columnCount, height, rowHeight, rowCount } = this.state;
+    const { columnCount, rowHeight, rowCount } = this.state;
 
     return (
-      <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
-        <AutoSizer disableHeight>
-          {({ width }) => (
-            <Grid
-              cellRenderer={this._cellRenderer}
-              className={styles.BodyGrid}
-              columnWidth={this._getColumnWidth}
-              columnCount={columnCount}
-              height={height}
-              noContentRenderer={this._noContentRenderer}
-              overscanColumnCount={0}
-              overscanRowCount={10}
-              rowHeight={rowHeight}
-              rowCount={rowCount}
-              width={width}
-            />
-          )}
-        </AutoSizer>
-      </ContentBox>
+      <Grid
+        cellRenderer={this._cellRenderer}
+        className={styles.BodyGrid}
+        columnWidth={this._getColumnWidth}
+        columnCount={columnCount}
+        height={this.props.height}
+        noContentRenderer={this._noContentRenderer}
+        overscanColumnCount={0}
+        overscanRowCount={10}
+        rowHeight={rowHeight}
+        rowCount={rowCount}
+        width={this.props.width}
+      />
     );
   }
 

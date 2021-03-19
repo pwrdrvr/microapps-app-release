@@ -8,6 +8,7 @@ import AppGrid, { IApplication } from '../components/AppGrid';
 import { ContentBox } from '../components/ContentBox';
 import VersionGrid, { IVersion } from '../components/VersionGrid';
 import RulesGrid, { IRules } from '../components/RulesGrid';
+import { AutoSizer } from 'react-virtualized';
 
 interface IPageProps {
   apps: IApplication[];
@@ -16,10 +17,6 @@ interface IPageProps {
 }
 
 interface IPageState {
-  columnCount: number;
-  height: number;
-  rowHeight: number;
-  rowCount: number;
   apps: IApplication[];
   versions: IVersion[];
   rules: IRules;
@@ -30,10 +27,6 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
     super(props);
 
     this.state = {
-      columnCount: 3,
-      height: 300,
-      rowHeight: 40,
-      rowCount: this.props.apps.length,
       apps: this.props.apps,
       versions: this.props.versions,
       rules: this.props.rules,
@@ -42,11 +35,37 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
 
   render(): JSX.Element {
     return (
-      <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
-        <AppGrid apps={this.props.apps}></AppGrid>
-        <VersionGrid vers={this.props.versions}></VersionGrid>
-        <RulesGrid rules={this.props.rules}></RulesGrid>
-      </ContentBox>
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+        }}
+      >
+        <div style={{ flex: '1 0 auto' }}>
+          <AutoSizer>
+            {({ height, width }) => (
+              <AppGrid apps={this.props.apps} height={height} width={width}></AppGrid>
+            )}
+          </AutoSizer>
+        </div>
+        <div style={{ flex: '1 0 auto' }}>
+          <AutoSizer>
+            {({ height, width }) => (
+              <VersionGrid vers={this.props.versions} height={height} width={width}></VersionGrid>
+            )}
+          </AutoSizer>
+        </div>
+        <div style={{ flex: '1 0 auto' }}>
+          <AutoSizer>
+            {({ height, width }) => (
+              <RulesGrid rules={this.props.rules} height={height} width={width}></RulesGrid>
+            )}
+          </AutoSizer>
+        </div>
+      </div>
     );
   }
 }

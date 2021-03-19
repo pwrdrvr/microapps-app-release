@@ -1,8 +1,7 @@
 import styles from '../styles/AppGrid.module.css';
-import { Grid, AutoSizer } from 'react-virtualized';
+import { Grid } from 'react-virtualized';
 import React from 'react';
 import clsx from 'clsx';
-import { ContentBox } from '../components/ContentBox';
 
 export interface IVersion {
   AppName: string;
@@ -15,11 +14,12 @@ export interface IVersion {
 
 interface IPageProps {
   vers: IVersion[];
+  height: number;
+  width: number;
 }
 
 interface IPageState {
   columnCount: number;
-  height: number;
   rowHeight: number;
   rowCount: number;
   vers: IVersion[];
@@ -31,7 +31,6 @@ export default class VersionGrid extends React.PureComponent<IPageProps, IPageSt
 
     this.state = {
       columnCount: 3,
-      height: 300,
       rowHeight: 40,
       rowCount: this.props.vers.length,
       vers: this.props.vers,
@@ -45,28 +44,22 @@ export default class VersionGrid extends React.PureComponent<IPageProps, IPageSt
   }
 
   render(): JSX.Element {
-    const { columnCount, height, rowHeight, rowCount } = this.state;
+    const { columnCount, rowHeight, rowCount } = this.state;
 
     return (
-      <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
-        <AutoSizer disableHeight>
-          {({ width }) => (
-            <Grid
-              cellRenderer={this._cellRenderer}
-              className={styles.BodyGrid}
-              columnWidth={this._getColumnWidth}
-              columnCount={columnCount}
-              height={height}
-              noContentRenderer={this._noContentRenderer}
-              overscanColumnCount={0}
-              overscanRowCount={10}
-              rowHeight={rowHeight}
-              rowCount={rowCount}
-              width={width}
-            />
-          )}
-        </AutoSizer>
-      </ContentBox>
+      <Grid
+        cellRenderer={this._cellRenderer}
+        className={styles.BodyGrid}
+        columnWidth={this._getColumnWidth}
+        columnCount={columnCount}
+        height={this.props.height}
+        noContentRenderer={this._noContentRenderer}
+        overscanColumnCount={0}
+        overscanRowCount={10}
+        rowHeight={rowHeight}
+        rowCount={rowCount}
+        width={this.props.width}
+      ></Grid>
     );
   }
 
