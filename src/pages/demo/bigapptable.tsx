@@ -31,7 +31,7 @@ let manager: Manager;
 
 // This gets called on every request
 export async function getServerSideProps(ctx: NextPageContext): Promise<{ props: IPageProps }> {
-  const log = createLogger('pages:index', ctx.req.url);
+  const log = createLogger('pages:index', ctx?.req?.url);
 
   try {
     if (manager === undefined) {

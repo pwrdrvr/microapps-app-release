@@ -1,11 +1,9 @@
 import Immutable from 'immutable';
 import * as React from 'react';
-import { ContentBox, ContentBoxHeader, ContentBoxParagraph } from '../../components/ContentBox';
-import { LabeledInput, InputRow } from '../../components/LabeledInput';
 import { Grid, AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import styles from '../../styles/Grid.module.css';
-import { generateRandomList } from '../../utils/randomList';
+import { generateRandomList, IRandomListElement } from '../../utils/randomList';
 
 const staticList = Immutable.List(generateRandomList());
 
@@ -13,7 +11,6 @@ export default class GridExample extends React.PureComponent {
   static contextTypes = {
     list: Immutable.List,
   };
-
   public state: {
     columnCount: number;
     height: number;
@@ -26,7 +23,7 @@ export default class GridExample extends React.PureComponent {
     useDynamicRowHeight: boolean;
   };
 
-  constructor(props, context) {
+  constructor(props: never, context: never) {
     super(props, context);
 
     this.context.list = staticList;
@@ -56,10 +53,9 @@ export default class GridExample extends React.PureComponent {
     this._renderLeftSideCell = this._renderLeftSideCell.bind(this);
   }
 
-  render() {
+  render(): JSX.Element {
     const {
       columnCount,
-      height,
       overscanColumnCount,
       overscanRowCount,
       rowHeight,
@@ -92,7 +88,17 @@ export default class GridExample extends React.PureComponent {
     );
   }
 
-  _cellRenderer({ columnIndex, key, rowIndex, style }) {
+  _cellRenderer({
+    columnIndex,
+    key,
+    rowIndex,
+    style,
+  }: {
+    columnIndex: number;
+    key: React.Key;
+    rowIndex: number;
+    style: React.CSSProperties | undefined;
+  }): JSX.Element {
     if (columnIndex === 0) {
       return this._renderLeftSideCell({ key, rowIndex, style });
     } else {
@@ -100,7 +106,7 @@ export default class GridExample extends React.PureComponent {
     }
   }
 
-  _getColumnWidth({ index }) {
+  _getColumnWidth({ index }: { index: number }): number {
     switch (index) {
       case 0:
         return 50;
@@ -113,25 +119,35 @@ export default class GridExample extends React.PureComponent {
     }
   }
 
-  _getDatum(index) {
+  _getDatum(index: number): IRandomListElement {
     const { list } = this.context;
 
-    return list.get(index % list.size);
+    return list.get(index % list.size) as IRandomListElement;
   }
 
-  _getRowClassName(row) {
+  _getRowClassName(row: number): string {
     return row % 2 === 0 ? styles.evenRow : styles.oddRow;
   }
 
-  _getRowHeight({ index }) {
-    return this._getDatum(index).size;
+  _getRowHeight({ index }: { index: number }): number {
+    return this._getDatum(index)?.size || 10;
   }
 
-  _noContentRenderer() {
+  _noContentRenderer(): JSX.Element {
     return <div className={styles.noCells}>No cells</div>;
   }
 
-  _renderBodyCell({ columnIndex, key, rowIndex, style }) {
+  _renderBodyCell({
+    columnIndex,
+    key,
+    rowIndex,
+    style,
+  }: {
+    columnIndex: number;
+    key: React.Key;
+    rowIndex: number;
+    style: React.CSSProperties | undefined;
+  }): JSX.Element {
     const rowClass = this._getRowClassName(rowIndex);
     const datum = this._getDatum(rowIndex);
 
@@ -160,7 +176,15 @@ export default class GridExample extends React.PureComponent {
     );
   }
 
-  _renderLeftSideCell({ key, rowIndex, style }) {
+  _renderLeftSideCell({
+    key,
+    rowIndex,
+    style,
+  }: {
+    key: React.Key;
+    rowIndex: number;
+    style: React.CSSProperties | undefined;
+  }): JSX.Element {
     const datum = this._getDatum(rowIndex);
 
     const classNames = clsx(styles.cell, styles.letterCell);
@@ -180,27 +204,30 @@ export default class GridExample extends React.PureComponent {
     );
   }
 
-  _updateUseDynamicRowHeights(value) {
+  _updateUseDynamicRowHeights(value: boolean): void {
     this.setState({
       useDynamicRowHeight: value,
     });
   }
 
-  _onColumnCountChange(event) {
+  _onColumnCountChange(event: { target: { value: string } }): void {
     const columnCount = parseInt(event.target.value, 10) || 0;
 
     this.setState({ columnCount });
   }
 
-  _onRowCountChange(event) {
+  _onRowCountChange(event: { target: { value: string } }): void {
     const rowCount = parseInt(event.target.value, 10) || 0;
 
     this.setState({ rowCount });
   }
 
-  _onScrollToColumnChange(event) {
+  _onScrollToColumnChange(event: { target: { value: string } }): void {
     const { columnCount } = this.state;
-    let scrollToColumn = Math.min(columnCount - 1, parseInt(event.target.value, 10));
+    let scrollToColumn: number | undefined = Math.min(
+      columnCount - 1,
+      parseInt(event.target.value, 10),
+    );
 
     if (isNaN(scrollToColumn)) {
       scrollToColumn = undefined;
@@ -209,9 +236,9 @@ export default class GridExample extends React.PureComponent {
     this.setState({ scrollToColumn });
   }
 
-  _onScrollToRowChange(event) {
+  _onScrollToRowChange(event: { target: { value: string } }): void {
     const { rowCount } = this.state;
-    let scrollToRow = Math.min(rowCount - 1, parseInt(event.target.value, 10));
+    let scrollToRow: number | undefined = Math.min(rowCount - 1, parseInt(event.target.value, 10));
 
     if (isNaN(scrollToRow)) {
       scrollToRow = undefined;

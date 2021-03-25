@@ -3,7 +3,7 @@ import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import styles from '../../styles/NewGrid.module.css';
 
-const Row = ({ index, style }) => (
+const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
   <div className={index % 2 ? styles.ListItemOdd : styles.ListItemEven} style={style}>
     Row {index}
   </div>

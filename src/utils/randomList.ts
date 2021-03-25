@@ -1,8 +1,17 @@
+export interface IRandomListElement {
+  color: string;
+  index: number;
+  name: string;
+  random: string;
+  randomLong: string;
+  size: number;
+}
+
 /**
  * Generate random data for use in examples.
  */
-export function generateRandomList() {
-  const list = [];
+export function generateRandomList(): IRandomListElement[] {
+  const list: IRandomListElement[] = [];
 
   for (let i = 0; i < 1000; i++) {
     const random = loremIpsum[i % loremIpsum.length];
