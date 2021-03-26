@@ -6,7 +6,6 @@ import { Grid, AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import styles from '../../styles/Grid.module.css';
 import { generateRandomList, IRandomListElement } from '../../utils/randomList';
-import { NextPageContext } from 'next';
 
 const staticList = Immutable.List(generateRandomList());
 
