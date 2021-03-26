@@ -6,6 +6,7 @@ This is the Release Console for the microapps framework.
 
 `npm i -g sb`
 `npx sb init -N`
+`npx sb upgrade --prerelease -N`
 
 # Debugging
 

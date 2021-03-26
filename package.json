@@ -34,6 +34,7 @@
   "dependencies": {
     "@pwrdrvr/microapps-datalib": "^0.9.5",
     "clsx": "^1.1.1",
+    "encoding": "^0.1.13",
     "immutable": "^4.0.0-rc.12",
     "lambda-log": "^2.4.0",
     "next": "10.0.7",
