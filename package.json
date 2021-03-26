@@ -32,7 +32,11 @@
     ]
   },
   "dependencies": {
+    "@carbon/themes": "^10.30.0",
     "@pwrdrvr/microapps-datalib": "^0.9.5",
+    "carbon-components": "^10.31.0",
+    "carbon-components-react": "^7.31.0",
+    "carbon-icons": "^7.0.7",
     "clsx": "^1.1.1",
     "encoding": "^0.1.13",
     "immutable": "^4.0.0-rc.12",
@@ -54,6 +58,7 @@
     "@storybook/addon-essentials": "^6.2.0-rc.9",
     "@storybook/addon-links": "^6.2.0-rc.9",
     "@storybook/react": "^6.2.0-rc.9",
+    "@types/carbon-components-react": "^7.30.0",
     "@types/lambda-log": "^2.2.0",
     "@types/node": "^14.14.31",
     "@types/react": "^17.0.2",

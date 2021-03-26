@@ -1,3 +1,13 @@
+@import '~@carbon/themes/scss/themes';
+
+$carbon--theme: $carbon--theme--g100;
+
+// Set the default theme (call with no param after setting above)
+@include carbon--theme();
+
+// Must import the carbon styles or the theme will have no effect
+@import '~carbon-components/scss/globals/scss/styles';
+
 html,
 body {
   height: 100%;
