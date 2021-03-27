@@ -13,13 +13,13 @@ $carbon--theme: $carbon--theme--g100;
   $table-prefix: BaseTable;
   $background-color: $ui-01;
   $box-shadow-color: $ui-04;
-  $box-shadow-offset: 2px;
-  $box-shadow-blur: 4px;
+  $box-shadow-offset: $spacing-01;
+  $box-shadow-blur: $spacing-02;
   $border: 1px solid $ui-03;
   $header-background-color: $ui-02;
   $header-font-weight: 700;
-  $row-hovered-background-color: $ui-02;
-  $header-cell-hovered-background-color: $ui-01;
+  $row-hovered-background-color: $interactive-04;
+  $header-cell-hovered-background-color: $interactive-04;
   $sort-indicator-hovered-color: $interactive-01;
   $column-resizer-color: $interactive-03;
 
