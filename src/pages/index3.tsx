@@ -288,7 +288,9 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
             {
               id: 'default',
               key: 'default',
-              rule: { SemVer: '0.0.0', AttributeName: '', AttributeValue: '' },
+              AttributeName: '',
+              AttributeValue: '',
+              SemVer: '0.0.0',
             },
           ],
         },
