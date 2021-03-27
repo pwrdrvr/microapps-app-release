@@ -1,4 +1,3 @@
-import '../styles/Carbon.module.scss';
 import { NextPageContext } from 'next';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
@@ -16,6 +15,9 @@ import {
   TableBody,
   TableSelectRow,
   TableCell,
+  Grid,
+  Row,
+  Column,
 } from 'carbon-components-react';
 import { IRule } from '@pwrdrvr/microapps-datalib/dist/models/rules';
 import { AutoSizer } from 'react-virtualized';
@@ -124,7 +126,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
 
   render(): JSX.Element {
     return (
-      <div
+      <Grid
         style={{
           height: '100%',
           width: '100%',
@@ -133,87 +135,93 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
           alignItems: 'stretch',
         }}
       >
-        <div style={{ flex: '1 0 auto' }}>
-          <TableContainer title={'Applications'}>
+        <Row style={{ flex: '1 0 auto', overflow: 'scroll' }}>
+          <Column sm={4}>
             <DataTable rows={this.props.apps} headers={headersApps}>
               {({ rows, getTableProps, getHeaderProps, getRowProps }) => (
-                <Table {...getTableProps()}>
-                  <TableHead>
-                    <TableRow>
-                      {headersApps.map((header) => (
-                        <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row) => (
-                      <TableRow {...getRowProps({ row })}>
-                        {row.cells.map((cell) => (
-                          <TableCell key={cell.id}>{cell.value}</TableCell>
+                <TableContainer title={'Applications'}>
+                  <Table style={{ height: '100px' }} {...getTableProps()}>
+                    <TableHead>
+                      <TableRow>
+                        {headersApps.map((header) => (
+                          <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHead>
+                    <TableBody>
+                      {rows.map((row) => (
+                        <TableRow {...getRowProps({ row })}>
+                          {row.cells.map((cell) => (
+                            <TableCell key={cell.id}>{cell.value}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </DataTable>
-          </TableContainer>
-        </div>
+          </Column>
+        </Row>
 
-        <div style={{ flex: '1 0 auto' }}>
-          <TableContainer title={'Versions'}>
+        <Row style={{ flex: '1 0 auto', overflow: 'scroll' }}>
+          <Column sm={4}>
             <DataTable rows={this.props.versions} headers={headersVersions}>
               {({ rows, getTableProps, getHeaderProps, getRowProps }) => (
-                <Table {...getTableProps()}>
-                  <TableHead>
-                    <TableRow>
-                      {headersApps.map((header) => (
-                        <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row) => (
-                      <TableRow {...getRowProps({ row })}>
-                        {row.cells.map((cell) => (
-                          <TableCell key={cell.id}>{cell.value}</TableCell>
+                <TableContainer title={'Versions'}>
+                  <Table style={{ height: '100px' }} {...getTableProps()}>
+                    <TableHead>
+                      <TableRow>
+                        {headersApps.map((header) => (
+                          <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHead>
+                    <TableBody>
+                      {rows.map((row) => (
+                        <TableRow {...getRowProps({ row })}>
+                          {row.cells.map((cell) => (
+                            <TableCell key={cell.id}>{cell.value}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </DataTable>
-          </TableContainer>
-        </div>
+          </Column>
+        </Row>
 
-        <div style={{ flex: '1 0 auto' }}>
-          <TableContainer title={'Rules'}>
+        <Row style={{ flex: '1 0 auto', overflow: 'scroll' }}>
+          <Column sm={4}>
             <DataTable rows={this.props.rules.RuleSet} headers={headersRules}>
               {({ rows, getTableProps, getHeaderProps, getRowProps }) => (
-                <Table {...getTableProps()}>
-                  <TableHead>
-                    <TableRow>
-                      {headersApps.map((header) => (
-                        <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row) => (
-                      <TableRow {...getRowProps({ row })}>
-                        {row.cells.map((cell) => (
-                          <TableCell key={cell.id}>{cell.value}</TableCell>
+                <TableContainer title={'Rules'}>
+                  <Table style={{ height: '100px' }} {...getTableProps()}>
+                    <TableHead>
+                      <TableRow>
+                        {headersApps.map((header) => (
+                          <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHead>
+                    <TableBody>
+                      {rows.map((row) => (
+                        <TableRow {...getRowProps({ row })}>
+                          {row.cells.map((cell) => (
+                            <TableCell key={cell.id}>{cell.value}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </DataTable>
-          </TableContainer>
-        </div>
-      </div>
+          </Column>
+        </Row>
+      </Grid>
     );
   }
 }

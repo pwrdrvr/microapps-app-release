@@ -1,4 +1,4 @@
-import styles from '../styles/AppGrid.module.css';
+import styles from '../styles/AppGrid.module.scss';
 import { Grid } from 'react-virtualized';
 import React from 'react';
 import clsx from 'clsx';

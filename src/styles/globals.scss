@@ -8,29 +8,31 @@ $carbon--theme: $carbon--theme--g100;
 // Must import the carbon styles or the theme will have no effect
 @import '~carbon-components/scss/globals/scss/styles';
 
-html,
-body {
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,
-    Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-}
+@include carbon--theme() {
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,
+      Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  }
 
-#__next {
-  height: 100%;
-  box-sizing: border-box;
-  width: 100%;
-  display: flex;
-}
+  #__next {
+    height: 100%;
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-* {
-  box-sizing: border-box;
+  * {
+    box-sizing: border-box;
+  }
 }
