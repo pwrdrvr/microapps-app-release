@@ -172,7 +172,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
                   <Table style={{ height: '100px' }} {...getTableProps()}>
                     <TableHead>
                       <TableRow>
-                        {headersApps.map((header) => (
+                        {headersVersions.map((header) => (
                           <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
@@ -201,7 +201,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
                   <Table style={{ height: '100px' }} {...getTableProps()}>
                     <TableHead>
                       <TableRow>
-                        {headersApps.map((header) => (
+                        {headersRules.map((header) => (
                           <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
