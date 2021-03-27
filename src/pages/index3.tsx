@@ -15,6 +15,8 @@ import {
   Grid,
   Row,
   Column,
+  TableCarbonProps,
+  DenormalizedRow,
 } from 'carbon-components-react';
 
 interface IApplication {
@@ -102,6 +104,10 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
     this.render = this.render.bind(this);
   }
 
+  getTableProps(): TableCarbonProps {
+    return {};
+  }
+
   render(): JSX.Element {
     return (
       <Grid
@@ -116,19 +122,19 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
         <Row style={{ flex: '1 0 auto', overflow: 'scroll' }}>
           <Column sm={4}>
             <DataTable rows={this.props.apps} headers={headersApps}>
-              {({ rows, getTableProps, getHeaderProps, getRowProps }) => (
+              {({ rows }: { rows: ReadonlyArray<DenormalizedRow> }) => (
                 <TableContainer title={'Applications'}>
-                  <Table style={{ height: '100px' }} {...getTableProps()}>
+                  <Table style={{ height: '100px' }}>
                     <TableHead>
                       <TableRow>
                         {headersApps.map((header) => (
-                          <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
+                          <TableHeader key={header.key}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {rows.map((row) => (
-                        <TableRow {...getRowProps({ row })}>
+                        <TableRow key={row.id}>
                           {row.cells.map((cell) => (
                             <TableCell key={cell.id}>{cell.value}</TableCell>
                           ))}
@@ -145,19 +151,19 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
         <Row style={{ flex: '1 0 auto', overflow: 'scroll' }}>
           <Column sm={4}>
             <DataTable rows={this.props.versions} headers={headersVersions}>
-              {({ rows, getTableProps, getHeaderProps, getRowProps }) => (
+              {({ rows }: { rows: ReadonlyArray<DenormalizedRow> }) => (
                 <TableContainer title={'Versions'}>
-                  <Table style={{ height: '100px' }} {...getTableProps()}>
+                  <Table style={{ height: '100px' }}>
                     <TableHead>
                       <TableRow>
                         {headersVersions.map((header) => (
-                          <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
+                          <TableHeader key={header.key}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {rows.map((row) => (
-                        <TableRow {...getRowProps({ row })}>
+                        <TableRow key={row.id}>
                           {row.cells.map((cell) => (
                             <TableCell key={cell.id}>{cell.value}</TableCell>
                           ))}
@@ -174,19 +180,19 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
         <Row style={{ flex: '1 0 auto', overflow: 'scroll' }}>
           <Column sm={4}>
             <DataTable rows={this.props.rules.RuleSet} headers={headersRules}>
-              {({ rows, getTableProps, getHeaderProps, getRowProps }) => (
+              {({ rows }: { rows: ReadonlyArray<DenormalizedRow> }) => (
                 <TableContainer title={'Rules'}>
-                  <Table style={{ height: '100px' }} {...getTableProps()}>
+                  <Table style={{ height: '100px' }}>
                     <TableHead>
                       <TableRow>
                         {headersRules.map((header) => (
-                          <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
+                          <TableHeader key={header.key}>{header.header}</TableHeader>
                         ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {rows.map((row) => (
-                        <TableRow {...getRowProps({ row })}>
+                        <TableRow key={row.id}>
                           {row.cells.map((cell) => (
                             <TableCell key={cell.id}>{cell.value}</TableCell>
                           ))}

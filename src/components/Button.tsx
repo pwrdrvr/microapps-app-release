@@ -4,4 +4,6 @@ type Props = {
   text: string;
 };
 
-export default ({ text }: Props): JSX.Element => <button>{text}</button>;
+export default function Button({ text }: Props): JSX.Element {
+  return <button>{text}</button>;
+}
