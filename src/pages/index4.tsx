@@ -4,7 +4,7 @@ import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
-import BaseTable, { SortOrder, Column, unflatten, AutoResizer } from 'react-base-table';
+import BaseTable, { AutoResizer } from 'react-base-table';
 
 interface IApplication {
   id: string;

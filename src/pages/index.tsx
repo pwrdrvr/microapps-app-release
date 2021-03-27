@@ -1,11 +1,10 @@
-import styles from '../styles/Home.module.css';
+import '../styles/Home.module.css';
 import { NextPageContext } from 'next';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
 import AppGrid, { IApplication } from '../components/AppGrid';
-import { ContentBox } from '../components/ContentBox';
 import VersionGrid, { IVersion } from '../components/VersionGrid';
 import RulesGrid, { IRules } from '../components/RulesGrid';
 import { AutoSizer } from 'react-virtualized';

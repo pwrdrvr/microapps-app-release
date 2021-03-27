@@ -4,7 +4,7 @@ import { Header } from '../../components/sb-examples/Header';
 import '../../styles/Page.module.css';
 
 export interface IPageProps {
-  user?: {};
+  user?: never;
   onLogin: () => void;
   onLogout: () => void;
   onCreateAccount: () => void;

@@ -4,7 +4,7 @@ import { Button } from './Button';
 import './Header.module.css';
 
 export interface HeaderProps {
-  user?: {};
+  user?: never;
   onLogin: () => void;
   onLogout: () => void;
   onCreateAccount: () => void;

@@ -1,4 +1,4 @@
-import styles from '../styles/Home.module.css';
+import '../styles/Home.module.css';
 import { NextPageContext } from 'next';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';

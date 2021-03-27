@@ -4,23 +4,18 @@ import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
 import {
-  Button,
   DataTable,
   TableContainer,
   Table,
   TableHead,
   TableRow,
-  TableSelectAll,
   TableHeader,
   TableBody,
-  TableSelectRow,
   TableCell,
   Grid,
   Row,
   Column,
 } from 'carbon-components-react';
-import { IRule } from '@pwrdrvr/microapps-datalib/dist/models/rules';
-import { AutoSizer } from 'react-virtualized';
 
 interface IApplication {
   id: string;
@@ -63,23 +58,6 @@ interface IPageState {
   rules: IRules;
 }
 
-const rows = [
-  {
-    id: 'a',
-    name: 'Load balancer 1',
-    status: 'Disabled',
-  },
-  {
-    id: 'b',
-    name: 'Load balancer 2',
-    status: 'Starting',
-  },
-  {
-    id: 'c',
-    name: 'Load balancer 3',
-    status: 'Active',
-  },
-];
 const headersApps = [
   {
     key: 'AppName',
