@@ -67,12 +67,14 @@ const headersVersions = [
     key: 'AppName',
     dataKey: 'AppName',
     title: 'AppName',
+    sortable: true,
   },
   {
     width: 150,
     key: 'SemVer',
     dataKey: 'SemVer',
     title: 'Version',
+    sortable: true,
   },
 ];
 const headersRules = [
