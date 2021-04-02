@@ -1,13 +1,40 @@
-import '../styles/Home.module.css';
+import '../styles/AppGridBaseTable.module.scss';
 import { NextPageContext } from 'next';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
-import AppTable, { IApplication } from '../components/AppTable';
-import VersionTable, { IVersion } from '../components/VersionTable';
-import RulesTable, { IRules } from '../components/RulesTable';
-import { AutoSizer } from 'react-virtualized';
+import BaseTable, { AutoResizer } from 'react-base-table';
+import { TableContainer } from 'carbon-components-react';
+
+interface IApplication {
+  id: string;
+  AppName: string;
+  DisplayName: string;
+}
+
+interface IVersion {
+  id: string;
+  AppName: string;
+  SemVer: string;
+  Type: string;
+  Status: string;
+  DefaultFile?: string;
+  IntegrationID: string;
+}
+
+interface IFlatRule {
+  id: string;
+  key: string;
+  AttributeName: string;
+  AttributeValue: string;
+  SemVer: string;
+}
+
+interface IRules {
+  AppName: string;
+  RuleSet: IFlatRule[];
+}
 
 interface IPageProps {
   apps: IApplication[];
@@ -21,6 +48,51 @@ interface IPageState {
   rules: IRules;
 }
 
+const headersApps = [
+  {
+    width: 150,
+    key: 'AppName',
+    dataKey: 'AppName',
+    title: 'AppName',
+  },
+  {
+    width: 150,
+    key: 'DisplayName',
+    dataKey: 'DisplayName',
+    title: 'Display Name',
+  },
+];
+const headersVersions = [
+  {
+    width: 150,
+    key: 'AppName',
+    dataKey: 'AppName',
+    title: 'AppName',
+    sortable: true,
+  },
+  {
+    width: 150,
+    key: 'SemVer',
+    dataKey: 'SemVer',
+    title: 'Version',
+    sortable: true,
+  },
+];
+const headersRules = [
+  {
+    width: 150,
+    key: 'key',
+    dataKey: 'key',
+    title: 'Key',
+  },
+  {
+    width: 150,
+    key: 'SemVer',
+    dataKey: 'SemVer',
+    title: 'Version',
+  },
+];
+
 export default class Home extends React.PureComponent<IPageProps, IPageState> {
   constructor(props: IPageProps) {
     super(props);
@@ -30,6 +102,8 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
       versions: this.props.versions,
       rules: this.props.rules,
     };
+
+    this.render = this.render.bind(this);
   }
 
   render(): JSX.Element {
@@ -43,26 +117,44 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
           alignItems: 'stretch',
         }}
       >
+        <TableContainer title={'Applications'} />
         <div style={{ flex: '1 0 auto' }}>
-          <AutoSizer>
-            {({ height, width }) => (
-              <AppTable apps={this.props.apps} height={height} width={width}></AppTable>
+          <AutoResizer>
+            {({ width, height }) => (
+              <BaseTable
+                width={width}
+                height={height}
+                columns={headersApps}
+                data={this.props.apps}
+              />
             )}
-          </AutoSizer>
+          </AutoResizer>
         </div>
+        <TableContainer title={'Versions'} />
         <div style={{ flex: '1 0 auto' }}>
-          <AutoSizer>
-            {({ height, width }) => (
-              <VersionTable vers={this.props.versions} height={height} width={width}></VersionTable>
+          <AutoResizer>
+            {({ width, height }) => (
+              <BaseTable
+                width={width}
+                height={height}
+                columns={headersVersions}
+                data={this.props.versions}
+              />
             )}
-          </AutoSizer>
+          </AutoResizer>
         </div>
+        <TableContainer title={'Rules'} />
         <div style={{ flex: '1 0 auto' }}>
-          <AutoSizer>
-            {({ height, width }) => (
-              <RulesTable rules={this.props.rules} height={height} width={width}></RulesTable>
+          <AutoResizer>
+            {({ width, height }) => (
+              <BaseTable
+                width={width}
+                height={height}
+                columns={headersRules}
+                data={this.props.rules.RuleSet}
+              />
             )}
-          </AutoSizer>
+          </AutoResizer>
         </div>
       </div>
     );
@@ -86,7 +178,7 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     const appsRaw = await Application.LoadAllAppsAsync(dbclient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
-      apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
+      apps.push({ id: app.AppName, AppName: app.AppName, DisplayName: app.DisplayName });
     }
     log.info(`got apps`, apps);
 
@@ -95,6 +187,7 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({
+        id: version.SemVer,
         AppName: version.AppName,
         SemVer: version.SemVer,
         Type: version.Type,
@@ -112,12 +205,11 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     for (const key of Object.keys(versionsRaw.Rules.RuleSet)) {
       const rule = versionsRaw.Rules.RuleSet[key];
       rules.RuleSet.push({
+        id: key,
         key,
-        rule: {
-          AttributeName: rule.AttributeName ?? '',
-          AttributeValue: rule.AttributeValue ?? '',
-          SemVer: rule.SemVer,
-        },
+        AttributeName: rule.AttributeName ?? '',
+        AttributeValue: rule.AttributeValue ?? '',
+        SemVer: rule.SemVer,
       });
     }
     log.info(`got rules`, versions);
@@ -129,9 +221,10 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     log.error(error);
     return {
       props: {
-        apps: [{ AppName: 'cat', DisplayName: 'dog' }],
+        apps: [{ id: 'cat', AppName: 'cat', DisplayName: 'dog' }],
         versions: [
           {
+            id: 'cat',
             AppName: 'cat',
             SemVer: '0.0.0',
             DefaultFile: 'index.html',
@@ -143,7 +236,13 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
         rules: {
           AppName: 'cat',
           RuleSet: [
-            { key: 'default', rule: { SemVer: '0.0.0', AttributeName: '', AttributeValue: '' } },
+            {
+              id: 'default',
+              key: 'default',
+              AttributeName: '',
+              AttributeValue: '',
+              SemVer: '0.0.0',
+            },
           ],
         },
       },

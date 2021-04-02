@@ -1,0 +1,54 @@
+@import '~@carbon/themes/scss/themes';
+
+$carbon--theme: $carbon--theme--g100;
+
+// Set the default theme (call with no param after setting above)
+@include carbon--theme();
+
+// Must import the carbon styles or the theme will have no effect
+@import '~carbon-components/scss/globals/scss/styles';
+
+@include carbon--theme() {
+  // Map colors for react-base-table
+  $table-prefix: BaseTable;
+  $background-color: $ui-01;
+  $box-shadow-color: $ui-04;
+  $box-shadow-offset: $spacing-01;
+  $box-shadow-blur: $spacing-02;
+  $border: 1px solid $ui-03;
+  $header-background-color: $ui-02;
+  $header-font-weight: 700;
+  $row-hovered-background-color: $hover-row;
+  $header-cell-hovered-background-color: $interactive-04;
+  $sort-indicator-hovered-color: $interactive-01;
+  $column-resizer-color: $interactive-03;
+
+  @import '~react-base-table/es/_BaseTable.scss';
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,
+      Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  }
+
+  #__next {
+    height: 100%;
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
