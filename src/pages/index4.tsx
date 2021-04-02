@@ -5,6 +5,7 @@ import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
 import BaseTable, { AutoResizer } from 'react-base-table';
+import { TableContainer } from 'carbon-components-react';
 
 interface IApplication {
   id: string;
@@ -116,6 +117,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
           alignItems: 'stretch',
         }}
       >
+        <TableContainer title={'Applications'} />
         <div style={{ flex: '1 0 auto' }}>
           <AutoResizer>
             {({ width, height }) => (
@@ -128,6 +130,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
             )}
           </AutoResizer>
         </div>
+        <TableContainer title={'Versions'} />
         <div style={{ flex: '1 0 auto' }}>
           <AutoResizer>
             {({ width, height }) => (
@@ -140,6 +143,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
             )}
           </AutoResizer>
         </div>
+        <TableContainer title={'Rules'} />
         <div style={{ flex: '1 0 auto' }}>
           <AutoResizer>
             {({ width, height }) => (
