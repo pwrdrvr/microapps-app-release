@@ -5,3 +5,4 @@ node_modules
 # if you are deploying with serverless-next.js directly
 # as this has the hash codes used for the S3 bucket and CloudFront dist
 .serverless/
+storybook-static/

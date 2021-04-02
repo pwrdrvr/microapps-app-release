@@ -9,11 +9,32 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint ./ --ext .ts --ext .tsx",
-    "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix"
+    "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "dependencies": {
     "@pwrdrvr/microapps-datalib": "^0.9.5",
     "clsx": "^1.1.1",
+    "encoding": "^0.1.13",
     "immutable": "^4.0.0-rc.12",
     "lambda-log": "^2.4.0",
     "next": "10.0.7",
@@ -26,8 +47,13 @@
     "react-window": "^1.8.6"
   },
   "devDependencies": {
+    "@babel/core": "^7.13.10",
     "@pwrdrvr/microapps-publish": "^0.9.3",
     "@pwrdrvr/serverless-nextjs-router": "^0.9.1",
+    "@storybook/addon-actions": "^6.2.0-rc.9",
+    "@storybook/addon-essentials": "^6.2.0-rc.9",
+    "@storybook/addon-links": "^6.2.0-rc.9",
+    "@storybook/react": "^6.2.0-rc.9",
     "@types/lambda-log": "^2.2.0",
     "@types/node": "^14.14.31",
     "@types/react": "^17.0.2",
@@ -37,6 +63,8 @@
     "@types/react-window": "^1.8.2",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
+    "babel-loader": "^8.2.2",
+    "babel-preset-react-app": "^10.0.0",
     "commander": "^4.1.1",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
