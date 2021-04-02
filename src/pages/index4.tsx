@@ -117,44 +117,84 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
           alignItems: 'stretch',
         }}
       >
-        <TableContainer title={'Applications'} />
-        <div style={{ flex: '1 0 auto' }}>
-          <AutoResizer>
-            {({ width, height }) => (
-              <BaseTable
-                width={width}
-                height={height}
-                columns={headersApps}
-                data={this.props.apps}
-              />
-            )}
-          </AutoResizer>
+        <div
+          style={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+          }}
+        >
+          <TableContainer title={'Applications'} />
+          <div style={{ flex: '1 0 auto' }}>
+            <AutoResizer>
+              {({ width, height }) => (
+                <BaseTable
+                  width={width}
+                  height={height}
+                  columns={headersApps}
+                  data={this.props.apps}
+                />
+              )}
+            </AutoResizer>
+          </div>
         </div>
-        <TableContainer title={'Versions'} />
-        <div style={{ flex: '1 0 auto' }}>
-          <AutoResizer>
-            {({ width, height }) => (
-              <BaseTable
-                width={width}
-                height={height}
-                columns={headersVersions}
-                data={this.props.versions}
-              />
-            )}
-          </AutoResizer>
-        </div>
-        <TableContainer title={'Rules'} />
-        <div style={{ flex: '1 0 auto' }}>
-          <AutoResizer>
-            {({ width, height }) => (
-              <BaseTable
-                width={width}
-                height={height}
-                columns={headersRules}
-                data={this.props.rules.RuleSet}
-              />
-            )}
-          </AutoResizer>
+        <div
+          style={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'stretch',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+            }}
+          >
+            <TableContainer title={'Versions'} />
+            <div style={{ flex: '1 0 auto' }}>
+              <AutoResizer>
+                {({ width, height }) => (
+                  <BaseTable
+                    width={width}
+                    height={height}
+                    columns={headersVersions}
+                    data={this.props.versions}
+                  />
+                )}
+              </AutoResizer>
+            </div>
+          </div>
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+            }}
+          >
+            <TableContainer title={'Rules'} />
+            <div style={{ flex: '1 0 auto' }}>
+              <AutoResizer>
+                {({ width, height }) => (
+                  <BaseTable
+                    width={width}
+                    height={height}
+                    columns={headersRules}
+                    data={this.props.rules.RuleSet}
+                  />
+                )}
+              </AutoResizer>
+            </div>
+          </div>
         </div>
       </div>
     );
