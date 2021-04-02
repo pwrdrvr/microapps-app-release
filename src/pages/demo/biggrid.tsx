@@ -1,12 +1,9 @@
 import Immutable from 'immutable';
 import * as React from 'react';
-import { ContentBox, ContentBoxHeader, ContentBoxParagraph } from '../../components/ContentBox';
-import { LabeledInput, InputRow } from '../../components/LabeledInput';
 import { Grid, AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import styles from '../../styles/Grid.module.css';
 import { generateRandomList, IRandomListElement } from '../../utils/randomList';
-import { NextPageContext } from 'next';
 
 const staticList = Immutable.List(generateRandomList());
 
@@ -14,7 +11,6 @@ export default class GridExample extends React.PureComponent {
   static contextTypes = {
     list: Immutable.List,
   };
-
   public state: {
     columnCount: number;
     height: number;
@@ -60,7 +56,6 @@ export default class GridExample extends React.PureComponent {
   render(): JSX.Element {
     const {
       columnCount,
-      height,
       overscanColumnCount,
       overscanRowCount,
       rowHeight,
@@ -71,118 +66,25 @@ export default class GridExample extends React.PureComponent {
     } = this.state;
 
     return (
-      <ContentBox className={styles.ContentBox} style={{ marginRight: 5 + 'em' }}>
-        <ContentBoxHeader
-          text="Grid"
-          sourceLink="https://github.com/bvaughn/react-virtualized/blob/master/source/Grid/Grid.example.js"
-          docsLink="https://github.com/bvaughn/react-virtualized/blob/master/docs/Grid.md"
-        />
-
-        <ContentBoxParagraph>
-          Renders tabular data with virtualization along the vertical and horizontal axes. Row
-          heights and column widths must be calculated ahead of time and specified as a fixed size
-          or returned by a getter function.
-        </ContentBoxParagraph>
-
-        <ContentBoxParagraph>
-          <label className={styles.checkboxLabel}>
-            <input
-              aria-label="Use dynamic row height?"
-              className={styles.checkbox}
-              type="checkbox"
-              value={useDynamicRowHeight ? 'true' : 'false'}
-              onChange={(event) => this._updateUseDynamicRowHeights(event.target.checked)}
-            />
-            Use dynamic row height?
-          </label>
-        </ContentBoxParagraph>
-
-        <InputRow>
-          <LabeledInput
-            label="Num columns"
-            name="columnCount"
-            onChange={this._onColumnCountChange}
-            value={columnCount.toString()}
+      <AutoSizer>
+        {({ height, width }) => (
+          <Grid
+            cellRenderer={this._cellRenderer}
+            className={styles.BodyGrid}
+            columnWidth={this._getColumnWidth}
+            columnCount={columnCount}
+            height={height}
+            noContentRenderer={this._noContentRenderer}
+            overscanColumnCount={overscanColumnCount}
+            overscanRowCount={overscanRowCount}
+            rowHeight={useDynamicRowHeight ? this._getRowHeight : rowHeight}
+            rowCount={rowCount}
+            scrollToColumn={scrollToColumn}
+            scrollToRow={scrollToRow}
+            width={width}
           />
-          <LabeledInput
-            label="Num rows"
-            name="rowCount"
-            onChange={this._onRowCountChange}
-            value={rowCount.toString()}
-          />
-          <LabeledInput
-            label="Scroll to column"
-            name="onScrollToColumn"
-            placeholder="Index..."
-            onChange={this._onScrollToColumnChange}
-            value={scrollToColumn?.toString() || ''}
-          />
-          <LabeledInput
-            label="Scroll to row"
-            name="onScrollToRow"
-            placeholder="Index..."
-            onChange={this._onScrollToRowChange}
-            value={scrollToRow?.toString() || ''}
-          />
-          <LabeledInput
-            label="List height"
-            name="height"
-            onChange={(event) => this.setState({ height: parseInt(event.target.value, 10) || 1 })}
-            value={height?.toString()}
-          />
-          <LabeledInput
-            disabled={useDynamicRowHeight}
-            label="Row height"
-            name="rowHeight"
-            onChange={(event) =>
-              this.setState({
-                rowHeight: parseInt(event.target.value, 10) || 1,
-              })
-            }
-            value={rowHeight?.toString()}
-          />
-          <LabeledInput
-            label="Overscan columns"
-            name="overscanColumnCount"
-            onChange={(event) =>
-              this.setState({
-                overscanColumnCount: parseInt(event.target.value, 10) || 0,
-              })
-            }
-            value={overscanColumnCount?.toString()}
-          />
-          <LabeledInput
-            label="Overscan rows"
-            name="overscanRowCount"
-            onChange={(event) =>
-              this.setState({
-                overscanRowCount: parseInt(event.target.value, 10) || 0,
-              })
-            }
-            value={overscanRowCount?.toString()}
-          />
-        </InputRow>
-
-        <AutoSizer disableHeight>
-          {({ width }) => (
-            <Grid
-              cellRenderer={this._cellRenderer}
-              className={styles.BodyGrid}
-              columnWidth={this._getColumnWidth}
-              columnCount={columnCount}
-              height={height}
-              noContentRenderer={this._noContentRenderer}
-              overscanColumnCount={overscanColumnCount}
-              overscanRowCount={overscanRowCount}
-              rowHeight={useDynamicRowHeight ? this._getRowHeight : rowHeight}
-              rowCount={rowCount}
-              scrollToColumn={scrollToColumn}
-              scrollToRow={scrollToRow}
-              width={width}
-            />
-          )}
-        </AutoSizer>
-      </ContentBox>
+        )}
+      </AutoSizer>
     );
   }
 
@@ -220,7 +122,7 @@ export default class GridExample extends React.PureComponent {
   _getDatum(index: number): IRandomListElement {
     const { list } = this.context;
 
-    return list.get(index % list.size);
+    return list.get(index % list.size) as IRandomListElement;
   }
 
   _getRowClassName(row: number): string {
@@ -228,7 +130,7 @@ export default class GridExample extends React.PureComponent {
   }
 
   _getRowHeight({ index }: { index: number }): number {
-    return this._getDatum(index).size;
+    return this._getDatum(index)?.size || 10;
   }
 
   _noContentRenderer(): JSX.Element {

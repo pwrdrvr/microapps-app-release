@@ -1,8 +1,16 @@
 import * as React from 'react';
-import clsx from 'clsx';
+import clsx, { ClassValue } from 'clsx';
 import styles from '../styles/ContentBox.module.css';
 
-export function ContentBox({ className, children, style }) {
+export function ContentBox({
+  className,
+  children,
+  style,
+}: {
+  className: ClassValue;
+  children: JSX.Element[];
+  style: React.CSSProperties;
+}): JSX.Element {
   return (
     <div className={clsx(styles.ContentBox, className)} style={style}>
       {children}
@@ -10,7 +18,15 @@ export function ContentBox({ className, children, style }) {
   );
 }
 
-export function ContentBoxHeader({ text, sourceLink, docsLink }) {
+export function ContentBoxHeader({
+  text,
+  sourceLink,
+  docsLink,
+}: {
+  text: string;
+  sourceLink: string;
+  docsLink: string;
+}): JSX.Element {
   const links = [];
 
   if (sourceLink) {
@@ -42,6 +58,10 @@ export function ContentBoxHeader({ text, sourceLink, docsLink }) {
   );
 }
 
-export function ContentBoxParagraph({ children }) {
+export function ContentBoxParagraph({
+  children,
+}: {
+  children: string | JSX.Element | JSX.Element[];
+}): JSX.Element {
   return <div className={styles.Paragraph}>{children}</div>;
 }

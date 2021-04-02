@@ -4,10 +4,9 @@ import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
 import React from 'react';
-import AppGrid, { IApplication } from '../components/AppGrid';
-import { ContentBox } from '../components/ContentBox';
-import VersionGrid, { IVersion } from '../components/VersionGrid';
-import RulesGrid, { IRules } from '../components/RulesGrid';
+import AppTable, { IApplication } from '../components/AppTable';
+import VersionTable, { IVersion } from '../components/VersionTable';
+import RulesTable, { IRules } from '../components/RulesTable';
 import { AutoSizer } from 'react-virtualized';
 
 interface IPageProps {
@@ -47,21 +46,21 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
         <div style={{ flex: '1 0 auto' }}>
           <AutoSizer>
             {({ height, width }) => (
-              <AppGrid apps={this.props.apps} height={height} width={width}></AppGrid>
+              <AppTable apps={this.props.apps} height={height} width={width}></AppTable>
             )}
           </AutoSizer>
         </div>
         <div style={{ flex: '1 0 auto' }}>
           <AutoSizer>
             {({ height, width }) => (
-              <VersionGrid vers={this.props.versions} height={height} width={width}></VersionGrid>
+              <VersionTable vers={this.props.versions} height={height} width={width}></VersionTable>
             )}
           </AutoSizer>
         </div>
         <div style={{ flex: '1 0 auto' }}>
           <AutoSizer>
             {({ height, width }) => (
-              <RulesGrid rules={this.props.rules} height={height} width={width}></RulesGrid>
+              <RulesTable rules={this.props.rules} height={height} width={width}></RulesTable>
             )}
           </AutoSizer>
         </div>
