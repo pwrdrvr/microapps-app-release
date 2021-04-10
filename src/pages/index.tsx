@@ -244,7 +244,6 @@ const testPayload: IPageState = {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) => {
-  store.dispatch({ type: 'MAIN', payload: testPayload });
   //   return { props: { getServerSideProp: 'bar' } };
   // });
 
@@ -298,14 +297,17 @@ export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) =
     }
     //log.info(`got rules`, versions);
 
+    // Update state with data
+    store.dispatch({ type: 'MAIN', payload: { apps, versions, rules } });
+
     // Pass data to the page via props
-    return { props: { apps, versions, rules } };
+    return {};
   } catch (error) {
     log.error(`error getting apps: ${error.message}}`);
     log.error(error);
-    return {
-      props: testPayload,
-    };
+    store.dispatch({ type: 'MAIN', payload: testPayload });
+
+    return {};
   }
 });
 
