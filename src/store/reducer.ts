@@ -11,6 +11,7 @@ export interface State {
 }
 
 // create your reducer
+// @ts-ignore
 const reducer = (state: State = { tick: 'init', app: 'init', page: 'init' }, action: AnyAction) => {
   switch (action.type) {
     case HYDRATE: {

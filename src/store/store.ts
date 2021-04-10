@@ -6,6 +6,7 @@ import { MakeStore, createWrapper, Context, HYDRATE } from 'next-redux-wrapper';
 import { State } from './reducer';
 
 // create your reducer
+// @ts-ignore
 const reducer = (state: State = { tick: 'init' }, action: AnyAction) => {
   switch (action.type) {
     case HYDRATE:
