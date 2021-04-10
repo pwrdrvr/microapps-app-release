@@ -1,11 +1,13 @@
 import { AnyAction } from 'redux';
 import { diff } from 'jsondiffpatch';
 import { HYDRATE } from 'next-redux-wrapper';
+import { IPageState } from '../pages';
 
 export interface State {
   app: string;
   page: string;
   tick: string;
+  indexPage: IPageState;
 }
 
 // create your reducer
