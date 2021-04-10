@@ -244,7 +244,7 @@ const testPayload: IPageState = {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) => {
-  store.dispatch({ type: 'PAGE', payload: testPayload });
+  store.dispatch({ type: 'MAIN', payload: testPayload });
   //   return { props: { getServerSideProp: 'bar' } };
   // });
 

@@ -33,6 +33,7 @@ const reducer = (
       return {
         ...state,
         ...action.payload,
+        //indexPage: wasBumpedOnClient ? state.indexPage : action.payload.indexPage,
         page: wasBumpedOnClient ? state.page : action.payload.page, // keep existing state or use hydrated
       };
     }
