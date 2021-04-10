@@ -34,6 +34,7 @@
   "dependencies": {
     "@carbon/themes": "^10.30.0",
     "@pwrdrvr/microapps-datalib": "^0.9.5",
+    "@reduxjs/toolkit": "^1.5.1",
     "carbon-components": "^10.31.0",
     "carbon-components-react": "^7.31.0",
     "carbon-icons": "^7.0.7",

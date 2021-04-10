@@ -216,8 +216,35 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }) => {
 let dbclient: dynamodb.DynamoDB;
 let manager: Manager;
 
+const testPayload: IPageState = {
+  apps: [{ id: 'cat', AppName: 'cat', DisplayName: 'dog' }],
+  versions: [
+    {
+      id: 'cat',
+      AppName: 'cat',
+      SemVer: '0.0.0',
+      DefaultFile: 'index.html',
+      Status: 'done?',
+      IntegrationID: 'none',
+      Type: 'next.js',
+    },
+  ],
+  rules: {
+    AppName: 'cat',
+    RuleSet: [
+      {
+        id: 'default',
+        key: 'default',
+        AttributeName: '',
+        AttributeValue: '',
+        SemVer: '0.0.0',
+      },
+    ],
+  },
+};
+
 export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) => {
-  store.dispatch({ type: 'PAGE', payload: 'server' });
+  store.dispatch({ type: 'PAGE', payload: testPayload });
   //   return { props: { getServerSideProp: 'bar' } };
   // });
 
@@ -277,32 +304,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) =
     log.error(`error getting apps: ${error.message}}`);
     log.error(error);
     return {
-      props: {
-        apps: [{ id: 'cat', AppName: 'cat', DisplayName: 'dog' }],
-        versions: [
-          {
-            id: 'cat',
-            AppName: 'cat',
-            SemVer: '0.0.0',
-            DefaultFile: 'index.html',
-            Status: 'done?',
-            IntegrationID: 'none',
-            Type: 'next.js',
-          },
-        ],
-        rules: {
-          AppName: 'cat',
-          RuleSet: [
-            {
-              id: 'default',
-              key: 'default',
-              AttributeName: '',
-              AttributeValue: '',
-              SemVer: '0.0.0',
-            },
-          ],
-        },
-      },
+      props: testPayload,
     };
   }
 });

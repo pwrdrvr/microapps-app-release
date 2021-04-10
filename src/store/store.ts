@@ -1,23 +1,9 @@
 // store.ts
 
-import { createStore, AnyAction, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { MakeStore, createWrapper, Context, HYDRATE } from 'next-redux-wrapper';
-import { State } from './reducer';
-
-// create your reducer
-// @ts-ignore
-const reducer = (state: State = { tick: 'init' }, action: AnyAction) => {
-  switch (action.type) {
-    case HYDRATE:
-      // Attention! This will overwrite client state! Real apps should use proper reconciliation.
-      return { ...state, ...action.payload };
-    case 'TICK':
-      return { ...state, tick: action.payload };
-    default:
-      return state;
-  }
-};
+import { MakeStore, createWrapper, Context } from 'next-redux-wrapper';
+import reducer, { State } from './reducer';
 
 // create a makeStore function
 const makeStore: MakeStore<State> = (_context: Context) =>
