@@ -4,52 +4,13 @@ import { useSelector } from 'react-redux';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../utils/logger';
+import { RootState } from '../store/store';
 import React from 'react';
 import BaseTable, { AutoResizer } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
-import { State } from '../store/reducer';
+import { fetchAppsThunk, IPageState } from '../store/main';
 import { wrapper } from '../store/store';
-
-interface IApplication {
-  id: string;
-  AppName: string;
-  DisplayName: string;
-}
-
-interface IVersion {
-  id: string;
-  AppName: string;
-  SemVer: string;
-  Type: string;
-  Status: string;
-  DefaultFile?: string;
-  IntegrationID: string;
-}
-
-interface IFlatRule {
-  id: string;
-  key: string;
-  AttributeName: string;
-  AttributeValue: string;
-  SemVer: string;
-}
-
-interface IRules {
-  AppName: string;
-  RuleSet: IFlatRule[];
-}
-
-interface IPageProps {
-  apps: IApplication[];
-  versions: IVersion[];
-  rules: IRules;
-}
-
-export interface IPageState {
-  apps: IApplication[];
-  versions: IVersion[];
-  rules: IRules;
-}
+import { resourceLimits } from 'node:worker_threads';
 
 const headersApps = [
   {
@@ -102,7 +63,8 @@ interface OtherProps {
 }
 
 const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }) => {
-  const { indexPage } = useSelector<State, State>((state) => state);
+  const { mainPage } = useSelector<RootState, RootState>((state) => state);
+  const { apps, versions, rules } = mainPage;
   //   return <div></div>;
   // };
 
@@ -143,12 +105,7 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }) => {
         <div style={{ flex: '1 0 auto' }}>
           <AutoResizer>
             {({ width, height }) => (
-              <BaseTable
-                width={width}
-                height={height}
-                columns={headersApps}
-                data={indexPage.apps}
-              />
+              <BaseTable width={width} height={height} columns={headersApps} data={apps} />
             )}
           </AutoResizer>
         </div>
@@ -179,7 +136,7 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }) => {
                   width={width}
                   height={height}
                   columns={headersVersions}
-                  data={indexPage.versions}
+                  data={versions}
                 />
               )}
             </AutoResizer>
@@ -202,7 +159,7 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }) => {
                   width={width}
                   height={height}
                   columns={headersRules}
-                  data={indexPage.rules.RuleSet}
+                  data={rules?.RuleSet}
                 />
               )}
             </AutoResizer>
@@ -244,71 +201,17 @@ const testPayload: IPageState = {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) => {
-  //   return { props: { getServerSideProp: 'bar' } };
-  // });
-
-  // // This gets called on every request
-  // export async function getServerSideProps(ctx: NextPageContext): Promise<{ props: IPageProps }> {
-  const log = createLogger('pages:index'); //, ctx?.req?.url);
-
-  try {
-    if (manager === undefined) {
-      dbclient = new dynamodb.DynamoDB({});
-      manager = new Manager(dbclient);
-    }
-
-    // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
-    const apps = [] as IApplication[];
-    for (const app of appsRaw) {
-      apps.push({ id: app.AppName, AppName: app.AppName, DisplayName: app.DisplayName });
-    }
-    log.info(`got apps`, apps);
-
-    // Get the versions
-    const versionsRaw = await manager.GetVersionsAndRules('release');
-    const versions = [] as IVersion[];
-    for (const version of versionsRaw.Versions) {
-      versions.push({
-        id: version.SemVer,
-        AppName: version.AppName,
-        SemVer: version.SemVer,
-        Type: version.Type,
-        Status: version.Status,
-        //DefaultFile: version.DefaultFile,
-        IntegrationID: version.IntegrationID,
-      });
-    }
-    //log.info(`got versions`, versions);
-
-    // Get the rules
-    const rules = {} as IRules;
-    rules.AppName = versionsRaw.Rules.AppName;
-    rules.RuleSet = [];
-    for (const key of Object.keys(versionsRaw.Rules.RuleSet)) {
-      const rule = versionsRaw.Rules.RuleSet[key];
-      rules.RuleSet.push({
-        id: key,
-        key,
-        AttributeName: rule.AttributeName ?? '',
-        AttributeValue: rule.AttributeValue ?? '',
-        SemVer: rule.SemVer,
-      });
-    }
-    //log.info(`got rules`, versions);
-
-    // Update state with data
-    store.dispatch({ type: 'MAIN', payload: { apps, versions, rules } });
-
-    // Pass data to the page via props
-    return {};
-  } catch (error) {
-    log.error(`error getting apps: ${error.message}}`);
-    log.error(error);
-    store.dispatch({ type: 'MAIN', payload: testPayload });
-
-    return {};
-  }
+  const res = store.dispatch(fetchAppsThunk());
+  return {
+    props: {
+      // apps: res.apps,
+      // versions: res.versions,
+      // rules: res.rules,
+      apps: [],
+      versions: [],
+      rules: { AppName: '', RuleSet: [] },
+    },
+  };
 });
 
 export default Server;

@@ -25,7 +25,7 @@ export default async function allApps(req: NextApiRequest, res: NextApiResponse)
 
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
-      apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
+      apps.push({ AppName: 'client: ' + app.AppName, DisplayName: 'client: ' + app.DisplayName });
     }
 
     res.statusCode = 200;
