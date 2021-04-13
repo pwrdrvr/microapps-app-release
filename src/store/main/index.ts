@@ -58,7 +58,9 @@ const mainSlice = createSlice({
       state.versions = action.payload.versions;
       state.rules = action.payload.rules;
     },
-    failure(state) {},
+    failure(state) {
+      // Nothing here yet
+    },
   },
 });
 
