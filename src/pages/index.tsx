@@ -1,11 +1,13 @@
 import '../styles/AppGridBaseTable.module.scss';
-import { NextPageContext } from 'next';
-import Manager, { Application } from '@pwrdrvr/microapps-datalib';
-import * as dynamodb from '@aws-sdk/client-dynamodb';
-import { createLogger } from '../utils/logger';
+import { NextPage } from 'next';
+import { connect } from 'react-redux';
 import React from 'react';
 import BaseTable, { AutoResizer } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
+import { AppDispatch, AppStore, RootState, wrapper } from '../store/store';
+import { fetchAppsThunk, refreshThunk } from '../store/main';
+// import { promisify } from 'util';
+// const asyncSleep = promisify(setTimeout);
 
 interface IApplication {
   id: string;
@@ -40,9 +42,10 @@ interface IPageProps {
   apps: IApplication[];
   versions: IVersion[];
   rules: IRules;
+  dispatch: AppDispatch;
 }
 
-interface IPageState {
+export interface IPageState {
   apps: IApplication[];
   versions: IVersion[];
   rules: IRules;
@@ -93,17 +96,44 @@ const headersRules = [
   },
 ];
 
-export default class Home extends React.PureComponent<IPageProps, IPageState> {
+// interface OtherProps {
+//   getServerSideProp: string;
+//   appProp: string;
+// }
+
+//const dispatch = useDispatch<AppDispatch>();
+
+//const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps) => {
+class HomeImpl extends React.PureComponent<IPageProps, RootState> {
+  //private someState = useSelector<RootState, RootState>((state) => state);
+  //private dispatch = useDispatch<AppDispatch>();
+
   constructor(props: IPageProps) {
     super(props);
 
-    this.state = {
-      apps: this.props.apps,
-      versions: this.props.versions,
-      rules: this.props.rules,
-    };
+    //const someState = useSelector<RootState, RootState>((state) => state);
 
     this.render = this.render.bind(this);
+    this.refresh = this.refresh.bind(this);
+  }
+  //   return <div></div>;
+  // };
+
+  // export default class Home extends React.PureComponent<IPageProps, IPageState> {
+  //   constructor(props: IPageProps) {
+  //     super(props);
+
+  //     this.state = {
+  //       apps: this.props.apps,
+  //       versions: this.props.versions,
+  //       rules: this.props.rules,
+  //     };
+
+  //     this.render = this.render.bind(this);
+  //   }
+
+  async refresh(): Promise<void> {
+    await this.props.dispatch(refreshThunk());
   }
 
   render(): JSX.Element {
@@ -126,6 +156,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
             alignItems: 'stretch',
           }}
         >
+          <button onClick={this.refresh}>Refresh</button>
           <TableContainer title={'Applications'} />
           <div style={{ flex: '1 0 auto' }}>
             <AutoResizer>
@@ -189,7 +220,7 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
                     width={width}
                     height={height}
                     columns={headersRules}
-                    data={this.props.rules.RuleSet}
+                    data={this.props.rules?.RuleSet}
                   />
                 )}
               </AutoResizer>
@@ -201,91 +232,38 @@ export default class Home extends React.PureComponent<IPageProps, IPageState> {
   }
 }
 
-let dbclient: dynamodb.DynamoDB;
-let manager: Manager;
+export const getServerSideProps = wrapper.getServerSideProps((store) => async () => {
+  await store.dispatch(fetchAppsThunk());
+  //await asyncSleep(10000);
+  return {
+    props: {
+      // apps: res.apps,
+      // versions: res.versions,
+      // rules: res.rules,
+      apps: [],
+      versions: [],
+      rules: { AppName: '', RuleSet: [] },
+    },
+  };
+});
 
-// This gets called on every request
-export async function getServerSideProps(ctx: NextPageContext): Promise<{ props: IPageProps }> {
-  const log = createLogger('pages:index', ctx?.req?.url);
+//export default Server;
 
-  try {
-    if (manager === undefined) {
-      dbclient = new dynamodb.DynamoDB({});
-      manager = new Manager(dbclient);
-    }
-
-    // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
-    const apps = [] as IApplication[];
-    for (const app of appsRaw) {
-      apps.push({ id: app.AppName, AppName: app.AppName, DisplayName: app.DisplayName });
-    }
-    log.info(`got apps`, apps);
-
-    // Get the versions
-    const versionsRaw = await manager.GetVersionsAndRules('release');
-    const versions = [] as IVersion[];
-    for (const version of versionsRaw.Versions) {
-      versions.push({
-        id: version.SemVer,
-        AppName: version.AppName,
-        SemVer: version.SemVer,
-        Type: version.Type,
-        Status: version.Status,
-        //DefaultFile: version.DefaultFile,
-        IntegrationID: version.IntegrationID,
-      });
-    }
-    log.info(`got versions`, versions);
-
-    // Get the rules
-    const rules = {} as IRules;
-    rules.AppName = versionsRaw.Rules.AppName;
-    rules.RuleSet = [];
-    for (const key of Object.keys(versionsRaw.Rules.RuleSet)) {
-      const rule = versionsRaw.Rules.RuleSet[key];
-      rules.RuleSet.push({
-        id: key,
-        key,
-        AttributeName: rule.AttributeName ?? '',
-        AttributeValue: rule.AttributeValue ?? '',
-        SemVer: rule.SemVer,
-      });
-    }
-    log.info(`got rules`, versions);
-
-    // Pass data to the page via props
-    return { props: { apps, versions, rules } };
-  } catch (error) {
-    log.error(`error getting apps: ${error.message}}`);
-    log.error(error);
-    return {
-      props: {
-        apps: [{ id: 'cat', AppName: 'cat', DisplayName: 'dog' }],
-        versions: [
-          {
-            id: 'cat',
-            AppName: 'cat',
-            SemVer: '0.0.0',
-            DefaultFile: 'index.html',
-            Status: 'done?',
-            IntegrationID: 'none',
-            Type: 'next.js',
-          },
-        ],
-        rules: {
-          AppName: 'cat',
-          RuleSet: [
-            {
-              id: 'default',
-              key: 'default',
-              AttributeName: '',
-              AttributeValue: '',
-              SemVer: '0.0.0',
-            },
-          ],
-        },
-      },
-    };
-  }
+function mapStateToProps(state: RootState) {
+  return {
+    // apps: res.apps,
+    // versions: res.versions,
+    // rules: res.rules,
+    apps: state.mainPage.apps,
+    versions: state.mainPage.versions,
+    rules: state.mainPage.rules,
+  };
 }
+
+function mapDispatchToProps(dispatch: AppDispatch) {
+  return {
+    dispatch,
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeImpl);
