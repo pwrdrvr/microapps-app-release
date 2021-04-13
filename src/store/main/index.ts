@@ -7,13 +7,13 @@ import { HYDRATE } from 'next-redux-wrapper';
 
 const log = createLogger('mainSlice'); //, ctx?.req?.url);
 
-interface IApplication {
+export interface IApplication {
   id: string;
   AppName: string;
   DisplayName: string;
 }
 
-interface IVersion {
+export interface IVersion {
   id: string;
   AppName: string;
   SemVer: string;
@@ -23,7 +23,7 @@ interface IVersion {
   IntegrationID: string;
 }
 
-interface IFlatRule {
+export interface IFlatRule {
   id: string;
   key: string;
   AttributeName: string;
@@ -31,7 +31,7 @@ interface IFlatRule {
   SemVer: string;
 }
 
-interface IRules {
+export interface IRules {
   AppName: string;
   RuleSet: IFlatRule[];
 }
@@ -136,6 +136,58 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
     //log.info(`got rules`, versions);
 
     return thunkAPI.dispatch(mainSlice.actions.success({ apps, versions, rules }));
+  } catch (error) {
+    log.error(`error getting apps: ${error.message}}`);
+    log.error(error);
+    return thunkAPI.dispatch(mainSlice.actions.failure());
+  }
+});
+
+const testPayload: IPageState = {
+  apps: [{ id: 'cat', AppName: 'client: cat', DisplayName: 'client: dog' }],
+  versions: [
+    {
+      id: 'cat',
+      AppName: 'client: cat',
+      SemVer: '0.0.0',
+      DefaultFile: 'index.html',
+      Status: 'done?',
+      IntegrationID: 'none',
+      Type: 'next.js',
+    },
+  ],
+  rules: {
+    AppName: 'client: cat',
+    RuleSet: [
+      {
+        id: 'client:default',
+        key: 'client:default',
+        AttributeName: '',
+        AttributeValue: '',
+        SemVer: '0.0.0',
+      },
+    ],
+  },
+};
+
+export const refreshThunk = createAsyncThunk('mainPage/refresh', async (_, thunkAPI) => {
+  try {
+    thunkAPI.dispatch(mainSlice.actions.start());
+
+    log.info('mainPage/refresh');
+
+    // TODO: Fetch api/refresh
+    const res = await fetch(`${window.document.URL}/api/refresh`);
+    const props = (await res.json()) as IPageState;
+
+    log.info('mainPage/refresh - got response', { props });
+
+    // Mutate the items so it is detectable in the UI
+    for (const app of props.apps) {
+      app.DisplayName = 'client: ' + app.DisplayName;
+    }
+
+    return thunkAPI.dispatch(mainSlice.actions.success(props));
   } catch (error) {
     log.error(`error getting apps: ${error.message}}`);
     log.error(error);

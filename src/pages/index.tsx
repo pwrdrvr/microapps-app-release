@@ -1,13 +1,11 @@
 import '../styles/AppGridBaseTable.module.scss';
 import { NextPage } from 'next';
-import { useSelector } from 'react-redux';
-import Manager from '@pwrdrvr/microapps-datalib';
-import * as dynamodb from '@aws-sdk/client-dynamodb';
+import { connect } from 'react-redux';
 import React from 'react';
 import BaseTable, { AutoResizer } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
-import { RootState, wrapper } from '../store/store';
-import { fetchAppsThunk } from '../store/main';
+import { AppDispatch, AppStore, RootState, wrapper } from '../store/store';
+import { fetchAppsThunk, refreshThunk } from '../store/main';
 // import { promisify } from 'util';
 // const asyncSleep = promisify(setTimeout);
 
@@ -44,6 +42,7 @@ interface IPageProps {
   apps: IApplication[];
   versions: IVersion[];
   rules: IRules;
+  dispatch: AppDispatch;
 }
 
 export interface IPageState {
@@ -97,14 +96,26 @@ const headersRules = [
   },
 ];
 
-interface OtherProps {
-  getServerSideProp: string;
-  appProp: string;
-}
+// interface OtherProps {
+//   getServerSideProp: string;
+//   appProp: string;
+// }
 
-const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps) => {
-  const someState = useSelector<RootState, RootState>((state) => state);
-  const { mainPage } = someState;
+//const dispatch = useDispatch<AppDispatch>();
+
+//const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps) => {
+class HomeImpl extends React.PureComponent<IPageProps, RootState> {
+  //private someState = useSelector<RootState, RootState>((state) => state);
+  //private dispatch = useDispatch<AppDispatch>();
+
+  constructor(props: IPageProps) {
+    super(props);
+
+    //const someState = useSelector<RootState, RootState>((state) => state);
+
+    this.render = this.render.bind(this);
+    this.refresh = this.refresh.bind(this);
+  }
   //   return <div></div>;
   // };
 
@@ -121,17 +132,12 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps
   //     this.render = this.render.bind(this);
   //   }
 
-  //   render(): JSX.Element {
-  return (
-    <div
-      style={{
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-      }}
-    >
+  async refresh(): Promise<void> {
+    await this.props.dispatch(refreshThunk());
+  }
+
+  render(): JSX.Element {
+    return (
       <div
         style={{
           height: '100%',
@@ -141,24 +147,6 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps
           alignItems: 'stretch',
         }}
       >
-        <TableContainer title={'Applications'} />
-        <div style={{ flex: '1 0 auto' }}>
-          <AutoResizer>
-            {({ width, height }) => (
-              <BaseTable width={width} height={height} columns={headersApps} data={mainPage.apps} />
-            )}
-          </AutoResizer>
-        </div>
-      </div>
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'stretch',
-        }}
-      >
         <div
           style={{
             height: '100%',
@@ -168,15 +156,16 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps
             alignItems: 'stretch',
           }}
         >
-          <TableContainer title={'Versions'} />
+          <button onClick={this.refresh}>Refresh</button>
+          <TableContainer title={'Applications'} />
           <div style={{ flex: '1 0 auto' }}>
             <AutoResizer>
               {({ width, height }) => (
                 <BaseTable
                   width={width}
                   height={height}
-                  columns={headersVersions}
-                  data={mainPage.versions}
+                  columns={headersApps}
+                  data={this.props.apps}
                 />
               )}
             </AutoResizer>
@@ -187,58 +176,61 @@ const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps
             height: '100%',
             width: '100%',
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
             alignItems: 'stretch',
           }}
         >
-          <TableContainer title={'Rules'} />
-          <div style={{ flex: '1 0 auto' }}>
-            <AutoResizer>
-              {({ width, height }) => (
-                <BaseTable
-                  width={width}
-                  height={height}
-                  columns={headersRules}
-                  data={mainPage.rules.RuleSet}
-                />
-              )}
-            </AutoResizer>
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+            }}
+          >
+            <TableContainer title={'Versions'} />
+            <div style={{ flex: '1 0 auto' }}>
+              <AutoResizer>
+                {({ width, height }) => (
+                  <BaseTable
+                    width={width}
+                    height={height}
+                    columns={headersVersions}
+                    data={this.props.versions}
+                  />
+                )}
+              </AutoResizer>
+            </div>
+          </div>
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+            }}
+          >
+            <TableContainer title={'Rules'} />
+            <div style={{ flex: '1 0 auto' }}>
+              <AutoResizer>
+                {({ width, height }) => (
+                  <BaseTable
+                    width={width}
+                    height={height}
+                    columns={headersRules}
+                    data={this.props.rules?.RuleSet}
+                  />
+                )}
+              </AutoResizer>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-let dbclient: dynamodb.DynamoDB;
-let manager: Manager;
-
-const testPayload: IPageState = {
-  apps: [{ id: 'cat', AppName: 'cat', DisplayName: 'dog' }],
-  versions: [
-    {
-      id: 'cat',
-      AppName: 'cat',
-      SemVer: '0.0.0',
-      DefaultFile: 'index.html',
-      Status: 'done?',
-      IntegrationID: 'none',
-      Type: 'next.js',
-    },
-  ],
-  rules: {
-    AppName: 'cat',
-    RuleSet: [
-      {
-        id: 'default',
-        key: 'default',
-        AttributeName: '',
-        AttributeValue: '',
-        SemVer: '0.0.0',
-      },
-    ],
-  },
-};
+    );
+  }
+}
 
 export const getServerSideProps = wrapper.getServerSideProps((store) => async () => {
   await store.dispatch(fetchAppsThunk());
@@ -255,4 +247,23 @@ export const getServerSideProps = wrapper.getServerSideProps((store) => async ()
   };
 });
 
-export default Server;
+//export default Server;
+
+function mapStateToProps(state: RootState) {
+  return {
+    // apps: res.apps,
+    // versions: res.versions,
+    // rules: res.rules,
+    apps: state.mainPage.apps,
+    versions: state.mainPage.versions,
+    rules: state.mainPage.rules,
+  };
+}
+
+function mapDispatchToProps(dispatch: AppDispatch) {
+  return {
+    dispatch,
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeImpl);
