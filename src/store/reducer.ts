@@ -1,16 +1,8 @@
-import { AnyAction, CombinedState, combineReducers } from 'redux';
+import { combineReducers } from 'redux';
 import { diff } from 'jsondiffpatch';
 import { HYDRATE } from 'next-redux-wrapper';
-// import { IPageState } from '../pages';
 import mainPage from './main/index';
-// import count from './main/index';
-
-// export interface State {
-//   app: string;
-//   page: string;
-//   tick: string;
-//   indexPage: IPageState;
-// }
+import { AnyAction } from '@reduxjs/toolkit';
 
 const combinedReducer = combineReducers({
   mainPage,

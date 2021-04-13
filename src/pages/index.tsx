@@ -8,8 +8,8 @@ import BaseTable, { AutoResizer } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
 import { RootState, wrapper } from '../store/store';
 import { fetchAppsThunk } from '../store/main';
-import { promisify } from 'util';
-const asyncSleep = promisify(setTimeout);
+// import { promisify } from 'util';
+// const asyncSleep = promisify(setTimeout);
 
 interface IApplication {
   id: string;
@@ -240,7 +240,7 @@ const testPayload: IPageState = {
   },
 };
 
-export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) => {
+export const getServerSideProps = wrapper.getServerSideProps((store) => async () => {
   await store.dispatch(fetchAppsThunk());
   //await asyncSleep(10000);
   return {
