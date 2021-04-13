@@ -1,7 +1,11 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import { createLogger } from '../../utils/logger';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
+import { AppState } from '../store';
+import { HYDRATE } from 'next-redux-wrapper';
+
+const log = createLogger('mainSlice'); //, ctx?.req?.url);
 
 interface IApplication {
   id: string;
@@ -44,6 +48,8 @@ const initialState: IPageState = {
   rules: { AppName: 'init', RuleSet: [] },
 };
 
+const hydrate = createAction<AppState>(HYDRATE);
+
 const mainSlice = createSlice({
   name: 'mainPage',
   initialState,
@@ -62,6 +68,15 @@ const mainSlice = createSlice({
       // Nothing here yet
     },
   },
+  extraReducers(builder) {
+    builder.addCase(hydrate, (state, action) => {
+      log.info('HYDRATE', { state, payload: action.payload });
+      return {
+        ...state,
+        ...(action.payload as any)[mainSlice.name],
+      };
+    });
+  },
 });
 
 export const { start, success, failure } = mainSlice.actions;
@@ -72,8 +87,6 @@ let dbclient: dynamodb.DynamoDB;
 let manager: Manager;
 
 export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, thunkAPI) => {
-  const log = createLogger('fetchAppsThunk'); //, ctx?.req?.url);
-
   try {
     thunkAPI.dispatch(mainSlice.actions.start());
 
