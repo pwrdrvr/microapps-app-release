@@ -9,6 +9,8 @@ import { wrapper } from '../store/store';
 
 // export default MyApp;
 
-const WrappedApp: FC<AppProps> = ({ Component, pageProps }) => <Component {...pageProps} />;
+const WrappedApp: FC<AppProps> = ({ Component, pageProps }: AppProps) => (
+  <Component {...pageProps} />
+);
 
 export default wrapper.withRedux(WrappedApp);
