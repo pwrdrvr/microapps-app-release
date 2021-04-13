@@ -6,9 +6,7 @@ import * as dynamodb from '@aws-sdk/client-dynamodb';
 import React from 'react';
 import BaseTable, { AutoResizer } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
-// import { State } from '../store/reducer';
-import { RootState } from '../store/store';
-import { wrapper } from '../store/store';
+import { RootState, wrapper } from '../store/store';
 import { fetchAppsThunk } from '../store/main';
 import { promisify } from 'util';
 const asyncSleep = promisify(setTimeout);
@@ -104,7 +102,7 @@ interface OtherProps {
   appProp: string;
 }
 
-const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }) => {
+const Server: NextPage<OtherProps> = ({ appProp, getServerSideProp }: OtherProps) => {
   const someState = useSelector<RootState, RootState>((state) => state);
   const { mainPage } = someState;
   //   return <div></div>;
