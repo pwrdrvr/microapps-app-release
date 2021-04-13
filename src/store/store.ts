@@ -1,10 +1,8 @@
 import { Action, configureStore, Store } from '@reduxjs/toolkit';
-import { ThunkAction } from 'redux-thunk';
 import { MakeStore, createWrapper } from 'next-redux-wrapper';
 import rootReducer from './reducer';
 
 export type RootState = ReturnType<typeof rootReducer>;
-export type AppThunk = ThunkAction<void, RootState, null, Action<any>>;
 
 /**
  * @param initialState The store's initial state (on the client side, the state of the server-side store is passed here)

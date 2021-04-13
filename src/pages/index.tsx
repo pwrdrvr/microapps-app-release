@@ -243,8 +243,8 @@ const testPayload: IPageState = {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async ({ store }) => {
-  store.dispatch(fetchAppsThunk());
-  await asyncSleep(10000);
+  await store.dispatch(fetchAppsThunk());
+  //await asyncSleep(10000);
   return {
     props: {
       // apps: res.apps,
