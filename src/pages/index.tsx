@@ -156,7 +156,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
             alignItems: 'stretch',
           }}
         >
-          <button onClick={this.refresh}>Refresh</button>
+          {/* <button onClick={this.refresh}>Refresh</button> */}
           <TableContainer title={'Applications'} />
           <div style={{ flex: '1 0 auto' }}>
             <AutoResizer>
