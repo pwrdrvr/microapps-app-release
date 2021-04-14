@@ -66,6 +66,7 @@ const headersApps: ColumnShape[] = [
     key: 'DisplayName',
     dataKey: 'DisplayName',
     title: 'Display Name',
+    sortable: true,
   },
 ];
 const headersVersions: ColumnShape[] = [

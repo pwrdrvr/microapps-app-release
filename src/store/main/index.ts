@@ -6,6 +6,7 @@ import { AppState } from '../store';
 import { HYDRATE } from 'next-redux-wrapper';
 import { ColumnShape, SortOrder } from 'react-base-table';
 import React from 'react';
+import semver from 'semver';
 
 const log = createLogger('mainSlice'); //, ctx?.req?.url);
 
@@ -71,14 +72,59 @@ const mainSlice = createSlice({
       state.apps = action.payload.apps || [];
       state.versions = action.payload.versions || [];
       state.rules = action.payload.rules || { AppName: '', RuleSet: [] };
+
+      state.apps = state.apps.sort((left, right): number => {
+        if (state.appsSortBy.key === 'DisplayName') {
+          if (left.DisplayName < right.DisplayName)
+            return state.appsSortBy.order === 'asc' ? -1 : 1;
+          if (left.DisplayName > right.DisplayName)
+            return state.appsSortBy.order === 'asc' ? 1 : -1;
+          return 0;
+        }
+
+        // Default to sorting by AppName
+        if (left.AppName < right.AppName) return state.appsSortBy.order === 'asc' ? -1 : 1;
+        if (left.AppName > right.AppName) return state.appsSortBy.order === 'asc' ? 1 : -1;
+        return 0;
+      });
+      state.versions = state.versions.sort((left, right): number => {
+        // Default to sorting by SemVer
+        if (semver.lt(left.SemVer, right.SemVer))
+          return state.versionsSortBy.order === 'asc' ? -1 : 1;
+        if (semver.gt(left.SemVer, right.SemVer))
+          return state.versionsSortBy.order === 'asc' ? 1 : -1;
+        return 0;
+      });
     },
     sortApps(state, action: PayloadAction<SortParams>) {
       state.appsSortBy = action.payload;
-      state.apps = state.apps.reverse();
+      log.info('sortApps', { appsSortBy: state.appsSortBy });
+      state.apps = state.apps.sort((left, right): number => {
+        if (state.appsSortBy.key === 'DisplayName') {
+          if (left.DisplayName < right.DisplayName)
+            return state.appsSortBy.order === 'asc' ? -1 : 1;
+          if (left.DisplayName > right.DisplayName)
+            return state.appsSortBy.order === 'asc' ? 1 : -1;
+          return 0;
+        }
+
+        // Default to sorting by AppName
+        if (left.AppName < right.AppName) return state.appsSortBy.order === 'asc' ? -1 : 1;
+        if (left.AppName > right.AppName) return state.appsSortBy.order === 'asc' ? 1 : -1;
+        return 0;
+      });
+      log.info('sortedApps', state.apps);
     },
     sortVersions(state, action: PayloadAction<SortParams>) {
       state.versionsSortBy = action.payload;
-      state.versions = state.versions.reverse();
+      state.versions = state.versions.sort((left, right): number => {
+        // Default to sorting by SemVer
+        if (semver.lt(left.SemVer, right.SemVer))
+          return state.versionsSortBy.order === 'asc' ? -1 : 1;
+        if (semver.gt(left.SemVer, right.SemVer))
+          return state.versionsSortBy.order === 'asc' ? 1 : -1;
+        return 0;
+      });
     },
     failure(state) {
       // Nothing here yet
