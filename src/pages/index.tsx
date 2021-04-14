@@ -6,6 +6,7 @@ import BaseTable, { AutoResizer, ColumnShape } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
 import { AppDispatch, RootState, wrapper } from '../store/store';
 import { fetchAppsThunk, refreshThunk, sortApps, SortParams, sortVersions } from '../store/main';
+import SelectableTable from '../components/SelectableTable';
 // import { promisify } from 'util';
 // const asyncSleep = promisify(setTimeout);
 
@@ -161,7 +162,8 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
           <div style={{ flex: '1 0 auto' }}>
             <AutoResizer>
               {({ width, height }) => (
-                <BaseTable
+                <SelectableTable
+                  selectable
                   width={width}
                   height={height}
                   columns={headersApps}
