@@ -2,10 +2,10 @@ import '../styles/AppGridBaseTable.module.scss';
 import { NextPage } from 'next';
 import { connect } from 'react-redux';
 import React from 'react';
-import BaseTable, { AutoResizer } from 'react-base-table';
+import BaseTable, { AutoResizer, ColumnShape } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
-import { AppDispatch, AppStore, RootState, wrapper } from '../store/store';
-import { fetchAppsThunk, refreshThunk } from '../store/main';
+import { AppDispatch, RootState, wrapper } from '../store/store';
+import { fetchAppsThunk, refreshThunk, sortApps, SortParams, sortVersions } from '../store/main';
 // import { promisify } from 'util';
 // const asyncSleep = promisify(setTimeout);
 
@@ -42,6 +42,8 @@ interface IPageProps {
   apps: IApplication[];
   versions: IVersion[];
   rules: IRules;
+  appsSortBy: SortParams;
+  versionsSortBy: SortParams;
   dispatch: AppDispatch;
 }
 
@@ -51,12 +53,13 @@ export interface IPageState {
   rules: IRules;
 }
 
-const headersApps = [
+const headersApps: ColumnShape[] = [
   {
     width: 150,
     key: 'AppName',
     dataKey: 'AppName',
     title: 'AppName',
+    sortable: true,
   },
   {
     width: 150,
@@ -65,13 +68,14 @@ const headersApps = [
     title: 'Display Name',
   },
 ];
-const headersVersions = [
+const headersVersions: ColumnShape[] = [
   {
     width: 150,
     key: 'AppName',
     dataKey: 'AppName',
     title: 'AppName',
     sortable: true,
+    hidden: true,
   },
   {
     width: 150,
@@ -81,7 +85,7 @@ const headersVersions = [
     sortable: true,
   },
 ];
-const headersRules = [
+const headersRules: ColumnShape[] = [
   {
     width: 150,
     key: 'key',
@@ -115,22 +119,17 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
 
     this.render = this.render.bind(this);
     this.refresh = this.refresh.bind(this);
+    this.sortApps = this.sortApps.bind(this);
+    this.sortVersions = this.sortVersions.bind(this);
   }
-  //   return <div></div>;
-  // };
 
-  // export default class Home extends React.PureComponent<IPageProps, IPageState> {
-  //   constructor(props: IPageProps) {
-  //     super(props);
+  sortApps(args: SortParams) {
+    this.props.dispatch(sortApps(args));
+  }
 
-  //     this.state = {
-  //       apps: this.props.apps,
-  //       versions: this.props.versions,
-  //       rules: this.props.rules,
-  //     };
-
-  //     this.render = this.render.bind(this);
-  //   }
+  sortVersions(args: SortParams) {
+    this.props.dispatch(sortVersions(args));
+  }
 
   async refresh(): Promise<void> {
     await this.props.dispatch(refreshThunk());
@@ -166,6 +165,8 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                   height={height}
                   columns={headersApps}
                   data={this.props.apps}
+                  sortBy={this.props.appsSortBy}
+                  onColumnSort={this.sortApps}
                 />
               )}
             </AutoResizer>
@@ -198,6 +199,8 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                     height={height}
                     columns={headersVersions}
                     data={this.props.versions}
+                    sortBy={this.props.versionsSortBy}
+                    onColumnSort={this.sortVersions}
                   />
                 )}
               </AutoResizer>
@@ -251,12 +254,11 @@ export const getServerSideProps = wrapper.getServerSideProps((store) => async ()
 
 function mapStateToProps(state: RootState) {
   return {
-    // apps: res.apps,
-    // versions: res.versions,
-    // rules: res.rules,
     apps: state.mainPage.apps,
     versions: state.mainPage.versions,
     rules: state.mainPage.rules,
+    appsSortBy: state.mainPage.appsSortBy,
+    versionsSortBy: state.mainPage.versionsSortBy,
   };
 }
 

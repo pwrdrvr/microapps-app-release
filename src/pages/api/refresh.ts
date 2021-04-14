@@ -5,7 +5,7 @@ import { createLogger } from '../../utils/logger';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 
-const testPayload: IPageState = {
+const testPayload: Partial<IPageState> = {
   apps: [{ id: 'cat', AppName: 'client: cat', DisplayName: 'client: dog' }],
   versions: [
     {

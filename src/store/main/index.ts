@@ -4,6 +4,8 @@ import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { AppState } from '../store';
 import { HYDRATE } from 'next-redux-wrapper';
+import { ColumnShape, SortOrder } from 'react-base-table';
+import React from 'react';
 
 const log = createLogger('mainSlice'); //, ctx?.req?.url);
 
@@ -36,16 +38,22 @@ export interface IRules {
   RuleSet: IFlatRule[];
 }
 
+export type SortParams = { column?: ColumnShape; order: SortOrder; key: React.Key };
+
 export interface IPageState {
   apps: IApplication[];
   versions: IVersion[];
   rules: IRules;
+  appsSortBy: SortParams;
+  versionsSortBy: SortParams;
 }
 
 const initialState: IPageState = {
   apps: [],
   versions: [],
   rules: { AppName: 'init', RuleSet: [] },
+  appsSortBy: { key: 'AppName', order: 'asc' },
+  versionsSortBy: { key: 'SemVer', order: 'desc' },
 };
 
 const hydrate = createAction<AppState>(HYDRATE);
@@ -59,10 +67,18 @@ const mainSlice = createSlice({
       state.versions = [];
       state.rules = { AppName: 'start', RuleSet: [] };
     },
-    success(state, action: PayloadAction<IPageState>) {
-      state.apps = action.payload.apps;
-      state.versions = action.payload.versions;
-      state.rules = action.payload.rules;
+    success(state, action: PayloadAction<Partial<IPageState>>) {
+      state.apps = action.payload.apps || [];
+      state.versions = action.payload.versions || [];
+      state.rules = action.payload.rules || { AppName: '', RuleSet: [] };
+    },
+    sortApps(state, action: PayloadAction<SortParams>) {
+      state.appsSortBy = action.payload;
+      state.apps = state.apps.reverse();
+    },
+    sortVersions(state, action: PayloadAction<SortParams>) {
+      state.versionsSortBy = action.payload;
+      state.versions = state.versions.reverse();
     },
     failure(state) {
       // Nothing here yet
@@ -79,7 +95,7 @@ const mainSlice = createSlice({
   },
 });
 
-export const { start, success, failure } = mainSlice.actions;
+export const { start, success, failure, sortApps, sortVersions } = mainSlice.actions;
 
 export default mainSlice.reducer;
 
@@ -143,7 +159,7 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
   }
 });
 
-const testPayload: IPageState = {
+const testPayload: Partial<IPageState> = {
   apps: [{ id: 'cat', AppName: 'client: cat', DisplayName: 'client: dog' }],
   versions: [
     {
