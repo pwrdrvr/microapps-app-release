@@ -172,6 +172,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                   sortBy={this.props.appsSortBy}
                   onColumnSort={this.sortApps}
                   onRowSelect={() => console.log('hi there!')}
+                  defaultSelectedRowKeys={['release']}
                 />
               )}
             </AutoResizer>
