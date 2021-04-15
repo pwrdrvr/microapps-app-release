@@ -1,5 +1,4 @@
 import '../styles/AppGridBaseTable.module.scss';
-import { NextPage } from 'next';
 import { connect } from 'react-redux';
 import React from 'react';
 import BaseTable, { AutoResizer, ColumnShape } from 'react-base-table';
@@ -123,6 +122,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
     this.refresh = this.refresh.bind(this);
     this.sortApps = this.sortApps.bind(this);
     this.sortVersions = this.sortVersions.bind(this);
+    this.selectApp = this.selectApp.bind(this);
   }
 
   sortApps(args: SortParams) {
@@ -134,7 +134,20 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
   }
 
   async refresh(): Promise<void> {
-    await this.props.dispatch(refreshThunk());
+    await this.props.dispatch(refreshThunk({}));
+  }
+
+  async selectApp({
+    rowData: { AppName },
+  }: {
+    rowData: {
+      id: string;
+      AppName: string;
+      DisplayName: string;
+    };
+  }): Promise<void> {
+    console.log(`selectApp: ${AppName}`);
+    await this.props.dispatch(refreshThunk({ appName: AppName }));
   }
 
   render(): JSX.Element {
@@ -171,7 +184,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                   data={this.props.apps}
                   sortBy={this.props.appsSortBy}
                   onColumnSort={this.sortApps}
-                  onRowSelect={() => console.log('hi there!')}
+                  onRowSelect={this.selectApp}
                   defaultSelectedRowKeys={['release']}
                 />
               )}

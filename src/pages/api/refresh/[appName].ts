@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { NextApiRequest, NextApiResponse } from 'next';
-import { IApplication, IRules, IVersion } from '../../store/main';
-import { createLogger } from '../../utils/logger';
+import { IApplication, IRules, IVersion } from '../../../store/main';
+import { createLogger } from '../../../utils/logger';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 
@@ -11,22 +11,18 @@ let manager: Manager;
 export default async function refresh(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const log = createLogger('api:refresh', req.url);
 
+  log.info('got request', { query: req.query });
+
+  const appName = req.query.appName as string;
+
   try {
     if (manager === undefined) {
       dbclient = new dynamodb.DynamoDB({});
       manager = new Manager(dbclient);
     }
 
-    // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
-    const apps = [] as IApplication[];
-    for (const app of appsRaw) {
-      apps.push({ id: app.AppName, AppName: app.AppName, DisplayName: app.DisplayName });
-    }
-    log.info(`got apps`, apps);
-
     // Get the versions
-    const versionsRaw = await manager.GetVersionsAndRules('release');
+    const versionsRaw = await manager.GetVersionsAndRules(appName);
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({
@@ -58,7 +54,7 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     //log.info(`got rules`, versions);
 
     res.statusCode = 200;
-    res.json({ apps, versions, rules });
+    res.json({ appName, versions, rules });
     log.info(`returned db payload`);
   } catch (error) {
     log.error(error);

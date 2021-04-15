@@ -68,8 +68,15 @@ const mainSlice = createSlice({
       state.versions = [];
       state.rules = { AppName: 'start', RuleSet: [] };
     },
+    startAppSelect(state) {
+      state.versions = [];
+      state.rules = { AppName: 'start', RuleSet: [] };
+    },
     success(state, action: PayloadAction<Partial<IPageState>>) {
-      state.apps = action.payload.apps || [];
+      if (action.payload.apps !== undefined) {
+        // We don't reload apps on row selection
+        state.apps = action.payload.apps;
+      }
       state.versions = action.payload.versions || [];
       state.rules = action.payload.rules || { AppName: '', RuleSet: [] };
 
@@ -205,54 +212,33 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
   }
 });
 
-const testPayload: Partial<IPageState> = {
-  apps: [{ id: 'cat', AppName: 'client: cat', DisplayName: 'client: dog' }],
-  versions: [
-    {
-      id: 'cat',
-      AppName: 'client: cat',
-      SemVer: '0.0.0',
-      DefaultFile: 'index.html',
-      Status: 'done?',
-      IntegrationID: 'none',
-      Type: 'next.js',
-    },
-  ],
-  rules: {
-    AppName: 'client: cat',
-    RuleSet: [
-      {
-        id: 'client:default',
-        key: 'client:default',
-        AttributeName: '',
-        AttributeValue: '',
-        SemVer: '0.0.0',
-      },
-    ],
-  },
-};
+export const refreshThunk = createAsyncThunk(
+  'mainPage/refresh',
+  async ({ appName }: { appName?: string }, thunkAPI) => {
+    try {
+      if (appName !== undefined) {
+        thunkAPI.dispatch(mainSlice.actions.startAppSelect());
+      } else {
+        thunkAPI.dispatch(mainSlice.actions.start());
+      }
 
-export const refreshThunk = createAsyncThunk('mainPage/refresh', async (_, thunkAPI) => {
-  try {
-    thunkAPI.dispatch(mainSlice.actions.start());
+      log.info('mainPage/refresh', { appName });
 
-    log.info('mainPage/refresh');
+      // Fetch api/refresh
+      const url =
+        appName !== undefined
+          ? `${window.document.URL}/api/refresh/${appName}`
+          : `${window.document.URL}/api/refresh`;
+      const res = await fetch(url);
+      const props = (await res.json()) as IPageState;
 
-    // TODO: Fetch api/refresh
-    const res = await fetch(`${window.document.URL}/api/refresh`);
-    const props = (await res.json()) as IPageState;
+      log.info('mainPage/refresh - got response', { props });
 
-    log.info('mainPage/refresh - got response', { props });
-
-    // Mutate the items so it is detectable in the UI
-    for (const app of props.apps) {
-      app.DisplayName = 'client: ' + app.DisplayName;
+      return thunkAPI.dispatch(mainSlice.actions.success(props));
+    } catch (error) {
+      log.error(`error getting apps: ${error.message}}`);
+      log.error(error);
+      return thunkAPI.dispatch(mainSlice.actions.failure());
     }
-
-    return thunkAPI.dispatch(mainSlice.actions.success(props));
-  } catch (error) {
-    log.error(`error getting apps: ${error.message}}`);
-    log.error(error);
-    return thunkAPI.dispatch(mainSlice.actions.failure());
-  }
-});
+  },
+);
