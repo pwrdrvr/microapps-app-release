@@ -164,12 +164,14 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
               {({ width, height }) => (
                 <SelectableTable
                   selectable
+                  multiSelect={false}
                   width={width}
                   height={height}
                   columns={headersApps}
                   data={this.props.apps}
                   sortBy={this.props.appsSortBy}
                   onColumnSort={this.sortApps}
+                  onRowSelect={() => console.log('hi there!')}
                 />
               )}
             </AutoResizer>

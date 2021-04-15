@@ -67,12 +67,13 @@ class SelectionCell extends React.PureComponent<ICellRendererProps> {
   }
 }
 
-interface ISelectableTableProps extends BaseTableProps {
+export interface ISelectableTableProps extends BaseTableProps {
   selectedRowKeys?: React.Key[];
   defaultSelectedRowKeys?: React.Key[];
   expandedRowKeys?: React.Key[];
   defaultExpandedRowKeys?: React.Key[];
   rowClassName?: string;
+  multiSelect?: boolean;
   rowKey?: React.Key;
 }
 
@@ -166,6 +167,9 @@ export default class SelectableTable extends React.PureComponent<
     const key = rowData[this.props.rowKey!];
 
     if (selected) {
+      // Remove all the elements from the array if we don't support multiSelect
+      if (!this.props.multiSelect && selectedRowKeys.length > 0 && !selectedRowKeys.includes(key))
+        selectedRowKeys.splice(0);
       if (!selectedRowKeys.includes(key)) selectedRowKeys.push(key);
     } else {
       const index = selectedRowKeys.indexOf(key);
@@ -232,6 +236,7 @@ export default class SelectableTable extends React.PureComponent<
 // @ts-expect-error
 SelectableTable.defaultProps = {
   ...BaseTable.defaultProps,
+  multiSelect: true,
   onRowSelect: noop,
   onSelectedRowsChange: noop,
 };
