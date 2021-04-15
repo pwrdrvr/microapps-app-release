@@ -1,13 +1,56 @@
 import React from 'react';
-import BaseTable, { normalizeColumns, Column } from 'react-base-table';
+import BaseTable, {
+  normalizeColumns,
+  Column,
+  BaseTableProps,
+  callOrReturn,
+  ColumnShape,
+} from 'react-base-table';
 import styled from 'styled-components';
+
+//
+// cloneArray is defined in react-grid-table and is exported but not at the top-level
+// https://github.com/Autodesk/react-base-table/blob/8e657a4dbf424cf3c3cdac2287f26c5723021372/src/utils.js#L123-L129
+//
+// Babel7 changed the behavior of @babel/plugin-transform-spread in https://github.com/babel/babel/pull/6763
+// [...array] is transpiled to array.concat() while it was [].concat(array) before
+// this change breaks immutable array(seamless-immutable), [...array] should always return mutable array
+export function cloneArray<T>(array: T[]): T[] {
+  if (!Array.isArray(array)) return [];
+  return ([] as T[]).concat(array);
+}
 
 const StyledTable = styled(BaseTable)`
   .row-selected {
   }
 `;
 
-class SelectionCell extends React.PureComponent {
+// CallOrReturn<React.ReactNode, {
+//   cellData: any;
+//   columns: ColumnShape<unknown>[];
+//   column: ColumnShape<unknown>;
+//   columnIndex: number;
+//   rowData: unknown;
+//   rowIndex: number;
+//   container: BaseTable<unknown>;
+//   isScrolling?: boolean | undefined;
+// }>
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+function noop() {}
+
+interface ICellRendererProps {
+  cellData: never;
+  columns: ColumnShape<unknown>[];
+  column: ColumnShape<unknown>;
+  columnIndex: number;
+  rowData: never[];
+  rowIndex: number;
+  container: BaseTable<unknown>;
+  isScrolling?: boolean | undefined;
+}
+
+class SelectionCell extends React.PureComponent<ICellRendererProps> {
   _handleChange = (e: { target: { checked: boolean } }) => {
     const { rowData, rowIndex, column } = this.props;
     const { onChange } = column;
@@ -15,7 +58,7 @@ class SelectionCell extends React.PureComponent {
     onChange({ selected: e.target.checked, rowData, rowIndex });
   };
 
-  render() {
+  render(): JSX.Element {
     const { rowData, column } = this.props;
     const { selectedRowKeys, rowKey } = column;
     const checked = selectedRowKeys.includes(rowData[rowKey]);
@@ -24,8 +67,25 @@ class SelectionCell extends React.PureComponent {
   }
 }
 
-export default class SelectableTable extends React.PureComponent {
-  constructor(props) {
+interface ISelectableTableProps extends BaseTableProps {
+  selectedRowKeys?: React.Key[];
+  defaultSelectedRowKeys?: React.Key[];
+  expandedRowKeys?: React.Key[];
+  defaultExpandedRowKeys?: React.Key[];
+  rowClassName?: string;
+  rowKey?: React.Key;
+}
+
+interface ISelectableTableState {
+  selectedRowKeys: React.Key[];
+  expandedRowKeys: React.Key[];
+}
+
+export default class SelectableTable extends React.PureComponent<
+  ISelectableTableProps,
+  ISelectableTableState
+> {
+  constructor(props: ISelectableTableProps) {
     super(props);
 
     const {
@@ -48,7 +108,7 @@ export default class SelectableTable extends React.PureComponent {
    *
    * @param {array} selectedRowKeys
    */
-  setSelectedRowKeys(selectedRowKeys) {
+  setSelectedRowKeys(selectedRowKeys: React.Key[]): void {
     // if `selectedRowKeys` is controlled
     if (this.props.selectedRowKeys !== undefined) return;
 
@@ -60,7 +120,7 @@ export default class SelectableTable extends React.PureComponent {
   /**
    * See BaseTable#setExpandedRowKeys
    */
-  setExpandedRowKeys(expandedRowKeys) {
+  setExpandedRowKeys(expandedRowKeys: React.Key[]): void {
     // if `expandedRowKeys` is controlled
     if (this.props.expandedRowKeys !== undefined) return;
 
@@ -77,10 +137,10 @@ export default class SelectableTable extends React.PureComponent {
    *
    * @param {array} rowKeys
    */
-  removeRowKeysFromState(rowKeys) {
+  removeRowKeysFromState(rowKeys: React.Key[]): void {
     if (!Array.isArray(rowKeys)) return;
 
-    const state = {};
+    const state = {} as ISelectableTableState;
     if (this.props.selectedRowKeys === undefined && this.state.selectedRowKeys.length > 0) {
       state.selectedRowKeys = this.state.selectedRowKeys.filter((key) => !rowKeys.includes(key));
     }
@@ -92,9 +152,18 @@ export default class SelectableTable extends React.PureComponent {
     }
   }
 
-  _handleSelectChange = ({ selected, rowData, rowIndex }) => {
+  _handleSelectChange = ({
+    selected,
+    rowData,
+    rowIndex,
+  }: {
+    selected: boolean;
+    rowData: never;
+    rowIndex: number;
+  }): void => {
     const selectedRowKeys = [...this.state.selectedRowKeys];
-    const key = rowData[this.props.rowKey];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const key = rowData[this.props.rowKey!];
 
     if (selected) {
       if (!selectedRowKeys.includes(key)) selectedRowKeys.push(key);
@@ -113,24 +182,31 @@ export default class SelectableTable extends React.PureComponent {
     this.props.onSelectedRowsChange(selectedRowKeys);
   };
 
-  _rowClassName = ({ rowData, rowIndex }) => {
+  _rowClassName = ({
+    rowData,
+    rowIndex,
+  }: {
+    rowData: never;
+    rowIndex: number;
+  }): (string | false)[] => {
     const { rowClassName, rowKey } = this.props;
     const { selectedRowKeys } = this.state;
 
     const rowClass = rowClassName ? callOrReturn(rowClassName, { rowData, rowIndex }) : '';
-    const key = rowData[rowKey];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const key = rowData[rowKey!];
 
     return [rowClass, selectedRowKeys.includes(key) && 'row-selected'].filter(Boolean).concat(' ');
   };
 
-  render() {
+  render(): JSX.Element {
     const { columns, children, selectable, selectionColumnProps, ...rest } = this.props;
     const { selectedRowKeys } = this.state;
 
     // you'd better memoize this operation
-    let _columns = columns || normalizeColumns(children);
+    let _columns = columns || normalizeColumns([children]);
     if (selectable) {
-      const selectionColumn = {
+      const selectionColumn: ColumnShape = {
         width: 40,
         flexShrink: 0,
         resizable: false,
@@ -149,9 +225,11 @@ export default class SelectableTable extends React.PureComponent {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-function noop() {}
-
+// defaultProps exist AND TypeScript and React don't play well here
+// Trying to set defaults for some props is nearly impossible.
+// https://dev.to/bytebodger/default-props-in-react-typescript-2o5o#:~:text=Default%20Props%20in%20React%2FTypeScript%201%20The%20Setup.%20Our,...%208%20It%20Shouldn%27t%20Be%20This%20Hard.%20
+// https://github.com/microsoft/TypeScript/issues/31247#issuecomment-489962705
+// @ts-expect-error
 SelectableTable.defaultProps = {
   ...BaseTable.defaultProps,
   onRowSelect: noop,

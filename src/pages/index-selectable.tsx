@@ -1,6 +1,6 @@
 import React from 'react';
 import SelectableTable from '../components/SelectableTable';
-import BaseTable, { base, ColumnShape } from 'react-base-table';
+import { ColumnShape } from 'react-base-table';
 
 const columns: ColumnShape[] = [
   {
