@@ -1,11 +1,18 @@
 import '../styles/AppGridBaseTable.module.scss';
-import { NextPage } from 'next';
 import { connect } from 'react-redux';
 import React from 'react';
 import BaseTable, { AutoResizer, ColumnShape } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
 import { AppDispatch, RootState, wrapper } from '../store/store';
-import { fetchAppsThunk, refreshThunk, sortApps, SortParams, sortVersions } from '../store/main';
+import {
+  fetchAppsThunk,
+  refreshThunk,
+  sortApps,
+  SortParams,
+  sortVersions,
+  success,
+} from '../store/main';
+import SelectableTable from '../components/SelectableTable';
 // import { promisify } from 'util';
 // const asyncSleep = promisify(setTimeout);
 
@@ -122,6 +129,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
     this.refresh = this.refresh.bind(this);
     this.sortApps = this.sortApps.bind(this);
     this.sortVersions = this.sortVersions.bind(this);
+    this.selectApp = this.selectApp.bind(this);
   }
 
   sortApps(args: SortParams) {
@@ -133,7 +141,27 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
   }
 
   async refresh(): Promise<void> {
-    await this.props.dispatch(refreshThunk());
+    await this.props.dispatch(refreshThunk({}));
+  }
+
+  async selectApp({
+    selected,
+    rowData: { AppName },
+  }: {
+    selected: boolean;
+    rowData: {
+      id: string;
+      AppName: string;
+      DisplayName: string;
+    };
+  }): Promise<void> {
+    console.log(`selectApp: ${AppName}`);
+
+    if (selected === false) {
+      this.props.dispatch(success({}));
+      return;
+    }
+    await this.props.dispatch(refreshThunk({ appName: AppName }));
   }
 
   render(): JSX.Element {
@@ -156,18 +184,22 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
             alignItems: 'stretch',
           }}
         >
-          <button onClick={this.refresh}>Refresh</button>
+          {/* <button onClick={this.refresh}>Refresh</button> */}
           <TableContainer title={'Applications'} />
           <div style={{ flex: '1 0 auto' }}>
             <AutoResizer>
               {({ width, height }) => (
-                <BaseTable
+                <SelectableTable
+                  selectable
+                  multiSelect={false}
                   width={width}
                   height={height}
                   columns={headersApps}
                   data={this.props.apps}
                   sortBy={this.props.appsSortBy}
                   onColumnSort={this.sortApps}
+                  onRowSelect={this.selectApp}
+                  defaultSelectedRowKeys={['release']}
                 />
               )}
             </AutoResizer>

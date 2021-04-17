@@ -10,6 +10,7 @@ $carbon--theme: $carbon--theme--g100;
 
 @include carbon--theme() {
   // Map colors for react-base-table
+  // Get Carbon color names from here: https://www.carbondesignsystem.com/guidelines/color/usage/
   $table-prefix: BaseTable;
   $background-color: $ui-01;
   $box-shadow-color: $ui-04;
@@ -24,6 +25,18 @@ $carbon--theme: $carbon--theme--g100;
   $column-resizer-color: $interactive-03;
 
   @import '~react-base-table/es/_BaseTable.scss';
+
+  .BaseTable__row.row-selected {
+    background-color: $active-ui;
+  }
+
+  // .BaseTable {
+  //   &__row {
+  //     .row-selected {
+  //       background-color: $selected-ui;
+  //     }
+  //   }
+  // }
 
   html,
   body {
