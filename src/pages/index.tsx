@@ -4,7 +4,14 @@ import React from 'react';
 import BaseTable, { AutoResizer, ColumnShape } from 'react-base-table';
 import { TableContainer } from 'carbon-components-react';
 import { AppDispatch, RootState, wrapper } from '../store/store';
-import { fetchAppsThunk, refreshThunk, sortApps, SortParams, sortVersions } from '../store/main';
+import {
+  fetchAppsThunk,
+  refreshThunk,
+  sortApps,
+  SortParams,
+  sortVersions,
+  success,
+} from '../store/main';
 import SelectableTable from '../components/SelectableTable';
 // import { promisify } from 'util';
 // const asyncSleep = promisify(setTimeout);
@@ -138,8 +145,10 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
   }
 
   async selectApp({
+    selected,
     rowData: { AppName },
   }: {
+    selected: boolean;
     rowData: {
       id: string;
       AppName: string;
@@ -147,6 +156,11 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
     };
   }): Promise<void> {
     console.log(`selectApp: ${AppName}`);
+
+    if (selected === false) {
+      this.props.dispatch(success({}));
+      return;
+    }
     await this.props.dispatch(refreshThunk({ appName: AppName }));
   }
 
