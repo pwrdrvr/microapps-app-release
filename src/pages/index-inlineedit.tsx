@@ -80,7 +80,7 @@ class EditableCell extends React.PureComponent {
                         : -this.targetRef.offsetHeight,
                   }}
                 >
-                  <select className={styles.Select} value={value} onChange={this.handleChange}>
+                  <select className={styles.FruitSelect} value={value} onChange={this.handleChange}>
                     <option value="grapefruit">Grapefruit</option>
                     <option value="lime">Lime</option>
                     <option value="coconut">Coconut</option>

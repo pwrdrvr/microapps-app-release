@@ -1,4 +1,4 @@
-import '../styles/InlineEdit.module.scss';
+import styles from '../styles/InlineEdit.module.scss';
 import React from 'react';
 import Table, { ColumnShape } from 'react-base-table';
 import { Overlay } from 'react-overlays';
@@ -28,7 +28,7 @@ class EditableCell extends React.PureComponent {
     const { value, editing } = this.state;
 
     return (
-      <div className={'cell-container'} ref={this.setTargetRef} onClick={this.handleClick}>
+      <div className={styles.CellContainer} ref={this.setTargetRef} onClick={this.handleClick}>
         {!editing && value}
         {editing && this.targetRef && (
           <Overlay
@@ -51,7 +51,7 @@ class EditableCell extends React.PureComponent {
                       : -this.targetRef.offsetHeight,
                 }}
               >
-                <select className={'fruit-select'} value={value} onChange={this.handleChange}>
+                <select className={styles.FruitSelect} value={value} onChange={this.handleChange}>
                   <option value="grapefruit">Grapefruit</option>
                   <option value="lime">Lime</option>
                   <option value="coconut">Coconut</option>
