@@ -21,7 +21,11 @@ const columns: ColumnShape[] = [
     sortable: true,
   },
 ];
-const data = [{ DisplayName: 'cat', AppName: 'catApp' }];
+const data = [
+  { DisplayName: 'cat1', AppName: 'catApp1' },
+  { DisplayName: 'cat2', AppName: 'catApp2' },
+  { DisplayName: 'cat3', AppName: 'catApp3' },
+];
 
 export default {
   title: 'SelectableTable2',
@@ -30,16 +34,23 @@ export default {
 
 const Template: Story<ISelectableTableProps> = (args) => <SelectableTable {...args} />;
 
-export const Default = Template.bind({});
-Default.args = {
+export const Selectable = Template.bind({});
+Selectable.args = {
   width: 700,
   height: 400,
   selectable: true,
   columns: columns,
   data: data,
+  rowKey: 'AppName',
 };
 
-// export const LoggedOut = Template.bind({});
-// LoggedOut.args = {
-//   ...HeaderStories.LoggedOut.args,
-// };
+export const SingleSelect = Template.bind({});
+SingleSelect.args = {
+  width: 700,
+  height: 400,
+  selectable: true,
+  multiSelect: false,
+  columns: columns,
+  data: data,
+  rowKey: 'AppName',
+};

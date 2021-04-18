@@ -12,17 +12,13 @@ import {
   success,
 } from '../store/main';
 import SelectableTable from '../components/SelectableTable';
-// import { promisify } from 'util';
-// const asyncSleep = promisify(setTimeout);
 
 interface IApplication {
-  id: string;
   AppName: string;
   DisplayName: string;
 }
 
 interface IVersion {
-  id: string;
   AppName: string;
   SemVer: string;
   Type: string;
@@ -32,7 +28,6 @@ interface IVersion {
 }
 
 interface IFlatRule {
-  id: string;
   key: string;
   AttributeName: string;
   AttributeValue: string;
@@ -149,7 +144,6 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
   }: {
     selected: boolean;
     rowData: {
-      id: string;
       AppName: string;
       DisplayName: string;
     };
@@ -195,6 +189,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                   height={height}
                   columns={headersApps}
                   data={this.props.apps}
+                  rowKey={'AppName'}
                   sortBy={this.props.appsSortBy}
                   onColumnSort={this.sortApps}
                   onRowSelect={this.selectApp}
@@ -229,6 +224,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                   <BaseTable
                     width={width}
                     height={height}
+                    rowKey={'SemVer'}
                     columns={headersVersions}
                     data={this.props.versions}
                     sortBy={this.props.versionsSortBy}
@@ -255,6 +251,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                     width={width}
                     height={height}
                     columns={headersRules}
+                    rowKey={'key'}
                     data={this.props.rules?.RuleSet}
                   />
                 )}

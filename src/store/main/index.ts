@@ -11,13 +11,11 @@ import semver from 'semver';
 const log = createLogger('mainSlice'); //, ctx?.req?.url);
 
 export interface IApplication {
-  id: string;
   AppName: string;
   DisplayName: string;
 }
 
 export interface IVersion {
-  id: string;
   AppName: string;
   SemVer: string;
   Type: string;
@@ -27,7 +25,6 @@ export interface IVersion {
 }
 
 export interface IFlatRule {
-  id: string;
   key: string;
   AttributeName: string;
   AttributeValue: string;
@@ -170,7 +167,7 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
     const appsRaw = await Application.LoadAllAppsAsync(dbclient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
-      apps.push({ id: app.AppName, AppName: app.AppName, DisplayName: app.DisplayName });
+      apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
     }
     log.info(`got apps`, apps);
 
@@ -179,7 +176,6 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({
-        id: version.SemVer,
         AppName: version.AppName,
         SemVer: version.SemVer,
         Type: version.Type,
@@ -197,7 +193,6 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
     for (const key of Object.keys(versionsRaw.Rules.RuleSet)) {
       const rule = versionsRaw.Rules.RuleSet[key];
       rules.RuleSet.push({
-        id: key,
         key,
         AttributeName: rule.AttributeName ?? '',
         AttributeValue: rule.AttributeValue ?? '',
