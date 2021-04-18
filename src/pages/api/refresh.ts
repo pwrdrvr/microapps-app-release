@@ -21,7 +21,7 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     const appsRaw = await Application.LoadAllAppsAsync(dbclient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
-      apps.push({ id: app.AppName, AppName: app.AppName, DisplayName: app.DisplayName });
+      apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
     }
     log.info(`got apps`, apps);
 
@@ -30,7 +30,6 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({
-        id: version.SemVer,
         AppName: version.AppName,
         SemVer: version.SemVer,
         Type: version.Type,
@@ -48,7 +47,6 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     for (const key of Object.keys(versionsRaw.Rules.RuleSet)) {
       const rule = versionsRaw.Rules.RuleSet[key];
       rules.RuleSet.push({
-        id: key,
         key,
         AttributeName: rule.AttributeName ?? '',
         AttributeValue: rule.AttributeValue ?? '',

@@ -3,21 +3,21 @@
   flex: 1 0 100%;
   align-items: center;
   height: 100%;
-  // background-color: blue;
+  //background-color: blue;
   overflow: hidden;
   margin: 0 -5px;
   padding: 5px;
   border: 1px dashed transparent;
 }
 
-.BaseTable__row:hover,
-.BaseTable__row--hover {
+:global(.BaseTable__row:hover),
+:global(.BaseTable__row--hover) {
   .CellContainer {
     border: 1px dashed #ccc;
   }
 }
 
-.Select {
+.FruitSelect {
   width: 100%;
   height: 30px;
   margin-top: 10px;

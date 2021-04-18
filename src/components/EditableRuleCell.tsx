@@ -1,5 +1,5 @@
 import styles from '../styles/EditableRuleCell.module.scss';
-import React from 'react';
+import React, { ChangeEvent, RefObject } from 'react';
 import { Overlay } from 'react-overlays';
 
 interface IProps {
@@ -10,21 +10,30 @@ interface IProps {
 }
 
 interface IState {
-  value: never;
+  value: string;
   editing: boolean;
 }
 
 export default class EditableRuleCell extends React.PureComponent<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
+
+    this.render = this.render.bind(this);
+  }
+
+  private targetRef!: HTMLElement;
+
   state = {
     value: this.props.cellData,
     editing: false,
   };
 
-  setTargetRef = (ref): void => {
+  setTargetRef = (ref: HTMLDivElement): HTMLDivElement => {
     this.targetRef = ref;
+    return ref;
   };
 
-  getTargetRef = () => this.targetRef;
+  getTargetRef = (): HTMLElement | RefObject<HTMLElement> => this.targetRef;
 
   handleClick = (): void => {
     this.setState({ editing: true });
@@ -32,7 +41,7 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
 
   handleHide = (): void => this.setState({ editing: false });
 
-  handleChange = (e) => {
+  handleChange = (e: ChangeEvent<HTMLSelectElement>): void => {
     this.setState({
       value: e.target.value,
       editing: false,
@@ -40,11 +49,11 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
   };
 
   render(): JSX.Element {
-    const { container, rowIndex, columnIndex } = this.props;
+    // const { container, rowIndex, columnIndex } = this.props;
     const { value, editing } = this.state;
 
     return (
-      <div className={styles.styles} ref={this.setTargetRef} onClick={this.handleClick}>
+      <div className={styles.CellContainer} ref={this.setTargetRef} onClick={this.handleClick}>
         {!editing && value}
         {editing && this.targetRef && (
           <Overlay
@@ -67,13 +76,12 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
                       : -this.targetRef.offsetHeight,
                 }}
               >
-                <div>doggie</div>
-                {/* <Select value={value} onChange={this.handleChange}>
+                <select className={styles.FruitSelect} value={value} onChange={this.handleChange}>
                   <option value="grapefruit">Grapefruit</option>
                   <option value="lime">Lime</option>
                   <option value="coconut">Coconut</option>
                   <option value="mango">Mango</option>
-                </Select> */}
+                </select>
               </div>
             )}
           </Overlay>

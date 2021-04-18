@@ -1,15 +1,37 @@
 import styles from '../styles/InlineEdit.module.scss';
-import React from 'react';
+import React, { ChangeEvent, RefObject } from 'react';
 import Table, { ColumnShape } from 'react-base-table';
 import { Overlay } from 'react-overlays';
 
-class EditableCell extends React.PureComponent {
+interface IProps {
+  container: JSX.Element;
+  rowIndex: number;
+  columnIndex: number;
+  cellData: never;
+}
+
+interface IState {
+  value: string;
+  editing: boolean;
+}
+
+class EditableCell extends React.PureComponent<IProps, IState> {
+  private targetRef!: HTMLElement;
+  constructor(props: IProps) {
+    super(props);
+
+    this.render = this.render.bind(this);
+  }
+
   state = {
     value: this.props.cellData,
     editing: false,
   };
 
-  setTargetRef = (ref) => (this.targetRef = ref);
+  setTargetRef = (ref: HTMLDivElement): HTMLDivElement => {
+    this.targetRef = ref;
+    return ref;
+  };
 
   getTargetRef = () => this.targetRef;
 
@@ -17,14 +39,14 @@ class EditableCell extends React.PureComponent {
 
   handleHide = () => this.setState({ editing: false });
 
-  handleChange = (e) =>
+  handleChange = (e: ChangeEvent<HTMLSelectElement>) =>
     this.setState({
       value: e.target.value,
       editing: false,
     });
 
   render() {
-    const { container, rowIndex, columnIndex } = this.props;
+    //const { container, rowIndex, columnIndex } = this.props;
     const { value, editing } = this.state;
 
     return (
@@ -35,7 +57,7 @@ class EditableCell extends React.PureComponent {
             show
             flip
             rootClose
-            //container={container}
+            //container={this.getTargetRef}
             target={this.getTargetRef}
             onHide={this.handleHide}
           >
@@ -44,11 +66,11 @@ class EditableCell extends React.PureComponent {
                 {...props}
                 style={{
                   ...props.style,
-                  width: this.targetRef.offsetWidth,
+                  width: ((this.targetRef as unknown) as HTMLElement).offsetWidth,
                   top:
                     placement === 'top'
-                      ? this.targetRef.offsetHeight
-                      : -this.targetRef.offsetHeight,
+                      ? ((this.targetRef as unknown) as HTMLElement).offsetHeight
+                      : -((this.targetRef as unknown) as HTMLElement).offsetHeight,
                 }}
               >
                 <select className={styles.FruitSelect} value={value} onChange={this.handleChange}>
