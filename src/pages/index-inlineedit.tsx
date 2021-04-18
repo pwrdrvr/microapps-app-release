@@ -50,7 +50,7 @@ class EditableCell extends React.PureComponent {
     const { container, rowIndex, columnIndex } = this.props;
     const { value, editing } = this.state;
 
-    console.log('XXXX EditableCell - Render()');
+    //console.log('XXXX EditableCell - Render()');
 
     return (
       <div className={styles.CellContainer} ref={this.setTargetRef} onClick={this.handleClick}>
@@ -65,7 +65,7 @@ class EditableCell extends React.PureComponent {
             onHide={this.handleHide}
           >
             {({ props, placement }) => {
-              console.log('YYYY - select render');
+              //console.log('YYYY - select render');
 
               return (
                 <div
@@ -73,7 +73,7 @@ class EditableCell extends React.PureComponent {
                   style={{
                     ...props.style,
                     width: this.targetRef.offsetWidth,
-                    backgroundColor: 'green',
+                    // backgroundColor: 'green',
                     top:
                       placement === 'top'
                         ? this.targetRef.offsetHeight

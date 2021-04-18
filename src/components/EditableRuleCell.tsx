@@ -1,17 +1,7 @@
+import styles from '../styles/EditableRuleCell.module.scss';
 import React from 'react';
 import { Overlay } from 'react-overlays';
 import styled, { createGlobalStyle } from 'styled-components';
-
-const CellContainer = styled.div`
-  display: flex;
-  flex: 1 0 100%;
-  align-items: center;
-  height: 100%;
-  overflow: hidden;
-  margin: 0 -5px;
-  padding: 5px;
-  border: 1px dashed transparent;
-`;
 
 const GlobalStyle = createGlobalStyle`
   .BaseTable__row:hover,
@@ -20,12 +10,6 @@ const GlobalStyle = createGlobalStyle`
       border: 1px dashed #ccc;
     }
   }
-`;
-
-const Select = styled.select`
-  width: 100%;
-  height: 30px;
-  margin-top: 10px;
 `;
 
 interface IProps {
@@ -70,14 +54,14 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
     const { value, editing } = this.state;
 
     return (
-      <CellContainer ref={this.setTargetRef} onClick={this.handleClick}>
+      <div className={styles.styles} ref={this.setTargetRef} onClick={this.handleClick}>
         {!editing && value}
         {editing && this.targetRef && (
           <Overlay
             show
             flip
             rootClose
-            container={container}
+            // container={container}
             target={this.getTargetRef}
             onHide={this.handleHide}
           >
@@ -104,7 +88,7 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
             )}
           </Overlay>
         )}
-      </CellContainer>
+      </div>
     );
   }
 }
