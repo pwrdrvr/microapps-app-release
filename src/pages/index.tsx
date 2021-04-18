@@ -1,4 +1,3 @@
-import '../styles/AppGridBaseTable.module.scss';
 import { connect } from 'react-redux';
 import React from 'react';
 import BaseTable, { AutoResizer, ColumnShape } from 'react-base-table';
