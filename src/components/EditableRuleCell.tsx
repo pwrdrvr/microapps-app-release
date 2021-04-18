@@ -1,16 +1,6 @@
 import styles from '../styles/EditableRuleCell.module.scss';
 import React from 'react';
 import { Overlay } from 'react-overlays';
-import styled, { createGlobalStyle } from 'styled-components';
-
-const GlobalStyle = createGlobalStyle`
-  .BaseTable__row:hover,
-  .BaseTable__row--hover {
-    ${CellContainer} {
-      border: 1px dashed #ccc;
-    }
-  }
-`;
 
 interface IProps {
   container: JSX.Element;
