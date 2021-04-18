@@ -10,9 +10,9 @@
   border: 1px dashed transparent;
 }
 
-.BaseTable__row:hover,
-.BaseTable__row--hover {
-  .cell-container {
+:global(.BaseTable__row:hover),
+:global(.BaseTable__row--hover) {
+  .CellContainer {
     border: 1px dashed #ccc;
   }
 }
