@@ -65,6 +65,7 @@
     "@storybook/addon-essentials": "^6.2.0-rc.9",
     "@storybook/addon-links": "^6.2.0-rc.9",
     "@storybook/preset-scss": "^1.0.3",
+    "@storybook/preset-typescript": "^3.0.0",
     "@storybook/react": "^6.2.0-rc.9",
     "@types/carbon-components-react": "^7.30.0",
     "@types/lambda-log": "^2.2.0",
