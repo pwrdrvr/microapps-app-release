@@ -1,12 +1,14 @@
 import styles from '../styles/EditableRuleCell.module.scss';
 import React, { ChangeEvent, RefObject } from 'react';
 import { Overlay } from 'react-overlays';
+import { IVersion } from '../store/main';
 
 interface IProps {
-  container: JSX.Element;
-  rowIndex: number;
-  columnIndex: number;
-  cellData: never;
+  container?: JSX.Element;
+  rowIndex?: number;
+  columnIndex?: number;
+  cellData: string;
+  versions: IVersion[];
 }
 
 interface IState {
@@ -18,15 +20,15 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
   constructor(props: IProps) {
     super(props);
 
+    this.state = {
+      value: this.props.cellData,
+      editing: false,
+    };
+
     this.render = this.render.bind(this);
   }
 
   private targetRef!: HTMLElement;
-
-  state = {
-    value: this.props.cellData,
-    editing: false,
-  };
 
   setTargetRef = (ref: HTMLDivElement): HTMLDivElement => {
     this.targetRef = ref;
@@ -77,10 +79,11 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
                 }}
               >
                 <select className={styles.FruitSelect} value={value} onChange={this.handleChange}>
-                  <option value="grapefruit">Grapefruit</option>
-                  <option value="lime">Lime</option>
-                  <option value="coconut">Coconut</option>
-                  <option value="mango">Mango</option>
+                  {this.props.versions.map((version) => (
+                    <option key={version.SemVer} value={version.SemVer}>
+                      {version.SemVer}
+                    </option>
+                  ))}
                 </select>
               </div>
             )}

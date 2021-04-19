@@ -25,10 +25,6 @@ const data = [
   { DisplayName: 'cat3', AppName: 'catApp3', value: 'dog3' },
 ];
 
-const InlineEdit = () => (
-  <>
-    <BaseTable width={700} height={400} columns={columns} data={data} />
-  </>
-);
+const InlineEdit = () => <BaseTable width={700} height={400} columns={columns} data={data} />;
 
 export default InlineEdit;
