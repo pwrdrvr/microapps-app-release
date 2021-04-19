@@ -2,6 +2,7 @@ import styles from '../styles/EditableRuleCell.module.scss';
 import React, { ChangeEvent, RefObject } from 'react';
 import { Overlay } from 'react-overlays';
 import { IVersion } from '../store/main';
+import { Select, SelectItem } from 'carbon-components-react';
 
 interface IProps {
   container?: JSX.Element;
@@ -78,13 +79,24 @@ export default class EditableRuleCell extends React.PureComponent<IProps, IState
                       : -this.targetRef.offsetHeight,
                 }}
               >
-                <select className={styles.FruitSelect} value={value} onChange={this.handleChange}>
+                <Select
+                  id={'VersionSelect'}
+                  className={styles.FruitSelect}
+                  value={value}
+                  hideLabel
+                  onChange={this.handleChange}
+                >
                   {this.props.versions.map((version) => (
-                    <option key={version.SemVer} value={version.SemVer}>
+                    <SelectItem
+                      key={version.SemVer}
+                      id={version.SemVer}
+                      text={version.SemVer}
+                      value={version.SemVer}
+                    >
                       {version.SemVer}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
+                </Select>
               </div>
             )}
           </Overlay>
