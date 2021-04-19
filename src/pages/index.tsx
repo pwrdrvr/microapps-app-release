@@ -114,7 +114,11 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
       dataKey: 'SemVer',
       title: 'Version',
       cellRenderer: ({ cellData }) => (
-        <EditableRuleCell cellData={cellData} versions={this.props.versions} />
+        <EditableRuleCell
+          cellData={cellData}
+          versions={this.props.versions}
+          onVersionSelected={this.selectVersionOnRule}
+        />
       ),
     },
   ];
@@ -141,6 +145,11 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
 
   async refresh(): Promise<void> {
     await this.props.dispatch(refreshThunk({}));
+  }
+
+  async selectVersionOnRule({ version }: { version: IVersion }) {
+    console.log('selectVersionOnRule', version);
+    // TODO: Raise an async event to save the version selected
   }
 
   async selectApp({
