@@ -1,9 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { NextApiRequest, NextApiResponse } from 'next';
-import { IApplication, IRules, IVersion } from '../../../store/main';
 import { createLogger } from '../../../utils/logger';
-import Manager, { Application } from '@pwrdrvr/microapps-datalib';
+import Manager from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
+import { IRules, IVersion } from '../../../store/main';
 
 let dbclient: dynamodb.DynamoDB;
 let manager: Manager;
@@ -26,7 +26,6 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({
-        id: version.SemVer,
         AppName: version.AppName,
         SemVer: version.SemVer,
         Type: version.Type,
@@ -44,7 +43,6 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     for (const key of Object.keys(versionsRaw.Rules.RuleSet)) {
       const rule = versionsRaw.Rules.RuleSet[key];
       rules.RuleSet.push({
-        id: key,
         key,
         AttributeName: rule.AttributeName ?? '',
         AttributeValue: rule.AttributeValue ?? '',
