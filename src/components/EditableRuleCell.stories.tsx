@@ -19,7 +19,18 @@ const columns: ColumnShape[] = [
     dataKey: 'DisplayName',
     title: 'Display Name',
     sortable: true,
-    cellRenderer: EditableRuleCell,
+    cellRenderer: ({ cellData }) => (
+      <EditableRuleCell
+        cellData={cellData}
+        versions={[
+          { AppName: 'cat', Type: '', IntegrationID: '', Status: 'active', SemVer: '0.1.9' },
+          { AppName: 'cat', Type: '', IntegrationID: '', Status: 'active', SemVer: '0.1.8' },
+          { AppName: 'cat', Type: '', IntegrationID: '', Status: 'active', SemVer: '0.1.7' },
+          { AppName: 'cat', Type: '', IntegrationID: '', Status: 'active', SemVer: '0.0.9' },
+          { AppName: 'cat', Type: '', IntegrationID: '', Status: 'active', SemVer: '0.0.3' },
+        ]}
+      />
+    ),
   },
 ];
 const data = [

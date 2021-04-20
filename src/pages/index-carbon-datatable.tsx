@@ -224,7 +224,7 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     }
 
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
+    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ id: app.AppName, AppName: app.AppName, DisplayName: app.DisplayName });
@@ -232,7 +232,7 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     log.info(`got apps`, apps);
 
     // Get the versions
-    const versionsRaw = await manager.GetVersionsAndRules('release');
+    const versionsRaw = await Manager.GetVersionsAndRules('release');
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({

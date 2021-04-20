@@ -21,7 +21,7 @@ export default async function allApps(req: NextApiRequest, res: NextApiResponse)
       manager = new Manager(dbclient);
     }
 
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
+    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
 
     const apps = [] as IApplication[];
     for (const app of appsRaw) {

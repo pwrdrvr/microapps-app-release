@@ -40,7 +40,7 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
     }
 
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
+    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       for (let i = 0; i < 40; i++) {

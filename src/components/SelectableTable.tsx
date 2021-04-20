@@ -7,6 +7,7 @@ import BaseTable, {
   ColumnShape,
 } from 'react-base-table';
 import styled from 'styled-components';
+import { noop } from '../utils/noop';
 
 //
 // cloneArray is defined in react-grid-table and is exported but not at the top-level
@@ -35,9 +36,6 @@ const StyledTable = styled(BaseTable)`
 //   container: BaseTable<unknown>;
 //   isScrolling?: boolean | undefined;
 // }>
-
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-function noop() {}
 
 interface ICellRendererProps {
   cellData: never;
@@ -75,6 +73,8 @@ export interface ISelectableTableProps extends BaseTableProps {
   rowClassName?: string;
   multiSelect?: boolean;
   rowKey?: React.Key;
+  onRowSelect?: (args: { selected: boolean; rowData: never; rowIndex: number }) => void;
+  onSelectedRowsChange?: (keys: React.Key[]) => void;
 }
 
 interface ISelectableTableState {
@@ -182,8 +182,12 @@ export default class SelectableTable extends React.PureComponent<
     if (this.props.selectedRowKeys === undefined) {
       this.setState({ selectedRowKeys });
     }
-    this.props.onRowSelect({ selected, rowData, rowIndex });
-    this.props.onSelectedRowsChange(selectedRowKeys);
+    if (this.props.onRowSelect !== undefined) {
+      this.props.onRowSelect({ selected, rowData, rowIndex });
+    }
+    if (this.props.onSelectedRowsChange !== undefined) {
+      this.props.onSelectedRowsChange(selectedRowKeys);
+    }
   };
 
   _rowClassName = ({

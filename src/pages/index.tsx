@@ -10,8 +10,10 @@ import {
   SortParams,
   sortVersions,
   success,
+  updateDefaultVersionThunk,
 } from '../store/main';
 import SelectableTable from '../components/SelectableTable';
+import EditableRuleCell from '../components/EditableRuleCell';
 
 interface IApplication {
   AppName: string;
@@ -87,20 +89,6 @@ const headersVersions: ColumnShape[] = [
     sortable: true,
   },
 ];
-const headersRules: ColumnShape[] = [
-  {
-    width: 150,
-    key: 'key',
-    dataKey: 'key',
-    title: 'Key',
-  },
-  {
-    width: 150,
-    key: 'SemVer',
-    dataKey: 'SemVer',
-    title: 'Version',
-  },
-];
 
 // interface OtherProps {
 //   getServerSideProp: string;
@@ -114,6 +102,28 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
   //private someState = useSelector<RootState, RootState>((state) => state);
   //private dispatch = useDispatch<AppDispatch>();
 
+  private readonly headersRules: ColumnShape[] = [
+    {
+      width: 150,
+      key: 'key',
+      dataKey: 'key',
+      title: 'Key',
+    },
+    {
+      width: 150,
+      key: 'SemVer',
+      dataKey: 'SemVer',
+      title: 'Version',
+      cellRenderer: ({ cellData }) => (
+        <EditableRuleCell
+          cellData={cellData}
+          versions={this.props.versions}
+          onVersionSelected={this.selectVersionOnRule}
+        />
+      ),
+    },
+  ];
+
   constructor(props: IPageProps) {
     super(props);
 
@@ -124,6 +134,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
     this.sortApps = this.sortApps.bind(this);
     this.sortVersions = this.sortVersions.bind(this);
     this.selectApp = this.selectApp.bind(this);
+    this.selectVersionOnRule = this.selectVersionOnRule.bind(this);
   }
 
   sortApps(args: SortParams) {
@@ -136,6 +147,14 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
 
   async refresh(): Promise<void> {
     await this.props.dispatch(refreshThunk({}));
+  }
+
+  async selectVersionOnRule({ version }: { version: IVersion }) {
+    console.log('selectVersionOnRule', version);
+    // TODO: Raise an async event to save the version selected
+    await this.props.dispatch(
+      updateDefaultVersionThunk({ appName: version.AppName, semVer: version.SemVer }),
+    );
   }
 
   async selectApp({
@@ -250,7 +269,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
                   <BaseTable
                     width={width}
                     height={height}
-                    columns={headersRules}
+                    columns={this.headersRules}
                     rowKey={'key'}
                     data={this.props.rules?.RuleSet}
                   />

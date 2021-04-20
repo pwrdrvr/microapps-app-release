@@ -164,7 +164,7 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
     }
 
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
+    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
@@ -172,7 +172,7 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
     log.info(`got apps`, apps);
 
     // Get the versions
-    const versionsRaw = await manager.GetVersionsAndRules('release');
+    const versionsRaw = await Manager.GetVersionsAndRules('release');
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({
@@ -236,6 +236,25 @@ export const refreshThunk = createAsyncThunk(
       log.error(`error getting apps: ${error.message}}`);
       log.error(error);
       return thunkAPI.dispatch(mainSlice.actions.failure());
+    }
+  },
+);
+
+export const updateDefaultVersionThunk = createAsyncThunk(
+  'mainPage/updateDefaultVersion',
+  async ({ appName, semVer }: { appName: string; semVer: string }, _thunkAPI) => {
+    try {
+      log.info('mainPage/updateDefaultVersion', { appName });
+
+      // Fetch api/refresh
+      const url = `${window.document.URL}/api/update/default/${appName}/${semVer}`;
+      const res = await fetch(url);
+      const props = (await res.json()) as IPageState;
+
+      log.info('mainPage/updateDefaultVersion - got response', { props });
+    } catch (error) {
+      log.error(`error getting apps: ${error.message}}`);
+      log.error(error);
     }
   },
 );
