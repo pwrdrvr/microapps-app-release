@@ -55,7 +55,7 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 ```
 .nvm use
 aws-vault exec [profile] -- /bin/bash -l
-npx microapps-publish --newversion 0.0.26
+npx microapps-publish --newversion 0.1.2
 ```
 
 # Login to GitHub NPM

@@ -239,3 +239,22 @@ export const refreshThunk = createAsyncThunk(
     }
   },
 );
+
+export const updateDefaultVersionThunk = createAsyncThunk(
+  'mainPage/updateDefaultVersion',
+  async ({ appName, semVer }: { appName: string; semVer: string }, _thunkAPI) => {
+    try {
+      log.info('mainPage/updateDefaultVersion', { appName });
+
+      // Fetch api/refresh
+      const url = `${window.document.URL}/api/update/default/${appName}/${semVer}`;
+      const res = await fetch(url);
+      const props = (await res.json()) as IPageState;
+
+      log.info('mainPage/updateDefaultVersion - got response', { props });
+    } catch (error) {
+      log.error(`error getting apps: ${error.message}}`);
+      log.error(error);
+    }
+  },
+);

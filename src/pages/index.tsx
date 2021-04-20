@@ -10,6 +10,7 @@ import {
   SortParams,
   sortVersions,
   success,
+  updateDefaultVersionThunk,
 } from '../store/main';
 import SelectableTable from '../components/SelectableTable';
 import EditableRuleCell from '../components/EditableRuleCell';
@@ -133,6 +134,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
     this.sortApps = this.sortApps.bind(this);
     this.sortVersions = this.sortVersions.bind(this);
     this.selectApp = this.selectApp.bind(this);
+    this.selectVersionOnRule = this.selectVersionOnRule.bind(this);
   }
 
   sortApps(args: SortParams) {
@@ -150,6 +152,9 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
   async selectVersionOnRule({ version }: { version: IVersion }) {
     console.log('selectVersionOnRule', version);
     // TODO: Raise an async event to save the version selected
+    await this.props.dispatch(
+      updateDefaultVersionThunk({ appName: version.AppName, semVer: version.SemVer }),
+    );
   }
 
   async selectApp({
