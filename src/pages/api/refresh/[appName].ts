@@ -22,7 +22,7 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Get the versions
-    const versionsRaw = await manager.GetVersionsAndRules(appName);
+    const versionsRaw = await Manager.GetVersionsAndRules(appName);
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({

@@ -10,7 +10,6 @@ let manager: Manager;
 
 export default async function refresh(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const log = createLogger('api:refresh', req.url);
-
   try {
     if (manager === undefined) {
       dbclient = new dynamodb.DynamoDB({});
@@ -18,7 +17,7 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(dbclient);
+    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
@@ -26,7 +25,7 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     log.info(`got apps`, apps);
 
     // Get the versions
-    const versionsRaw = await manager.GetVersionsAndRules('release');
+    const versionsRaw = await Manager.GetVersionsAndRules('release');
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({
