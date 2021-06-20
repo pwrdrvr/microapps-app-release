@@ -19,7 +19,8 @@ const columns: ColumnShape[] = [
     dataKey: 'DisplayName',
     title: 'Display Name',
     sortable: true,
-    cellRenderer: ({ cellData }) => (
+    // eslint-disable-next-line react/display-name
+    cellRenderer: ({ cellData }: { cellData: string }) => (
       <EditableRuleCell
         cellData={cellData}
         versions={[
