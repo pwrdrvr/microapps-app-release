@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   app:
     build:
@@ -16,14 +16,6 @@ services:
       - 8080
     networks:
       internal_network:
-  lre-proxy:
-    image: lre-proxy:latest
-    ports:
-      - 9001:3000
-    environment:
-      - HOST_AND_PORT=app:8080
-    networks:
-      internal_network:
 
 networks:
-      internal_network:
+  internal_network:
