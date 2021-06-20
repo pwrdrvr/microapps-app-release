@@ -2,7 +2,13 @@
   "name": "@pwrdrvr/microapps-app-release",
   "version": "0.0.0",
   "private": true,
-  "proxy": "https://4jssqkktsg.execute-api.us-east-2.amazonaws.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pwrdrvr/microapps-app-release.git"
+  },
+  "author": "PwrDrvr LLC",
+  "license": "MIT",
+  "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
   "scripts": {
     "cloc": "cloc --exclude-dir=node_modules,.storybook,.serverless,.serverless_nextjs,.next,storybook-static,cdk.out --exclude-ext=json .",
     "debug": "ENVIRONMENT=.env.development NODE_OPTIONS='--inspect' next dev",

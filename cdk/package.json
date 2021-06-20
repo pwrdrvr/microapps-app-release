@@ -1,6 +1,13 @@
 {
   "name": "cdk",
   "version": "0.1.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pwrdrvr/microapps-app-release.git"
+  },
+  "author": "PwrDrvr LLC",
+  "license": "MIT",
   "bin": {
     "cdk": "bin/cdk.js"
   },
