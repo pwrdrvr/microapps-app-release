@@ -9,9 +9,9 @@ RUN cd image-lambda && npm i sharp
 RUN cd image-lambda && npm i sharp && \
   rm -rf node_modules/sharp/vendor/*/include/
 
-# TODO: Copy in the router code that binds the 3 lambdas together
 
-FROM public.ecr.aws/lambda/nodejs:12 AS final
+
+FROM public.ecr.aws/lambda/nodejs:14 AS final
 
 # Copy in the munged code
 COPY --from=base /app .

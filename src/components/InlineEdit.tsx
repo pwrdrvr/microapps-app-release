@@ -1,5 +1,5 @@
 import styles from '../styles/InlineEdit.module.scss';
-import React, { ChangeEvent, RefObject } from 'react';
+import React, { ChangeEvent } from 'react';
 import Table, { ColumnShape } from 'react-base-table';
 import { Overlay } from 'react-overlays';
 
