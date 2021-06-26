@@ -46,8 +46,11 @@
     "carbon-components-react": "^7.31.0",
     "carbon-icons": "^7.0.7",
     "clsx": "^1.1.1",
+    "convict": "^6.1.0",
+    "convict-format-with-validator": "^6.0.1",
     "encoding": "^0.1.13",
     "immutable": "^4.0.0-rc.12",
+    "js-yaml": "^3.14.1",
     "lambda-log": "^2.4.0",
     "next": "10.0.7",
     "next-redux-wrapper": "^7.0.0-rc.1",
@@ -59,8 +62,10 @@
     "react-overlays": "^5.0.0",
     "react-redux": "^7.2.3",
     "redux-thunk": "^2.3.0",
+    "reflect-metadata": "^0.1.13",
     "semver": "^6.3.0",
-    "styled-components": "^5.2.3"
+    "styled-components": "^5.2.3",
+    "ts-convict": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
@@ -74,6 +79,9 @@
     "@storybook/preset-typescript": "^3.0.0",
     "@storybook/react": "^6.2.8",
     "@types/carbon-components-react": "^7.30.0",
+    "@types/convict": "^6.0.2",
+    "@types/convict-format-with-validator": "^6.0.2",
+    "@types/js-yaml": "^4.0.1",
     "@types/lambda-log": "^2.2.0",
     "@types/node": "^14.14.31",
     "@types/react": "^17.0.2",
