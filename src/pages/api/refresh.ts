@@ -3,21 +3,15 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { IApplication, IRules, IVersion } from '../../store/main';
 import { createLogger } from '../../utils/logger';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
-import * as dynamodb from '@aws-sdk/client-dynamodb';
-
-let dbclient: dynamodb.DynamoDB;
-let manager: Manager;
+import { DbManager } from '../../utils/dbManager';
 
 export default async function refresh(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const log = createLogger('api:refresh', req.url);
   try {
-    if (manager === undefined) {
-      dbclient = new dynamodb.DynamoDB({});
-      manager = new Manager(dbclient);
-    }
+    const manager = DbManager.instance;
 
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
+    const appsRaw = await Application.LoadAllAppsAsync(Manager.DBDocClient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });

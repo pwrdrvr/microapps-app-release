@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import { createLogger } from '../../utils/logger';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
-import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { AppState } from '../store';
 import { HYDRATE } from 'next-redux-wrapper';
 import { ColumnShape, SortOrder } from 'react-base-table';
 import React from 'react';
 import semver from 'semver';
+import { DbManager } from '../../utils/dbManager';
 
 const log = createLogger('mainSlice'); //, ctx?.req?.url);
 
@@ -151,20 +151,14 @@ export const { start, success, failure, sortApps, sortVersions } = mainSlice.act
 
 export default mainSlice.reducer;
 
-let dbclient: dynamodb.DynamoDB;
-let manager: Manager;
-
 export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, thunkAPI) => {
   try {
     thunkAPI.dispatch(mainSlice.actions.start());
 
-    if (manager === undefined) {
-      dbclient = new dynamodb.DynamoDB({});
-      manager = new Manager(dbclient);
-    }
+    const manager = DbManager.instance;
 
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
+    const appsRaw = await Application.LoadAllAppsAsync(Manager.DBDocClient);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
