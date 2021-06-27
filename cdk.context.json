@@ -1,0 +1,4 @@
+{
+  "tableName": "microapps",
+  "s3BucketName": "microapps"
+}
