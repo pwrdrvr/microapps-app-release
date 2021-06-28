@@ -1,11 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { NextApiRequest, NextApiResponse } from 'next';
 import Manager, { Application } from '@pwrdrvr/microapps-datalib';
-import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { createLogger } from '../../utils/logger';
-
-let dbclient: dynamodb.DynamoDB;
-let manager: Manager;
+import { DbManager } from '../../utils/dbManager';
 
 interface IApplication {
   AppName: string;
@@ -16,12 +13,9 @@ export default async function allApps(req: NextApiRequest, res: NextApiResponse)
   const log = createLogger('api:allApps', req.url);
 
   try {
-    if (manager === undefined) {
-      dbclient = new dynamodb.DynamoDB({});
-      manager = new Manager(dbclient);
-    }
+    const manager = DbManager.instance;
 
-    const appsRaw = await Application.LoadAllAppsAsync(manager.DBDocClient);
+    const appsRaw = await Application.LoadAllAppsAsync(Manager.DBDocClient);
 
     const apps = [] as IApplication[];
     for (const app of appsRaw) {

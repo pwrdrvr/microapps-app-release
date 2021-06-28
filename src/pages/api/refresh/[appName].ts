@@ -1,12 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createLogger } from '../../../utils/logger';
-import Manager from '@pwrdrvr/microapps-datalib';
-import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { IRules, IVersion } from '../../../store/main';
-
-let dbclient: dynamodb.DynamoDB;
-let manager: Manager;
+import { DbManager } from '../../../utils/dbManager';
+import Manager from '@pwrdrvr/microapps-datalib';
 
 export default async function refresh(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const log = createLogger('api:refresh', req.url);
@@ -16,10 +13,7 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
   const appName = req.query.appName as string;
 
   try {
-    if (manager === undefined) {
-      dbclient = new dynamodb.DynamoDB({});
-      manager = new Manager(dbclient);
-    }
+    const manager = DbManager.instance;
 
     // Get the versions
     const versionsRaw = await Manager.GetVersionsAndRules(appName);

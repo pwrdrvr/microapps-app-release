@@ -10,7 +10,6 @@ RUN mkdir -p image-lambda-npms && \
 
 # Copy in the build output from `npx serverless`
 COPY .serverless_nextjs .
-COPY config.json .
 
 # Move the sharp libs into place
 RUN rm -rf image-lambda/node_modules/ && \

@@ -1,0 +1,6 @@
+app:
+  name: release
+  staticAssetsPath: ./.serverless_nextjs/assets/release/$SEMVER/
+  lambdaName: app-release
+  awsAccountID: 239161478713
+  awsRegion: us-east-2

@@ -3,23 +3,25 @@ import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
 import { ReposStack } from '../lib/repos';
 import { SvcsStack } from '../lib/svcs';
+import SharedTags from '../lib/SharedTags';
+import SharedProps from '../lib/SharedProps';
 
 const app = new cdk.App();
 
+const shared = new SharedProps(app);
+
 const appName = 'release';
-const appStackName = 'Release';
 
-// Add a tag indicating this app can be managed by the
-// MicroApp Deployer Lambda function
-cdk.Tags.of(app).add('microapp-managed', 'true');
-cdk.Tags.of(app).add('microapp-name', appName);
-
-const reposStack = new ReposStack(app, `App${appStackName}Repos`, {
-  appName: appName,
-  appStackName: appStackName,
-});
-new SvcsStack(app, `App${appStackName}Svcs`, {
+const reposStack = new ReposStack(
+  app,
+  `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}-repos`,
+  {
+    local: { appName },
+    shared,
+  },
+);
+new SvcsStack(app, `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}-svcs`, {
   reposExports: reposStack,
-  appName: appName,
-  appStackName: appStackName,
+  local: { appName },
+  shared,
 });
