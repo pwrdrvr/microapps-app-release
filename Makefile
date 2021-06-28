@@ -1,11 +1,32 @@
 
-AWS_PROFILE ?= pwrdrvr
 AWS_ACCOUNT ?= 239161478713
 REGION ?= us-east-2
 ECR_HOST ?= ${AWS_ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com
 ECR_REPO ?= app-release
 IMAGE_TAG ?= ${ECR_REPO}:0.0.3
 LAMBDA_ALIAS ?= v0_0_3
+
+AWS_ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query "Account" --output text)
+REGION ?= us-east-2
+ENV ?= dev
+ECR_HOST ?= ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
+DEPLOYER_ECR_REPO ?= microapps-deployer-${ENV}
+DEPLOYER_ECR_TAG ?= ${DEPLOYER_ECR_REPO}:latest
+ROUTER_ECR_REPO ?= microapps-router-${ENV}
+ROUTERZ_ECR_REPO ?= microapps-routerz-${ENV}
+ROUTER_ECR_TAG ?= ${ROUTER_ECR_REPO}:latest
+
+CODEBUILD_SOURCE_VERSION ?= dummy
+CODEBUILD_PR_NUMBER := $(shell echo ${CODEBUILD_SOURCE_VERSION} | awk 'BEGIN{FS="/"; } { print $$2 }' )
+CODEBUILD_STACK_SUFFIX := $(shell if [[ ${CODEBUILD_SOURCE_VERSION} = pr/* ]] ; then (echo ${CODEBUILD_SOURCE_VERSION} | awk 'BEGIN{FS="/"; } { printf "-pr-%s", $$2 }') ; else echo "" ; fi )
+CODEBUILD_REPOS_STACK_NAME := microapps-app-release-${ENV}${CODEBUILD_STACK_SUFFIX}-repos
+CODEBUILD_CORE_STACK_NAME := microapps-app-release-${ENV}${CODEBUILD_STACK_SUFFIX}-svcs
+CODEBUILD_IMAGE_LABEL := latest # $(shell [[ ${CODEBUILD_SOURCE_VERSION} = pr/* ]] && (echo ${CODEBUILD_SOURCE_VERSION} | awk 'BEGIN{FS="/"; } { printf "pr-%s", $$2 }') || echo "latest")
+CODEBUILD_ECR_HOST ?= ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+CODEBUILD_LAMBDA_NAME ?= microapps-app-release-${ENV}${CODEBUILD_STACK_SUFFIX}
+CODEBUILD_IMAGE_NAME ?= microapps-app-release-${ENV}${CODEBUILD_STACK_SUFFIX}-repo
+CODEBUILD_ECR_TAG ?= ${CODEBUILD_IMAGE_NAME}:${CODEBUILD_IMAGE_LABEL}
 
 help:
 	@echo "Commands:"
@@ -85,3 +106,31 @@ curl-home: ## Send test request to local app
 	@curl -v -XPOST -H "Content-Type: application/json" \
 		http://localhost:9000/2015-03-31/functions/function/invocations \
 		--data-binary "@test-payloads/home.json"
+
+#
+# CDK
+#
+
+codebuild-deploy: ## Perform a CDK / ECR / Lambda Deploy with CodeBuild
+	@echo "CODEBUILD_STACK_SUFFIX: ${CODEBUILD_STACK_SUFFIX}"
+	@echo "CODEBUILD_REPOS_STACK_NAME: ${CODEBUILD_REPOS_STACK_NAME}"
+	@echo "CODEBUILD_CORE_STACK_NAME: ${CODEBUILD_CORE_STACK_NAME}"
+	@echo "CODEBUILD_IMAGE_LABEL: ${CODEBUILD_IMAGE_LABEL}"
+	@echo "CODEBUILD_PR_NUMBER: ${CODEBUILD_PR_NUMBER}"
+	@echo "CODEBUILD_ECR_TAG: ${CODEBUILD_ECR_TAG}"
+	@echo "CODEBUILD_DEPLOYER_ECR_TAG: ${CODEBUILD_DEPLOYER_ECR_TAG}"
+	@echo "Running CDK Diff - Repos"
+	@cdk diff ${CODEBUILD_REPOS_STACK_NAME}
+	@echo "Running CDK Deploy - Repos"
+	@cdk deploy --require-approval never ${CODEBUILD_REPOS_STACK_NAME}
+	@echo "Running Docker Build / Publish"
+	@docker build -f Dockerfile -t ${CODEBUILD_ECR_TAG}  .
+	@docker tag ${CODEBUILD_ECR_TAG} ${CODEBUILD_ECR_HOST}/${CODEBUILD_ECR_TAG}
+	@docker push ${CODEBUILD_ECR_HOST}/${CODEBUILD_ECR_TAG}
+	@echo "Running CDK Diff - Core"
+	@cdk diff ${CODEBUILD_CORE_STACK_NAME}
+	@echo "Running CDK Deploy - Core"
+	@cdk deploy --require-approval never ${CODEBUILD_CORE_STACK_NAME}
+	@echo "Running Lambda Update"
+	@aws lambda update-function-code --function-name ${CODEBUILD_LAMBDA_NAME} \
+		--region ${REGION} --image-uri ${CODEBUILD_ECR_HOST}/${CODEBUILD_ECR_TAG} --publish
