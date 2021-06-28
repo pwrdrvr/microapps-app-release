@@ -31,6 +31,7 @@ export class SvcsStack extends cdk.Stack {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
         NODE_ENV: shared.env,
         S3BUCKETNAME: shared.s3BucketName,
+        DATABASE_TABLE_NAME: shared.tableName,
       },
       logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1024,

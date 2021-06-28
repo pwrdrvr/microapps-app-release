@@ -19,6 +19,10 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 
 # Deploying
 
+## Deploying CDK Stack
+
+`AWS_REGION=us-east-2 NODE_ENV=dev ENV=dev make codebuild-deploy`
+
 ## Deploying - First Time w/CDK Setup
 
 - `aws-vault exec [profile] -- cdk deploy Repos`
