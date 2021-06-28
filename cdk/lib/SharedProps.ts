@@ -45,8 +45,8 @@ export default class SharedProps {
   }
 
   constructor(scope: cdk.Construct) {
-    this._tableName = scope.node.tryGetContext('tableName') || 'microapps';
-    this._s3BucketName = scope.node.tryGetContext('s3BucketName') || 'microapps';
+    this._tableName = scope.node.tryGetContext('@pwrdrvr/microapps:tableName') || 'microapps';
+    this._s3BucketName = scope.node.tryGetContext('@pwrdrvr/microapps:s3BucketName') || 'microapps';
 
     // Determine if we have a PR number
     const prPrefix = 'pr/';

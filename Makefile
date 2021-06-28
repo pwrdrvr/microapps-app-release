@@ -16,6 +16,7 @@ ROUTER_ECR_REPO ?= microapps-router-${ENV}
 ROUTERZ_ECR_REPO ?= microapps-routerz-${ENV}
 ROUTER_ECR_TAG ?= ${ROUTER_ECR_REPO}:latest
 
+CODEBUILD_CDK_CONTEXT_ARGS ?=
 CODEBUILD_SOURCE_VERSION ?= dummy
 CODEBUILD_PR_NUMBER := $(shell echo ${CODEBUILD_SOURCE_VERSION} | awk 'BEGIN{FS="/"; } { print $$2 }' )
 CODEBUILD_STACK_SUFFIX := $(shell if [[ ${CODEBUILD_SOURCE_VERSION} = pr/* ]] ; then (echo ${CODEBUILD_SOURCE_VERSION} | awk 'BEGIN{FS="/"; } { printf "-pr-%s", $$2 }') ; else echo "" ; fi )
@@ -120,17 +121,17 @@ codebuild-deploy: ## Perform a CDK / ECR / Lambda Deploy with CodeBuild
 	@echo "CODEBUILD_ECR_TAG: ${CODEBUILD_ECR_TAG}"
 	@echo "CODEBUILD_DEPLOYER_ECR_TAG: ${CODEBUILD_DEPLOYER_ECR_TAG}"
 	@echo "Running CDK Diff - Repos"
-	@cdk diff ${CODEBUILD_REPOS_STACK_NAME}
+	@cdk diff ${CODEBUILD_CDK_CONTEXT_ARGS} ${CODEBUILD_REPOS_STACK_NAME}
 	@echo "Running CDK Deploy - Repos"
-	@cdk deploy --require-approval never ${CODEBUILD_REPOS_STACK_NAME}
+	@cdk deploy --require-approval never ${CODEBUILD_CDK_CONTEXT_ARGS} ${CODEBUILD_REPOS_STACK_NAME}
 	@echo "Running Docker Build / Publish"
 	@docker build -f Dockerfile -t ${CODEBUILD_ECR_TAG}  .
 	@docker tag ${CODEBUILD_ECR_TAG} ${CODEBUILD_ECR_HOST}/${CODEBUILD_ECR_TAG}
 	@docker push ${CODEBUILD_ECR_HOST}/${CODEBUILD_ECR_TAG}
 	@echo "Running CDK Diff - Core"
-	@cdk diff ${CODEBUILD_CORE_STACK_NAME}
+	@cdk diff ${CODEBUILD_CDK_CONTEXT_ARGS} ${CODEBUILD_CORE_STACK_NAME} 
 	@echo "Running CDK Deploy - Core"
-	@cdk deploy --require-approval never ${CODEBUILD_CORE_STACK_NAME}
+	@cdk deploy --require-approval never ${CODEBUILD_CDK_CONTEXT_ARGS} ${CODEBUILD_CORE_STACK_NAME}
 	@echo "Running Lambda Update"
 	@aws lambda update-function-code --function-name ${CODEBUILD_LAMBDA_NAME} \
 		--region ${REGION} --image-uri ${CODEBUILD_ECR_HOST}/${CODEBUILD_ECR_TAG} --publish
