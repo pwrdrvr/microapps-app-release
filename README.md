@@ -19,6 +19,24 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 
 # Deploying
 
+## Deploying CDK Stack
+
+### On Default Dev MicroApps Stack
+
+`AWS_REGION=us-east-2 NODE_ENV=dev ENV=dev make codebuild-deploy`
+
+### On QA MicroApps Stack
+
+`AWS_REGION=us-east-2 NODE_ENV=dev ENV=dev CODEBUILD_CDK_CONTEXT_ARGS="--context @pwrdrvr/microapps:tableName=microapps-qa --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-qa" make codebuild-deploy`
+
+### On Prod MicroApps Stack
+
+`AWS_REGION=us-east-2 NODE_ENV=dev ENV=dev CODEBUILD_CDK_CONTEXT_ARGS="--context @pwrdrvr/microapps:tableName=microapps-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-prod" make codebuild-deploy`
+
+### On Dev PR MicroApps Stack
+
+`AWS_REGION=us-east-2 NODE_ENV=dev ENV=dev CODEBUILD_CDK_CONTEXT_ARGS="--context @pwrdrvr/microapps:tableName=microapps-dev-pr-42 --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-dev-pr-42" make codebuild-deploy`
+
 ## Deploying - First Time w/CDK Setup
 
 - `aws-vault exec [profile] -- cdk deploy Repos`
@@ -55,7 +73,7 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 ```
 .nvm use
 aws-vault exec [profile] -- /bin/bash -l
-npx microapps-publish --deployer-lambda-name microapps-deployer-dev-pr-42 --new-version 0.2.4 --staging-bucket-name com.pwrdrvr-microapps-staging-dev-pr-42
+npx microapps-publish --deployer-lambda-name microapps-deployer-dev-pr-42 --new-version 0.2.4 --staging-bucket-name com.pwrdrvr-microapps-staging-dev-pr-42 --repo-name microapps-app-release-dev-repo
 ```
 
 # Login to GitHub NPM
