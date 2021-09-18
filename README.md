@@ -2,7 +2,7 @@
 
 This is the Release Console for the microapps framework.
 
-# Adding Storybook to Exiting NPM React / Next Project
+# Adding Storybook to Existing NPM React / Next Project
 
 `npm i -g sb`
 `npx sb init -N`

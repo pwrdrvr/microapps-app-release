@@ -68,7 +68,7 @@
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@pwrdrvr/microapps-publish": "file:../microapps-core/src/microapps-publish",
-    "@pwrdrvr/serverless-nextjs-router": "file:../serverless-nextjs-router",
+    "@pwrdrvr/serverless-nextjs-router": "^0.0.2",
     "@sls-next/serverless-component": "^1.19.0",
     "@storybook/addon-actions": "^6.2.8",
     "@storybook/addon-essentials": "^6.2.8",
