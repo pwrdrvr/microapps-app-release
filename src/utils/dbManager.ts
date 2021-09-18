@@ -14,7 +14,7 @@ export class DbManager {
     return DbManager._instance;
   }
 
-  public constructor() {
+  private constructor() {
     this._dbClient = new dynamodb.DynamoDB({});
     this._manager = new Manager({
       dynamoDB: this._dbClient,

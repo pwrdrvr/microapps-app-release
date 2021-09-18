@@ -1,4 +1,5 @@
 import '../styles/globals.scss';
+import 'source-map-support/register';
 import React, { FC } from 'react';
 import { AppProps } from 'next/app';
 import { wrapper } from '../store/store';
