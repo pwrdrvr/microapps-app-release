@@ -7,3 +7,4 @@ node_modules
 .serverless/
 storybook-static/
 **/cdk.out
+*.original*

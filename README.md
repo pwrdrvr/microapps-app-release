@@ -37,53 +37,12 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 
 `AWS_REGION=us-east-2 NODE_ENV=dev ENV=dev CODEBUILD_CDK_CONTEXT_ARGS="--context @pwrdrvr/microapps:tableName=microapps-dev-pr-42 --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-dev-pr-42" make codebuild-deploy`
 
-## Deploying - First Time w/CDK Setup
-
-- `aws-vault exec [profile] -- cdk deploy Repos`
-  - Creates the ECR repository to receive the app
-- `serverless` - Builds the next.js files for deploy (does not deploy)
-  - Compiles the next.js code
-- `make copy-router`
-  - Copies in the API Gateway router code and config
-- `aws-vault exec [profile] -- make aws-ecr-login && make aws-ecr-publish-svc`
-  - Deploys an image to the ECR repository so a Lambda function referencing it can be created (will fail if not published)
-- `aws-vault exec [profile] -- cdk deploy App`
-  - Creates the Lambda function, IAM role, assigns permissions, etc.
-
-## Deploying - Subsequent Deploys
-
-- `serverless` - Builds the next.js files for deploy (does not deploy)
-  - Compiles the next.js code
-- `make copy-router`
-  - Copies in the API Gateway router code and config
-  - Only necessary if the `.serverless_nextjs` has been deleted
-- `aws-vault exec [profile] -- make aws-ecr-login && make aws-ecr-publish-svc`
-  - Deploys an image to the ECR repository so a Lambda function referencing it can be created (will fail if not published)
-- New version of app code
-  - Note: this requires an updated version of HTML to match
-  - `aws-vault exec [profile] -- make aws-create-alias-svc`
-- Updating existing version of app code
-  - `aws-vault exec [profile] -- make aws-update-alias-svc`
-- Publishing updated app HTML
-  - Not necessary if updating code (not HTML) of existing version
-  - `aws-vault exec [staging-publish-profile] -- make microapps-publish`
-
-## Deploying Using versions-update Tool
+## Deploying Using `microapps-publish` Tool
 
 ```
 .nvm use
 aws-vault exec [profile] -- /bin/bash -l
 npx microapps-publish --deployer-lambda-name microapps-deployer-dev-pr-42 --new-version 0.2.4 --repo-name microapps-app-release-dev-repo
-```
-
-# Login to GitHub NPM
-
-```
-npm login --scope=@pwrdrvr --registry=https://npm.pkg.github.com
-
-# Supply: github username
-# GitHub Personal Access Token
-# Public NPM Email
 ```
 
 # Library Notes
