@@ -92,14 +92,6 @@ aws-update-alias-svc: ## Update the lambda function to use latest image
 		--name ${LAMBDA_ALIAS} --function-version '${VERSION}' --region=${REGION}
 
 #
-# MicroApps - Publishing New App Version / Updated HTML
-#
-
-microapps-publish: ## publishes a new version of the microapp OR updates HTML
-	@dotnet run --project ~/pwrdrvr/microapps-cdk/src/PwrDrvr.MicroApps.DeployTool/
-
-
-#
 # Docker API Gateway Tests
 #
 

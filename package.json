@@ -15,7 +15,7 @@
     "dev": "DEBUG=true next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ./ --ext .ts --ext .tsx",
+    "lint": "eslint ./src/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -42,7 +42,8 @@
     "@aws-sdk/client-dynamodb": "^3.19.0",
     "@aws-sdk/lib-dynamodb": "^3.19.0",
     "@carbon/themes": "^10.30.0",
-    "@pwrdrvr/microapps-datalib": "file:../microapps-core/src/common/microapps-datalib",
+    "@pwrdrvr/microapps-datalib": "^0.0.7",
+    "@pwrdrvr/serverless-nextjs-router": "^0.0.2",
     "@reduxjs/toolkit": "^1.5.1",
     "carbon-components": "^10.31.0",
     "carbon-components-react": "^7.31.0",
@@ -67,8 +68,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
-    "@pwrdrvr/microapps-publish": "file:../microapps-core/src/microapps-publish",
-    "@pwrdrvr/serverless-nextjs-router": "file:../serverless-nextjs-router",
+    "@pwrdrvr/microapps-publish": "^0.0.7",
     "@sls-next/serverless-component": "^1.19.0",
     "@storybook/addon-actions": "^6.2.8",
     "@storybook/addon-essentials": "^6.2.8",

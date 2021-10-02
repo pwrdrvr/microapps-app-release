@@ -66,11 +66,11 @@ class EditableCell extends React.PureComponent<IProps, IState> {
                 {...props}
                 style={{
                   ...props.style,
-                  width: ((this.targetRef as unknown) as HTMLElement).offsetWidth,
+                  width: (this.targetRef as unknown as HTMLElement).offsetWidth,
                   top:
                     placement === 'top'
-                      ? ((this.targetRef as unknown) as HTMLElement).offsetHeight
-                      : -((this.targetRef as unknown) as HTMLElement).offsetHeight,
+                      ? (this.targetRef as unknown as HTMLElement).offsetHeight
+                      : -(this.targetRef as unknown as HTMLElement).offsetHeight,
                 }}
               >
                 <select className={styles.FruitSelect} value={value} onChange={this.handleChange}>

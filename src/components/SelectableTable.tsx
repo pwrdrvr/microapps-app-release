@@ -89,12 +89,8 @@ export default class SelectableTable extends React.PureComponent<
   constructor(props: ISelectableTableProps) {
     super(props);
 
-    const {
-      selectedRowKeys,
-      defaultSelectedRowKeys,
-      expandedRowKeys,
-      defaultExpandedRowKeys,
-    } = props;
+    const { selectedRowKeys, defaultSelectedRowKeys, expandedRowKeys, defaultExpandedRowKeys } =
+      props;
     this.state = {
       selectedRowKeys:
         (selectedRowKeys !== undefined ? selectedRowKeys : defaultSelectedRowKeys) || [],
