@@ -42,7 +42,7 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 ```
 .nvm use
 aws-vault exec [profile] -- /bin/bash -l
-npx microapps-publish --deployer-lambda-name microapps-deployer-dev-pr-42 --new-version 0.2.4 --repo-name microapps-app-release-dev-repo
+npx microapps-publish -d microapps-deployer-dev-pr-42 -n 0.2.4 -r microapps-app-release-dev-repo
 ```
 
 # Library Notes
