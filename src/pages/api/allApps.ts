@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { NextApiRequest, NextApiResponse } from 'next';
-import Manager, { Application } from '@pwrdrvr/microapps-datalib';
+import { Application } from '@pwrdrvr/microapps-datalib';
 import { createLogger } from '../../utils/logger';
 import { DbManager } from '../../utils/dbManager';
 
@@ -13,9 +13,7 @@ export default async function allApps(req: NextApiRequest, res: NextApiResponse)
   const log = createLogger('api:allApps', req.url);
 
   try {
-    const manager = DbManager.instance;
-
-    const appsRaw = await Application.LoadAllAppsAsync(Manager.DBDocClient);
+    const appsRaw = await Application.LoadAllApps(DbManager.instance.manager);
 
     const apps = [] as IApplication[];
     for (const app of appsRaw) {

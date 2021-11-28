@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import { createLogger } from '../../utils/logger';
-import Manager, { Application } from '@pwrdrvr/microapps-datalib';
+import { Application } from '@pwrdrvr/microapps-datalib';
 import { AppState } from '../store';
 import { HYDRATE } from 'next-redux-wrapper';
 import { ColumnShape, SortOrder } from 'react-base-table';
@@ -155,10 +155,8 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
   try {
     thunkAPI.dispatch(mainSlice.actions.start());
 
-    const manager = DbManager.instance;
-
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(Manager.DBDocClient);
+    const appsRaw = await Application.LoadAllApps(DbManager.instance.manager);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
@@ -166,7 +164,10 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
     log.info(`got apps`, apps);
 
     // Get the versions
-    const versionsRaw = await Manager.GetVersionsAndRules('release');
+    const versionsRaw = await Application.GetVersionsAndRules({
+      dbManager: DbManager.instance.manager,
+      key: { AppName: 'release' },
+    });
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({

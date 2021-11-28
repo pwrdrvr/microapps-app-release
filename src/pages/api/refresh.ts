@@ -2,16 +2,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { IApplication, IRules, IVersion } from '../../store/main';
 import { createLogger } from '../../utils/logger';
-import Manager, { Application } from '@pwrdrvr/microapps-datalib';
+import { Application } from '@pwrdrvr/microapps-datalib';
 import { DbManager } from '../../utils/dbManager';
 
 export default async function refresh(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const log = createLogger('api:refresh', req.url);
   try {
-    const manager = DbManager.instance;
-
     // Get the apps
-    const appsRaw = await Application.LoadAllAppsAsync(Manager.DBDocClient);
+    const appsRaw = await Application.LoadAllApps(DbManager.instance.manager);
     const apps = [] as IApplication[];
     for (const app of appsRaw) {
       apps.push({ AppName: app.AppName, DisplayName: app.DisplayName });
@@ -19,7 +17,10 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
     log.info(`got apps`, apps);
 
     // Get the versions
-    const versionsRaw = await Manager.GetVersionsAndRules('release');
+    const versionsRaw = await Application.GetVersionsAndRules({
+      dbManager: DbManager.instance.manager,
+      key: { AppName: 'release' },
+    });
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({

@@ -1,10 +1,10 @@
-import Manager from '@pwrdrvr/microapps-datalib';
+import { DBManager } from '@pwrdrvr/microapps-datalib';
 import * as dynamodb from '@aws-sdk/client-dynamodb';
 import { Config } from './config';
 
 export class DbManager {
-  private _dbClient: dynamodb.DynamoDB;
-  private _manager: Manager;
+  private _dynamoClient: dynamodb.DynamoDBClient;
+  private _manager: DBManager;
 
   private static _instance: DbManager;
   public static get instance(): DbManager {
@@ -15,18 +15,18 @@ export class DbManager {
   }
 
   public constructor() {
-    this._dbClient = new dynamodb.DynamoDB({});
-    this._manager = new Manager({
-      dynamoDB: this._dbClient,
+    this._dynamoClient = new dynamodb.DynamoDB({});
+    this._manager = new DBManager({
+      dynamoClient: this._dynamoClient,
       tableName: Config.instance.db.tableName,
     });
   }
 
-  public get dbClient(): dynamodb.DynamoDB {
-    return this._dbClient;
+  public get dbClient(): dynamodb.DynamoDBClient {
+    return this._dynamoClient;
   }
 
-  public get manager(): Manager {
+  public get manager(): DBManager {
     return this._manager;
   }
 }

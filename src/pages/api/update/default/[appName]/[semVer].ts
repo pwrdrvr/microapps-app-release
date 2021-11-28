@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createLogger } from '../../../../../utils/logger';
-import Manager from '@pwrdrvr/microapps-datalib';
+import { Application } from '@pwrdrvr/microapps-datalib';
 import { DbManager } from '../../../../../utils/dbManager';
 
 export default async function refresh(req: NextApiRequest, res: NextApiResponse): Promise<void> {
@@ -13,9 +13,10 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
   const semVer = req.query.semVer as string;
 
   try {
-    const manager = DbManager.instance;
-
-    await Manager.UpdateDefaultRule(appName, semVer);
+    await Application.UpdateDefaultRule({
+      dbManager: DbManager.instance.manager,
+      key: { AppName: appName, SemVer: semVer },
+    });
 
     res.statusCode = 200;
     res.send({ action: 'updated', appName, semVer });

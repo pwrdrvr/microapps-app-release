@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { createLogger } from '../../../utils/logger';
 import { IRules, IVersion } from '../../../store/main';
 import { DbManager } from '../../../utils/dbManager';
-import Manager from '@pwrdrvr/microapps-datalib';
+import { Application } from '@pwrdrvr/microapps-datalib';
 
 export default async function refresh(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const log = createLogger('api:refresh', req.url);
@@ -13,10 +13,11 @@ export default async function refresh(req: NextApiRequest, res: NextApiResponse)
   const appName = req.query.appName as string;
 
   try {
-    const manager = DbManager.instance;
-
     // Get the versions
-    const versionsRaw = await Manager.GetVersionsAndRules(appName);
+    const versionsRaw = await Application.GetVersionsAndRules({
+      dbManager: DbManager.instance.manager,
+      key: { AppName: appName },
+    });
     const versions = [] as IVersion[];
     for (const version of versionsRaw.Versions) {
       versions.push({

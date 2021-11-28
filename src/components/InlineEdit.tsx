@@ -114,7 +114,7 @@ const data = [
 // columns[0].cellRenderer = EditableCell;
 // columns[0].width = 300;
 
-const InlineEdit = () => (
+const InlineEdit = (): JSX.Element => (
   <>
     <Table width={700} height={400} columns={columns} data={data} />
   </>
