@@ -15,6 +15,7 @@
     "dev": "DEBUG=true next dev",
     "build": "next build",
     "start": "next start",
+    "copy-router": "cp node_modules/@pwrdrvr/serverless-nextjs-router/lib/index.js .serverless_nextjs/",
     "lint": "eslint ./src/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix",
     "storybook": "start-storybook -p 6006",
