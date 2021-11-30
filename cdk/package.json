@@ -18,14 +18,14 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^1.92.0",
-    "@aws-cdk/aws-dynamodb": "^1.92.0",
-    "@aws-cdk/aws-ecr": "^1.92.0",
-    "@aws-cdk/aws-iam": "^1.92.0",
-    "@aws-cdk/aws-lambda": "^1.92.0",
-    "@aws-cdk/aws-logs": "^1.92.0",
-    "@aws-cdk/aws-s3": "^1.92.0",
-    "@aws-cdk/core": "^1.92.0",
+    "@aws-cdk/assert": "^1.134.0",
+    "@aws-cdk/aws-dynamodb": "^1.134.0",
+    "@aws-cdk/aws-ecr": "^1.134.0",
+    "@aws-cdk/aws-iam": "^1.134.0",
+    "@aws-cdk/aws-lambda": "^1.134.0",
+    "@aws-cdk/aws-logs": "^1.134.0",
+    "@aws-cdk/aws-s3": "^1.134.0",
+    "@aws-cdk/core": "^1.134.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
     "@types/source-map-support": "^0.5.3",
@@ -33,6 +33,6 @@
     "source-map-support": "^0.5.16",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "typescript": "^4.3.5"
   }
 }

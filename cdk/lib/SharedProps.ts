@@ -66,13 +66,4 @@ export default class SharedProps {
       }
     }
   }
-
-  // input like 'example.com.' will return as 'com.example'
-  private static reverseDomain(domain: string): string {
-    let parts = domain.split('.').reverse();
-    if (parts[0] === '') {
-      parts = parts.slice(1);
-    }
-    return parts.join('.');
-  }
 }
