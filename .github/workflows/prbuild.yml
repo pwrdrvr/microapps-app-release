@@ -53,11 +53,15 @@ jobs:
       - name: Compute NPM Version
         run: |
           echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
+          echo 'PACKAGE_VERSION='${{ env.PACKAGE_VERSION_ORIG }}-pr.${PR_NUMBER} >> $GITHUB_ENV
 
       - name: Preflight Check Version
         run: |
           npx microapps-publish preflight -a release -n ${PACKAGE_VERSION}  -d microapps-deployer-dev
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
 
       - name: Apply NPM Version
         run: |
