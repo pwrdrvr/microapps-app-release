@@ -59,6 +59,8 @@ jobs:
 
       - name: Smoke Check CDK
         run: npx cdk list
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
 
       - name: microapps-publish Smoke Check
         run: |
@@ -68,5 +70,6 @@ jobs:
         run: npx cdk deploy --require-approval never app
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
