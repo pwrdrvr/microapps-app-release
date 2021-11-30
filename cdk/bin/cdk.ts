@@ -13,7 +13,8 @@ const appName = 'release';
 
 SharedTags.addSharedTags(app, { shared, appName, prSuffix: shared.prSuffix });
 
-new SvcsStack(app, `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}-svcs`, {
+new SvcsStack(app, 'app', {
+  stackName: `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}-svcs`,
   local: { appName },
   shared,
 });
