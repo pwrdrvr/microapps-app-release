@@ -41,13 +41,13 @@ jobs:
       #   run: |
       #     npm run build --if-present
     
-      - name: Run CDK Lint
-        working-directory: cdk/
-        run: npm run lint
+      # - name: Run CDK Lint
+      #   working-directory: cdk/
+      #   run: npm run lint
 
-      - name: Run Tests
-        run: |
-          npm run test
+      # - name: Run Tests
+      #   run: |
+      #     npm run test
 
       - name: Build Serverless Next.js
         run: |
