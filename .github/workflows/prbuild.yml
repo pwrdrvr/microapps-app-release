@@ -50,10 +50,13 @@ jobs:
       #   run: |
       #     npm run test
 
-      - name: Compute NPM Version
+      - name: Extract Current NPM Version
         run: |
           echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-          echo 'PACKAGE_VERSION='${{ env.PACKAGE_VERSION_ORIG }}-pr.${PR_NUMBER} >> $GITHUB_ENV
+
+      - name: Compute NPM Version
+        run: |
+          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
 
       - name: Preflight Check Version
         run: |
