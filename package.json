@@ -43,7 +43,7 @@
     "@aws-sdk/client-dynamodb": "^3.19.0",
     "@aws-sdk/lib-dynamodb": "^3.19.0",
     "@carbon/themes": "^10.30.0",
-    "@pwrdrvr/microapps-datalib": "^0.0.20",
+    "@pwrdrvr/microapps-datalib": "^0.0.24",
     "@pwrdrvr/serverless-nextjs-router": "^0.0.2",
     "@reduxjs/toolkit": "^1.5.1",
     "carbon-components": "^10.31.0",
@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
-    "@pwrdrvr/microapps-publish": "^0.0.23",
+    "@pwrdrvr/microapps-publish": "^0.0.24",
     "@sls-next/serverless-component": "^1.19.0",
     "@storybook/addon-actions": "^6.2.8",
     "@storybook/addon-essentials": "^6.2.8",
