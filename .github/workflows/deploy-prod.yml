@@ -53,7 +53,7 @@ jobs:
 
       - name: Apply Version from Git Tag
         run: |
-          npm version from-git
+          npm version from-git --no-git-tag-version
 
       - name: Extract Current NPM Version
         run: |
