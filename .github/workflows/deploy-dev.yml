@@ -3,13 +3,14 @@
 
 # Workflow syntax reference:
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
-name: PR Build
+name: Deploy - Dev
 
 on:
-  # push:
-  #   branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  release:
+    types: [published]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 env:
   # This is used by the SharedProps to detect a PR build
@@ -24,6 +25,8 @@ env:
 
 jobs:
   build:
+    if: startsWith( github.ref, 'refs/tags/dev/')
+
     runs-on: ubuntu-latest
 
     steps:
@@ -48,21 +51,17 @@ jobs:
         run: |
           npm run build --if-present
 
+      - name: Apply Version from Git Tag
+        run: |
+          npm version from-git
+
       - name: Extract Current NPM Version
         run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
-      - name: Compute NPM Version
-        run: |
-          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
+          echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
 
       - name: Preflight Check Version
         run: |
           npx microapps-publish preflight -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
-
-      - name: Apply NPM Version
-        run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version
 
       - name: Apply Next.js Version
         run: |

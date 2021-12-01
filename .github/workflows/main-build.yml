@@ -3,7 +3,7 @@
 
 # Workflow syntax reference:
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
-name: PR Build
+name: Main Build
 
 on:
   # push:
@@ -72,9 +72,9 @@ jobs:
         run: |
           npx serverless
 
-      - name: Copy in Serverless-NextJS-Router
-        run: |
-          npm run copy-router
+      # - name: Copy in Serverless-NextJS-Router
+      #   run: |
+      #     npm run copy-router
 
       - name: Build Story Book
         run: |
@@ -83,13 +83,13 @@ jobs:
       - name: Smoke Check CDK
         run: npx cdk list
 
-      - name: microapps-publish Smoke Check
-        run: |
-          npx microapps-publish
+      # - name: microapps-publish Smoke Check
+      #   run: |
+      #     npx microapps-publish
 
-      - name: Deploy CDK Stack
-        run: npx cdk deploy --require-approval never app
+      # - name: Deploy CDK Stack
+      #   run: npx cdk deploy --require-approval never app
 
-      - name: Publish to MicroApps
-        run: |
-          npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}-pr-${PR_NUMBER}
+      # - name: Publish to MicroApps
+      #   run: |
+      #     npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}-pr-${PR_NUMBER}
