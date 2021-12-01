@@ -31,7 +31,7 @@ Issues: if the breakpoints don't get hit, make sure that `.env.development` has 
 
 ### On Prod MicroApps Stack
 
-`AWS_REGION=us-east-2 NODE_ENV=dev ENV=dev CODEBUILD_CDK_CONTEXT_ARGS="--context @pwrdrvr/microapps:tableName=microapps-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-prod" make codebuild-deploy`
+`AWS_REGION=us-east-2 NODE_ENV=prod ENV=prod CODEBUILD_CDK_CONTEXT_ARGS="--context @pwrdrvr/microapps:tableName=microapps-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-prod" make codebuild-deploy`
 
 ### On Dev PR MicroApps Stack
 
