@@ -82,6 +82,6 @@ jobs:
       # - name: Deploy CDK Stack
       #   run: npx cdk deploy --require-approval never app
 
-      # - name: Publish to MicroApps
+      # - name: Publish App to MicroApps
       #   run: |
       #     npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}
