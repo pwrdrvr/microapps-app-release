@@ -75,7 +75,7 @@ export default class SharedProps {
     }
 
     // Determine the env from NODE_ENV
-    const env = process.env['NODE_ENV'];
+    const env = process.env['NODE_ENV'] ?? process.env['ENV'];
     if (env !== undefined && env !== '') {
       if (env.startsWith('prod')) {
         this._env = 'prod';
