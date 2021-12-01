@@ -1,6 +1,6 @@
 {
   "name": "@pwrdrvr/microapps-app-release",
-  "version": "0.0.0",
+  "version": "0.0.21",
   "private": true,
   "repository": {
     "type": "git",
@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
-    "@pwrdrvr/microapps-publish": "^0.0.20",
+    "@pwrdrvr/microapps-publish": "^0.0.23",
     "@sls-next/serverless-component": "^1.19.0",
     "@storybook/addon-actions": "^6.2.8",
     "@storybook/addon-essentials": "^6.2.8",
@@ -87,10 +87,10 @@
     "@types/styled-components": "^5.1.9",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
+    "aws-cdk": "^1.134.0",
     "babel-loader": "^8.2.2",
     "babel-preset-react-app": "^10.0.0",
     "chromatic": "^5.7.0",
-    "commander": "^4.1.1",
     "css-loader": "^5.2.2",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
