@@ -91,4 +91,4 @@ jobs:
 
       - name: Publish to MicroApps
         run: |
-          npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}-pr-${PR_NUMBER}
+          npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}

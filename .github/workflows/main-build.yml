@@ -50,11 +50,7 @@ jobs:
 
       - name: Extract Current NPM Version
         run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
-      - name: Compute NPM Version
-        run: |
-          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
+          echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
 
       - name: Preflight Check Version
         run: |
@@ -92,4 +88,4 @@ jobs:
 
       # - name: Publish to MicroApps
       #   run: |
-      #     npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}-pr-${PR_NUMBER}
+      #     npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}
