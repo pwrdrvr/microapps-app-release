@@ -56,9 +56,13 @@ jobs:
         run: |
           echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
 
-      - name: Preflight Check Version
+      - name: Preflight Check Version - App
         run: |
-          npx microapps-publish preflight -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
+          npx microapps-publish preflight -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+
+      - name: Preflight Check Version - Story Book
+        run: |
+          npx microapps-publish preflight -a ${APP_NANE}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
 
       - name: Apply NPM Version
         run: |
@@ -82,7 +86,7 @@ jobs:
 
       - name: Publish Story Book to MicroApps
         run: |
-          npx microapps-publish publish-static -a ${APP_NANE}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s storybook-static -i index.html
+          npx microapps-publish publish-static -a ${APP_NANE}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s storybook-static -i index.html --overwrite --noCache
 
       - name: Smoke Check CDK
         run: npx cdk list
@@ -92,4 +96,4 @@ jobs:
 
       - name: Publish App to MicroApps
         run: |
-          npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}-pr-${PR_NUMBER}
+          npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}-pr-${PR_NUMBER} -s .serverless_nextjs/assets/release/${PACKAGE_VERSION} --overwrite --noCache
