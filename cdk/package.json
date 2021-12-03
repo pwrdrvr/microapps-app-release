@@ -1,5 +1,5 @@
 {
-  "name": "cdk",
+  "name": "@pwrdrvr/microapps-app-release-cdk",
   "version": "0.1.0",
   "private": true,
   "repository": {
