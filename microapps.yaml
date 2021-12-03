@@ -1,6 +1,0 @@
-app:
-  name: release
-  staticAssetsPath: ./.serverless_nextjs/assets/release/$SEMVER/
-  lambdaName: microapps-app-release-dev
-  awsAccountID: 239161478713
-  awsRegion: us-east-2

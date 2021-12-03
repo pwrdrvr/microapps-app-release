@@ -16,7 +16,7 @@ env:
   # This is used by the SharedProps to detect a PR build
   PR_NUMBER: ${{ github.event.pull_request.number }}
   AWS_REGION: us-east-2
-  APP_NANE: release
+  APP_NAME: release
   ENV: qa
   DEPLOYER_LAMBDA_NAME: microapps-deployer-qa
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_QA }}
@@ -62,7 +62,7 @@ jobs:
 
       - name: Preflight Check Version
         run: |
-          npx microapps-publish preflight -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
+          npx microapps-publish preflight -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
 
       - name: Apply Next.js Version
         run: |
@@ -82,7 +82,7 @@ jobs:
 
       - name: Publish Story Book to MicroApps
         run: |
-          npx microapps-publish publish-static -a ${APP_NANE}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s storybook-static -i index.html
+          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s storybook-static -i index.html
 
       - name: Smoke Check CDK
         run: npx cdk list
@@ -92,4 +92,4 @@ jobs:
 
       - name: Publish App to MicroApps
         run: |
-          npx microapps-publish publish -a ${APP_NANE} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NANE}-${ENV}
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}
