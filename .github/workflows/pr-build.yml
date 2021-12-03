@@ -96,4 +96,4 @@ jobs:
 
       - name: Publish App to MicroApps
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}-pr-${PR_NUMBER} -s .serverless_nextjs/assets/release/${PACKAGE_VERSION} --overwrite --noCache
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}-pr-${PR_NUMBER} -s .serverless_nextjs/assets/${APP_NAME}/${PACKAGE_VERSION} --overwrite --noCache
