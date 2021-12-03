@@ -52,10 +52,6 @@ jobs:
         run: |
           echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
 
-      - name: Preflight Check Version
-        run: |
-          npx microapps-publish preflight -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
-
       - name: Apply Next.js Version
         run: |
           npx microapps-publish nextjs-version -n ${PACKAGE_VERSION}
@@ -64,24 +60,9 @@ jobs:
         run: |
           npx serverless
 
-      # - name: Copy in Serverless-NextJS-Router
-      #   run: |
-      #     npm run copy-router
-
       - name: Build Story Book
         run: |
           npm run build-storybook
 
       - name: Smoke Check CDK
         run: npx cdk list
-
-      # - name: microapps-publish Smoke Check
-      #   run: |
-      #     npx microapps-publish
-
-      # - name: Deploy CDK Stack
-      #   run: npx cdk deploy --require-approval never app
-
-      # - name: Publish App to MicroApps
-      #   run: |
-      #     npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}
