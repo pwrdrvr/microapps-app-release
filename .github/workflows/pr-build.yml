@@ -103,6 +103,9 @@ jobs:
           npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}-pr-${PR_NUMBER} -s .static_files/assets/${APP_NAME}/${PACKAGE_VERSION} --overwrite --noCache
 
   build-storybook:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
 
     steps:
