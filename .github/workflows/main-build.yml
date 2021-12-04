@@ -14,18 +14,15 @@ on:
 env:
   # This is used by the SharedProps to detect a PR build
   PR_NUMBER: ${{ github.event.pull_request.number }}
-  AWS_REGION: us-east-2
   APP_NAME: release
   ENV: dev
   DEPLOYER_LAMBDA_NAME: microapps-deployer-dev
+  AWS_REGION: us-east-2
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 

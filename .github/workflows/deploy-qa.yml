@@ -12,22 +12,27 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# Limit concurrency to 1, with queueing, per workflow
+# Limit concurrency to 1, with queueing, per workflow per PR
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
 env:
   # This is used by the SharedProps to detect a PR build
   PR_NUMBER: ${{ github.event.pull_request.number }}
-  AWS_REGION: us-east-2
   APP_NAME: release
   ENV: qa
   DEPLOYER_LAMBDA_NAME: microapps-deployer-qa
+  AWS_REGION: us-east-2
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_QA }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_QA }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_QA }}
   CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-qa --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-qa"
 
 jobs:
   build:
     if: startsWith( github.ref, 'refs/tags/qa/')
-
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
 
     steps:
