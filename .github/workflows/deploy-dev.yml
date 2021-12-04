@@ -75,6 +75,12 @@ jobs:
         run: |
           npm run copy-router
 
+      # Prevent the static files from getting pulled into the Lambda
+      - name: Remove Static Files from App Build
+        run: |
+          mkdir .static_files
+          mv .serverless_nextjs/assets .static_files
+
       - name: Build Story Book
         run: |
           npm run build-storybook
@@ -88,4 +94,4 @@ jobs:
 
       - name: Publish App to MicroApps
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV} -s .serverless_nextjs/assets/${APP_NAME}/${PACKAGE_VERSION}
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV} -s .static_files/assets/${APP_NAME}/${PACKAGE_VERSION}
