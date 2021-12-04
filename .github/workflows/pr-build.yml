@@ -83,6 +83,11 @@ jobs:
           mkdir .static_files
           mv .serverless_nextjs/assets .static_files
 
+      # We are using a shared Sharp node_modules layer
+      - name: Remove Sharp from App Build
+        run: |
+          rm -rf .serverless_nextjs/image-lambda/node_modules
+
       - name: Deploy CDK Stack
         run: npx cdk deploy --hotswap --require-approval never app
         env:
