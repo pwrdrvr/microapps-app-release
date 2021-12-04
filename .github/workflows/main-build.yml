@@ -63,6 +63,3 @@ jobs:
       - name: Build Story Book
         run: |
           npm run build-storybook
-
-      - name: Smoke Check CDK
-        run: npx cdk list
