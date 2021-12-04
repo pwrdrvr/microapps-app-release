@@ -84,9 +84,6 @@ jobs:
         run: |
           npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s storybook-static -i index.html
 
-      - name: Smoke Check CDK
-        run: npx cdk list
-
       - name: Deploy CDK Stack
         run: npx cdk deploy ${CDK_CONTEXT_ARGS} --require-approval never app
 
