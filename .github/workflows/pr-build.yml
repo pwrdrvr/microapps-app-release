@@ -24,6 +24,7 @@ env:
   DEPLOYER_LAMBDA_NAME: microapps-deployer-dev
   AWS_REGION: us-east-2
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
+  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-dev --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-dev"
 
 jobs:
   build:
@@ -101,7 +102,7 @@ jobs:
           rm -rf .serverless_nextjs/image-lambda/node_modules
 
       - name: Deploy CDK Stack
-        run: npx cdk deploy --hotswap --require-approval never app
+        run: npx cdk deploy ${CDK_CONTEXT_ARGS} --hotswap --require-approval never app
 
       - name: Publish App to MicroApps
         run: |

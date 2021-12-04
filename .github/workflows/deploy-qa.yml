@@ -65,6 +65,13 @@ jobs:
         run: |
           echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-session-name: microapps-app-serverless-nextjs-demo-build
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/RoleForGitHub
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Preflight Check Version
         run: |
           npx microapps-publish preflight -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
