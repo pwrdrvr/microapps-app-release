@@ -41,7 +41,7 @@ export class SvcsStack extends cdk.Stack {
       },
       layers: [sharpLayer],
       logRetention: logs.RetentionDays.ONE_MONTH,
-      memorySize: 1024,
+      memorySize: 1769,
       timeout: cdk.Duration.seconds(15),
     });
     if (shared.isPR) {
