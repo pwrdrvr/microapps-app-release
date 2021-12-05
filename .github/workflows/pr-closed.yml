@@ -32,7 +32,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-session-name: microapps-app-serverless-nextjs-demo-build
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/RoleForGitHub
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/microapps-ghpublic-builder-dev-builder-role
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Destroy CDK Stack
