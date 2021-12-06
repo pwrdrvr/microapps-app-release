@@ -16,10 +16,10 @@ concurrency:
   cancel-in-progress: false
 env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
-  NODE_ENV: dev
+  NODE_ENV: prod
   APP_NAME: release
   AWS_REGION: us-east-2
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_GHP }}
 
 jobs:
   cleanup-pr:
@@ -32,7 +32,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-session-name: microapps-app-serverless-nextjs-demo-build
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/microapps-ghpublic-builder-dev-builder-role
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/builder-writeRole
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Destroy CDK Stack
