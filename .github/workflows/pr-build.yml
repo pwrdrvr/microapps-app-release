@@ -20,11 +20,11 @@ env:
   # This is used by the SharedProps to detect a PR build
   PR_NUMBER: ${{ github.event.pull_request.number }}
   APP_NAME: release
-  ENV: dev
-  DEPLOYER_LAMBDA_NAME: microapps-deployer-dev
+  ENV: prod
+  DEPLOYER_LAMBDA_NAME: microapps-ghpublic-deployer-prod
   AWS_REGION: us-east-2
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
-  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-dev --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-dev"
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_GHP }}
+  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic-microapps-ghpublic-prod"
 
 jobs:
   build:
@@ -66,8 +66,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-session-name: microapps-app-serverless-nextjs-demo-build
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/microapps-ghpublic-builder-dev-builder-role
+          role-session-name: microapps-app-release-build
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/builder-writeRole
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Preflight Check Version - App
@@ -138,8 +138,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-session-name: microapps-app-serverless-nextjs-demo-build
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/microapps-ghpublic-builder-dev-builder-role
+          role-session-name: microapps-app-release-build
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/builder-writeRole
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Preflight Check Version - Story Book
