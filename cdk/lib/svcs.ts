@@ -26,7 +26,7 @@ export class SvcsStack extends cdk.Stack {
     const sharpLayer = lambda.LayerVersion.fromLayerVersionArn(
       this,
       'sharp-lambda-layer',
-      'arn:aws:lambda:us-east-2:239161478713:layer:sharp-heic:1',
+      `arn:aws:lambda:us-east-2:${shared.account}:layer:sharp-heic:1`,
     );
     const svc = new lambda.Function(this, 'app-lambda', {
       code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', '.serverless_nextjs')),
