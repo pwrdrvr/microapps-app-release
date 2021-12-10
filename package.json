@@ -14,6 +14,7 @@
     "debug": "ENVIRONMENT=.env.development NODE_OPTIONS='--inspect' next dev",
     "dev": "DEBUG=true next dev",
     "build": "next build",
+    "build:tsc": "tsc --project tsconfig.json",
     "start": "next start",
     "copy-router": "cp node_modules/@pwrdrvr/serverless-nextjs-router/lib/index.js .serverless_nextjs/",
     "lint": "eslint ./src/ --ext .ts --ext .tsx",
