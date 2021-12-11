@@ -25,8 +25,32 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
+    outputs:
+      prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
+      packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
       - uses: actions/checkout@v2
+
+      - name: Compute PR Suffix
+        id: prSuffix
+        run: |
+          if [ -n "${PR_NUMBER}" ]; then
+            echo "::set-output name=prSuffix::-pr-${PR_NUMBER}"
+            echo "PR_SUFFIX=-pr-"${PR_NUMBER} >> $GITHUB_ENV
+          else
+            echo "::set-output name=prSuffix::"
+            echo "PR_SUFFIX=" >> $GITHUB_ENV
+          fi
+
+      - name: Extract Current NPM Version
+        run: |
+          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
+
+      - name: Compute NPM Version
+        id: packageVersion
+        run: |
+          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
+          echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
 
       - name: Use Node.js 16
         uses: actions/setup-node@v2
@@ -46,14 +70,6 @@ jobs:
         working-directory: cdk/
         run: |
           npm run build --if-present
-
-      - name: Extract Current NPM Version
-        run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
-      - name: Compute NPM Version
-        run: |
-          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
 
       - name: Apply NPM Version
         run: |
@@ -139,8 +155,6 @@ jobs:
     needs:
       - build
       - build-storybook
-    # Limit concurrency to 1, with queueing, per workflow
-    # Limit concurrency to 1, with queueing, per workflow per PR
     concurrency:
       group: deploy-ghpublic-${{ github.workflow }}-${{ github.event.pull_request.number }}
       cancel-in-progress: false
@@ -148,7 +162,10 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    environment: ghpublic
+    environment:
+      name: ghpublic
+      url: https://apps.ghpublic.pwrdrvr.com/release/${{ needs.build.outputs.packageVersion }}
+
     steps:
       - uses: actions/checkout@v2
 
