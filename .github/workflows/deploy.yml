@@ -13,10 +13,13 @@ env:
   # This is used by the SharedProps to detect a PR build
   APP_NAME: release
   AWS_REGION: us-east-2
+
 jobs:
   version:
     if: startsWith( github.ref, 'refs/tags/release/')
     runs-on: ubuntu-latest
+    outputs:
+      packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
       - uses: actions/checkout@v2
 
@@ -32,8 +35,10 @@ jobs:
           npm version from-git --no-git-tag-version
 
       - name: Extract Current NPM Version
+        id: packageVersion
         run: |
           echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
+          echo "::set-output name=packageVersion::${packageVersion}"
 
       - name: Create version.txt
         run: echo ${PACKAGE_VERSION} > version.txt
@@ -155,6 +160,7 @@ jobs:
 
   deploy-ghpublic:
     needs:
+      - version
       - build
       - build-storybook
     # Limit concurrency to 1, with queueing, per workflow
@@ -166,7 +172,9 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    environment: ghpublic
+    environment:
+      name: ghpublic
+      url: https://apps.ghpublic.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
     env:
       ENV: prod
       DEPLOYER_LAMBDA_NAME: microapps-ghpublic-deployer-prod
@@ -240,6 +248,7 @@ jobs:
 
   deploy-dev:
     needs:
+      - version
       - deploy-ghpublic
     # Limit concurrency to 1, with queueing, per workflow
     # Limit concurrency to 1, with queueing, per workflow per PR
@@ -250,7 +259,9 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    environment: dev
+    environment:
+      name: dev
+      url: https://apps.dev.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
     env:
       ENV: dev
       DEPLOYER_LAMBDA_NAME: microapps-deployer-dev
@@ -324,6 +335,7 @@ jobs:
 
   deploy-qa:
     needs:
+      - version
       - deploy-ghpublic
     # Limit concurrency to 1, with queueing, per workflow
     # Limit concurrency to 1, with queueing, per workflow per PR
@@ -334,7 +346,9 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    environment: qa
+    environment:
+      name: qa
+      url: https://apps.qa.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
     env:
       ENV: qa
       DEPLOYER_LAMBDA_NAME: microapps-deployer-qa
@@ -409,6 +423,7 @@ jobs:
 
   deploy-prod:
     needs:
+      - version
       - deploy-ghpublic
     # Limit concurrency to 1, with queueing, per workflow
     # Limit concurrency to 1, with queueing, per workflow per PR
@@ -419,7 +434,9 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    environment: prod
+    environment:
+      name: prod
+      url: https://apps.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
     env:
       ENV: prod
       DEPLOYER_LAMBDA_NAME: microapps-deployer-prod

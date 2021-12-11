@@ -1,6 +1,6 @@
 {
   "files.exclude": {
-    "cdk.out": true,
+    "cdk.out": true
     //"**/package-lock.json": true
   },
   "editor.formatOnSave": true,
@@ -9,4 +9,7 @@
   "files.associations": {
     "Dockerfile*": "dockerfile"
   },
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.ya?ml"
+  }
 }
