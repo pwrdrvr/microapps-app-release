@@ -1,18 +1,14 @@
 {
   "name": "@pwrdrvr/microapps-app-release-cdk",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pwrdrvr/microapps-app-release.git"
   },
   "author": "PwrDrvr LLC",
   "license": "MIT",
-  "bin": {
-    "cdk": "bin/cdk.js"
-  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build tsconfig.json",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
@@ -27,7 +23,7 @@
     "@aws-cdk/aws-s3": "^1.134.0",
     "@aws-cdk/core": "^1.134.0",
     "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
+    "@types/node": "^12.0.0",
     "@types/source-map-support": "^0.5.3",
     "jest": "^26.4.2",
     "source-map-support": "^0.5.16",
