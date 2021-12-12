@@ -7,15 +7,19 @@ name: Release Package
 
 on:
   # Pull Request - Only when testing workflow
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+  # pull_request:
+  #   branches: [ main ]
+  release:
+    types: [published]
+
+  # workflow_dispatch:
 
 jobs:
   release:
+    if: startsWith( github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     outputs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
@@ -45,10 +49,14 @@ jobs:
       # - name: Print npm version
       #   run: npm --version
 
-      - name: Bump Version by Patch - Push Tag to GH - Apply to Package.json
+      # - name: Bump Version by Patch - Push Tag to GH - Apply to Package.json
+      #   run: |
+      #     npm version patch
+      #     git push —-tags
+
+      - name: Apply Version from Git Tag
         run: |
-          npm version patch
-          git push —-tags
+          npm version from-git --no-git-tag-version
 
       - name: Extract Package Version
         run: |
