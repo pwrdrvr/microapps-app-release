@@ -48,7 +48,7 @@ jobs:
 
       - name: Apply Next.js Version
         run: |
-          npx -w @pwrdrvr/microapps-app-release microapps-publish microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+          npx -w @pwrdrvr/microapps-app-release microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
         run: |
