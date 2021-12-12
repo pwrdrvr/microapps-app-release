@@ -191,6 +191,7 @@ jobs:
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
+        working-directory: packages/app/
         run: |
           mkdir .static_files
           mv .serverless_nextjs/assets .static_files
@@ -230,8 +231,8 @@ jobs:
 
       - name: Publish to MicroApps - App
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}-pr-${PR_NUMBER} -s .static_files/assets/${APP_NAME}/${PACKAGE_VERSION} --overwrite --noCache
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}-pr-${PR_NUMBER} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION} --overwrite --noCache
 
       - name: Publish MicroApps - Story Book
         run: |
-          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s storybook-static -i index.html --overwrite --noCache
+          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s packages/app/storybook-static -i index.html --overwrite --noCache
