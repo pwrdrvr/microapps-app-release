@@ -40,6 +40,9 @@ jobs:
 
       - name: npm 7 has a bug with from-git, so bump to npm 8
         run: npm i -g npm@8
+      
+      - name: Print npm version
+        run: npm --version
 
       - name: Get Package Version from Git Tags - Apply to Package.json
         run: npm version from-git
