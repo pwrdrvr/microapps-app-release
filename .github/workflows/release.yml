@@ -46,7 +46,9 @@ jobs:
       #   run: npm --version
 
       - name: Bump Version by Patch - Push Tag to GH - Apply to Package.json
-        run: npm version patch
+        run: |
+          npm version patch
+          git push —-tags
 
       - name: Extract Package Version
         run: |
