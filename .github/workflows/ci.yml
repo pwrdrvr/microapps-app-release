@@ -62,14 +62,12 @@ jobs:
       - name: Install Node Modules
         run: npm ci
 
-      - name: Install CDK Node Modules
-        working-directory: cdk/
-        run: npm ci
+      - name: Link to node_modules (why isn't this there?) - App
+        working-directory: packages/app/
+        run: ln -s ../../node_modules
 
-      - name: Build CDK TypeScript
-        working-directory: cdk/
-        run: |
-          npm run build --if-present
+      - name: Build All TypeScript
+        run: npm run build:tsc
 
       - name: Apply NPM Version
         run: |
@@ -85,29 +83,31 @@ jobs:
 
       - name: Apply Next.js Version
         run: |
-          npx microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+          npx microapps-publish -w @pwrdrvr/microapps-app-release-app nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
         run: |
-          npx serverless
+          npx -w @pwrdrvr/microapps-app-release-app serverless
 
       - name: Copy in Serverless-NextJS-Router
         run: |
-          npm run copy-router
+          npm run -w @pwrdrvr/microapps-app-release-app copy-router
 
       # We are using a shared Sharp node_modules layer
       - name: Remove Sharp from App Build
+        working-directory: packages/app/
         run: |
           rm -rf .serverless_nextjs/image-lambda/node_modules
 
       # Upload Artifact
       - name: Zip Package
+        working-directory: packages/app/
         run: zip -r serverless_nextjs.zip .serverless_nextjs
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: app_zip
-          path: serverless_nextjs.zip
+          path: packages/app/serverless_nextjs.zip
 
   build-storybook:
     permissions:
@@ -140,16 +140,17 @@ jobs:
 
       - name: Build Story Book
         run: |
-          npm run build-storybook
+          npm run -w @pwrdrvr/microapps-app-release-app build-storybook
 
       # Upload Artifact
       - name: Zip Package
+        working-directory: packages/app/
         run: zip -r storybook-static.zip storybook-static
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: storybook_zip
-          path: storybook-static.zip
+          path: packages/app/storybook-static.zip
 
   deploy-ghpublic:
     needs:
@@ -176,11 +177,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Install ts-node and aws-cdk
-        run: npm i -g ts-node aws-cdk @pwrdrvr/microapps-publish
-      
-      - name: Install CDK Node Modules
-        working-directory: cdk/
+      - name: Install Node Modules
         run: npm ci
 
       - name: Download Artifact - App

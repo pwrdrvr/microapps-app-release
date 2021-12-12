@@ -1,5 +1,5 @@
 nextApp:
-  component: "./node_modules/@sls-next/serverless-component"
+  component: "../../node_modules/@sls-next/serverless-component"
   inputs:
     deploy: false
     uploadStaticAssetsFromBuild: false

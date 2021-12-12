@@ -1,0 +1,108 @@
+{
+  "name": "@pwrdrvr/microapps-app-release-app",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pwrdrvr/microapps-app-release.git"
+  },
+  "author": "PwrDrvr LLC",
+  "license": "MIT",
+  "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
+  "scripts": {
+    "debug": "ENVIRONMENT=.env.development NODE_OPTIONS='--inspect' next dev",
+    "dev": "DEBUG=true next dev",
+    "build": "next build",
+    "build:serverless": "serverless",
+    "build:tsc": "tsc --project tsconfig.json",
+    "start": "next start",
+    "copy-router": "cp node_modules/@pwrdrvr/serverless-nextjs-router/lib/index.js .serverless_nextjs/",
+    "lint": "eslint ./src/ --ext .ts --ext .tsx",
+    "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.19.0",
+    "@aws-sdk/lib-dynamodb": "^3.19.0",
+    "@carbon/themes": "^10.30.0",
+    "@pwrdrvr/microapps-datalib": "^0.0.25",
+    "@reduxjs/toolkit": "^1.5.1",
+    "carbon-components": "^10.31.0",
+    "carbon-components-react": "^7.31.0",
+    "carbon-icons": "^7.0.7",
+    "clsx": "^1.1.1",
+    "encoding": "^0.1.13",
+    "immutable": "^4.0.0-rc.12",
+    "lambda-log": "^2.4.0",
+    "next": "10.0.7",
+    "next-redux-wrapper": "^7.0.0-rc.1",
+    "node-fetch": "^2.6.1",
+    "prop-types": "^15.7.2",
+    "react": "17.0.1",
+    "react-base-table": "^1.12.0",
+    "react-dom": "17.0.1",
+    "react-overlays": "^5.0.0",
+    "react-redux": "^7.2.3",
+    "redux-thunk": "^2.3.0",
+    "semver": "^6.3.0",
+    "styled-components": "^5.2.3",
+    "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.10",
+    "@pwrdrvr/microapps-publish": "^0.0.26",
+    "@pwrdrvr/serverless-nextjs-router": "^0.0.4",
+    "@sls-next/serverless-component": "^1.19.0",
+    "@storybook/addon-actions": "^6.2.8",
+    "@storybook/addon-essentials": "^6.2.8",
+    "@storybook/addon-links": "^6.2.8",
+    "@storybook/preset-scss": "^1.0.3",
+    "@storybook/preset-typescript": "^3.0.0",
+    "@storybook/react": "^6.2.8",
+    "@types/carbon-components-react": "^7.30.0",
+    "@types/lambda-log": "^2.2.0",
+    "@types/node": "^14.14.31",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "@types/react-window": "^1.8.2",
+    "@types/semver": "^7.3.4",
+    "@types/styled-components": "^5.1.9",
+    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/parser": "^4.15.2",
+    "aws-cdk": "^1.134.0",
+    "babel-loader": "^8.2.2",
+    "babel-preset-react-app": "^10.0.0",
+    "chromatic": "^5.7.0",
+    "css-loader": "^5.2.2",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-react": "^7.23.1",
+    "file-loader": "^6.2.0",
+    "prettier": "^2.2.1",
+    "sass": "^1.32.8",
+    "sass-loader": "^10.1.5",
+    "serverless": "^2.28.0",
+    "style-loader": "^1.3.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.3.5"
+  }
+}

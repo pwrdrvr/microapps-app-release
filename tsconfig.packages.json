@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": ["node_modules/*", "**/node_modules/*", "**/*.spec.ts", "dist"]
+}

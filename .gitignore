@@ -8,3 +8,9 @@ node_modules
 storybook-static/
 **/cdk.out
 *.original*
+dist
+*.tsbuildinfo
+storybook-static/
+.serverless_nextjs/
+.next/
+.serverless/
