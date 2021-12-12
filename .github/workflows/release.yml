@@ -28,6 +28,7 @@ jobs:
           node-version: 16
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install Node Modules
         run: npm ci
@@ -113,6 +114,9 @@ jobs:
       #
       # Publish other non-JSII Artifacts to NPM
       #
+      # - name: NPM registry authentication
+      #   run: npm set //registry.npmjs.org/:_authToken ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
+
       - name: Publish CDK Construct
         working-directory: packages/cdk-construct/
         run: npm publish
