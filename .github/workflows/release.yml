@@ -38,7 +38,10 @@ jobs:
           git config user.name "Automation"
           git config user.email "github-actions@github.com"
 
-      - name: Bump Package Version
+      - name: npm 7 has a bug with from-git, so bump to npm 8
+        run: npm i -g npm@8
+
+      - name: Get Package Version from Git Tags - Apply to Package.json
         run: npm version from-git
 
       - name: Extract Package Version
@@ -107,10 +110,20 @@ jobs:
       #
       # Publish other non-JSII Artifacts to NPM
       #
-      - name: NPM registry authentication
-        run: npm set //registry.npmjs.org/:_authToken ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
-
       - name: Publish CDK Construct
         working-directory: packages/cdk-construct/
-        run: |
-          npm publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
+
+      # - uses: mikeal/merge-release@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      #     DEPLOY_DIR: packages/cdk-construct/
+      #     SRC_PACKAGE_DIR: packages/cdk-construct/
+
+      # - uses: JS-DevTools/npm-publish@v1
+      #   with:
+      #     dry-run: true
+      #     token: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
