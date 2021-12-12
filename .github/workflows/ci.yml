@@ -184,7 +184,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app_zip
-      - run: unzip serverless_nextjs.zip
+          path: packages/app/
+      - name: Unzip Artifact - App
+        working-directory: packages/app/
+        run: unzip serverless_nextjs.zip
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
@@ -196,7 +199,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: storybook_zip
-      - run: unzip storybook-static.zip
+          path: packages/app/
+      - name: Unzip Artifact - App
+        working-directory: packages/app/
+        run: unzip storybook-static.zip
 
       - name: Download Artifact - Version.txt
         uses: actions/download-artifact@v2
