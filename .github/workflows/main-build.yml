@@ -48,12 +48,12 @@ jobs:
 
       - name: Apply Next.js Version
         run: |
-          npx microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+          npx -w @pwrdrvr/microapps-app-release microapps-publish microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
         run: |
-          npx serverless
+          npx -w @pwrdrvr/microapps-app-release microapps-publish serverless
 
       - name: Build Story Book
         run: |
-          npm run build-storybook
+          npm run -w @pwrdrvr/microapps-app-release microapps-publish build-storybook
