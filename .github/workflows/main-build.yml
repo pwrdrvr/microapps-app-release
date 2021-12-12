@@ -52,8 +52,8 @@ jobs:
 
       - name: Build Serverless Next.js
         run: |
-          npx -w @pwrdrvr/microapps-app-release microapps-publish serverless
+          npx -w @pwrdrvr/microapps-app-release serverless
 
       - name: Build Story Book
         run: |
-          npm run -w @pwrdrvr/microapps-app-release microapps-publish build-storybook
+          npm run -w @pwrdrvr/microapps-app-release build-storybook
