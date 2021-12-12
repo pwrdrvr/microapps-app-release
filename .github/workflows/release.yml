@@ -22,6 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Check GH CLI
+        run: gh --help
+
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
@@ -73,7 +76,7 @@ jobs:
         name: Create Release
         working-directory: packages/microapps-cdk/
         run: |
-          github release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
+          gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
