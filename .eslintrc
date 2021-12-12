@@ -14,6 +14,7 @@
       "version": "detect"
     }
   },
+  "ignorePatterns": ["*.js", "*.d.ts", "node_modules/", "*.generated.ts", "coverage"],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",

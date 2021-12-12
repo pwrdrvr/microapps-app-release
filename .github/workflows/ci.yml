@@ -65,7 +65,10 @@ jobs:
         run: ln -s ../../node_modules
 
       - name: Build All TypeScript
-        run: npm run build:tsc
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
 
       - name: Apply NPM Version
         run: |
@@ -81,15 +84,15 @@ jobs:
 
       - name: Apply Next.js Version
         run: |
-          npx -w @pwrdrvr/microapps-app-release-app microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+          npx -w @pwrdrvr/microapps-app-release microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
         run: |
-          npx -w @pwrdrvr/microapps-app-release-app serverless
+          npx -w @pwrdrvr/microapps-app-release serverless
 
       - name: Copy in Serverless-NextJS-Router
         run: |
-          npm run -w @pwrdrvr/microapps-app-release-app copy-router
+          npm run -w @pwrdrvr/microapps-app-release copy-router
 
       # We are using a shared Sharp node_modules layer
       - name: Remove Sharp from App Build
@@ -138,7 +141,7 @@ jobs:
 
       - name: Build Story Book
         run: |
-          npm run -w @pwrdrvr/microapps-app-release-app build-storybook
+          npm run -w @pwrdrvr/microapps-app-release build-storybook
 
       # Upload Artifact
       - name: Zip Package
@@ -177,6 +180,9 @@ jobs:
 
       - name: Install Node Modules
         run: npm ci
+
+      - name: Build All TypeScript
+        run: npm run build
 
       - name: Download Artifact - App
         uses: actions/download-artifact@v2

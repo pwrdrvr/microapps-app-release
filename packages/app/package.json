@@ -1,5 +1,5 @@
 {
-  "name": "@pwrdrvr/microapps-app-release-app",
+  "name": "@pwrdrvr/microapps-app-release",
   "version": "0.0.0",
   "repository": {
     "type": "git",
@@ -13,19 +13,10 @@
     "dev": "DEBUG=true next dev",
     "build": "next build",
     "build:serverless": "serverless",
-    "build:tsc": "tsc --project tsconfig.json",
     "start": "next start",
     "copy-router": "cp node_modules/@pwrdrvr/serverless-nextjs-router/lib/index.js .serverless_nextjs/",
-    "lint": "eslint ./src/ --ext .ts --ext .tsx",
-    "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -85,19 +76,11 @@
     "@types/react-window": "^1.8.2",
     "@types/semver": "^7.3.4",
     "@types/styled-components": "^5.1.9",
-    "@typescript-eslint/eslint-plugin": "^4.15.2",
-    "@typescript-eslint/parser": "^4.15.2",
-    "aws-cdk": "^1.134.0",
     "babel-loader": "^8.2.2",
     "babel-preset-react-app": "^10.0.0",
     "chromatic": "^5.7.0",
     "css-loader": "^5.2.2",
-    "eslint": "^7.20.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-react": "^7.23.1",
     "file-loader": "^6.2.0",
-    "prettier": "^2.2.1",
     "sass": "^1.32.8",
     "sass-loader": "^10.1.5",
     "serverless": "^2.28.0",
