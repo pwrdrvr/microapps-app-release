@@ -5,6 +5,12 @@
     "type": "git",
     "url": "git+https://github.com/pwrdrvr/microapps-app-release.git"
   },
+  "bugs": {
+    "url": "https://github.com/pwrdrvr/microapps-app-release/issues"
+  },
+  "engine": {
+    "node": ">= 12.0.0"
+  },
   "author": "PwrDrvr LLC",
   "license": "MIT",
   "main": "lib/index.js",
@@ -46,5 +52,11 @@
     "@aws-cdk/aws-logs": "^1.134.0",
     "@aws-cdk/aws-s3": "^1.134.0",
     "@aws-cdk/core": "^1.134.0"
-  }
+  },
+  "files": [
+    "lib",
+    "src",
+    "package.json",
+    "LICENSE"
+  ]
 }
