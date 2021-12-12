@@ -32,7 +32,7 @@ jobs:
 
       - name: Apply Version from Git Tag
         run: |
-          npm version from-git --no-git-tag-version
+          npm version from-git --no-git-tag-version --workspaces
 
       - name: Extract Current NPM Version
         id: packageVersion
@@ -88,7 +88,7 @@ jobs:
 
       - name: Apply NPM Version
         run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version
+          npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
 
       - name: Apply Next.js Version
         run: |
@@ -146,7 +146,7 @@ jobs:
 
       - name: Apply NPM Version
         run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version
+          npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
 
       - name: Build Story Book
         run: |
