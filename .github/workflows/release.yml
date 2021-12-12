@@ -38,14 +38,14 @@ jobs:
           git config user.name "Automation"
           git config user.email "github-actions@github.com"
 
-      - name: npm 7 has a bug with from-git, so bump to npm 8
-        run: npm i -g npm@8
+      # - name: npm 7 has a bug with from-git, so bump to npm 8
+      #   run: npm i -g npm@8
       
-      - name: Print npm version
-        run: npm --version
+      # - name: Print npm version
+      #   run: npm --version
 
-      - name: Get Package Version from Git Tags - Apply to Package.json
-        run: npm version from-git
+      - name: Bump Version by Patch - Push Tag to GH - Apply to Package.json
+        run: npm version patch
 
       - name: Extract Package Version
         run: |
