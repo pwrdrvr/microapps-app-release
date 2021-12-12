@@ -22,9 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check GH CLI
-        run: gh --help
-
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
@@ -41,8 +38,8 @@ jobs:
           git config user.name "Automation"
           git config user.email "github-actions@github.com"
 
-      # - name: Bump Package Version
-      #   run: npm version from-git
+      - name: Bump Package Version
+        run: npm version from-git
 
       - name: Extract Package Version
         run: |
@@ -72,14 +69,6 @@ jobs:
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{
           github.ref }} | cut -f1)"
 
-      - if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        name: Create Release
-        run: |
-          gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
       - name: Apply Next.js Version
         run: |
           npx -w @pwrdrvr/microapps-app-release microapps-publish nextjs-version -n ${PACKAGE_VERSION}
@@ -107,6 +96,14 @@ jobs:
           mv packages/app/.serverless_nextjs packages/cdk-construct/lib
           mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
 
+      # Create the Release on GH now that build has finished
+      - if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
+        name: Create Release
+        run: |
+          gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       #
       # Publish other non-JSII Artifacts to NPM
       #
@@ -116,4 +113,4 @@ jobs:
       - name: Publish CDK Construct
         working-directory: packages/cdk-construct/
         run: |
-          npm publish --dry-run
+          npm publish
