@@ -29,7 +29,7 @@ export class SvcsStack extends cdk.Stack {
       `arn:aws:lambda:us-east-2:${shared.account}:layer:sharp-heic:1`,
     );
     const svc = new lambda.Function(this, 'app-lambda', {
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', '.serverless_nextjs')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'app', '.serverless_nextjs')),
       runtime: lambda.Runtime.NODEJS_14_X,
       handler: 'index.handler',
       functionName: `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}`,

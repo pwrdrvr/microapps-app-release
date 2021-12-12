@@ -62,9 +62,9 @@ jobs:
       - name: Install Node Modules
         run: npm ci
 
-      - name: Link to node_modules (why isn't this there?) - App
-        working-directory: packages/app/
-        run: ln -s ../../node_modules
+      # - name: Link to node_modules (why isn't this there?) - App
+      #   working-directory: packages/app/
+      #   run: ln -s ../../node_modules
 
       - name: Build All TypeScript
         run: npm run build:tsc
@@ -83,7 +83,7 @@ jobs:
 
       - name: Apply Next.js Version
         run: |
-          npx microapps-publish -w @pwrdrvr/microapps-app-release-app nextjs-version -n ${PACKAGE_VERSION}
+          npx -w @pwrdrvr/microapps-app-release-app microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
         run: |
