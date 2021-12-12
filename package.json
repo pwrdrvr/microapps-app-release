@@ -1,5 +1,5 @@
 {
-  "name": "@pwrdrvr/microapps-app-release",
+  "name": "@pwrdrvr/microapps-app-release-workspace",
   "version": "0.0.0",
   "private": true,
   "repository": {
@@ -11,15 +11,15 @@
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
   "workspaces": [
     "packages/app",
-    "packages/cdk"
+    "packages/cdk-construct",
+    "packages/cdk-stack"
   ],
   "scripts": {
     "cloc": "cloc --exclude-dir=node_modules,.storybook,.serverless,.serverless_nextjs,.next,storybook-static,cdk.out --exclude-ext=json .",
     "dev": "DEBUG=true next dev",
-    "build": "",
-    "build:tsc": "tsc --build tsconfig.json",
-    "lint": "eslint ./src/ --ext .ts --ext .tsx",
-    "lint-and-fix": "eslint ./ --ext .ts --ext .tsx --fix"
+    "build": "tsc --build tsconfig.json",
+    "lint": "eslint ./packages/ --ext .ts --ext .tsx",
+    "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix"
   },
   "eslintConfig": {
     "extends": [

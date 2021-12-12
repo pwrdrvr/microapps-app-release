@@ -5,7 +5,10 @@
       "path": "packages/app/"
     },
     {
-      "path": "packages/cdk/"
+      "path": "packages/cdk-construct/"
+    },
+    {
+      "path": "packages/cdk-stack/"
     }
   ]
 }
