@@ -74,7 +74,6 @@ jobs:
 
       - if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         name: Create Release
-        working-directory: packages/microapps-cdk/
         run: |
           gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
         env:
