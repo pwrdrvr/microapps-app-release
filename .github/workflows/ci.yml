@@ -22,8 +22,6 @@ env:
 
 jobs:
   build:
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     outputs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
@@ -62,7 +60,7 @@ jobs:
       - name: Install Node Modules
         run: npm ci
 
-      - name: Link to node_modules (why isn't this there?) - App
+      - name: Link to node_modules - App
         working-directory: packages/app/
         run: ln -s ../../node_modules
 
