@@ -73,7 +73,7 @@ jobs:
         name: Create Release
         working-directory: packages/microapps-cdk/
         run: |
-          gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
+          github release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
