@@ -72,7 +72,7 @@ jobs:
 
       - name: Apply NPM Version
         run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version
+          npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
 
       - name: Create version.txt
         run: echo ${PACKAGE_VERSION} > version.txt
@@ -137,7 +137,7 @@ jobs:
 
       - name: Apply NPM Version
         run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version
+          npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
 
       - name: Build Story Book
         run: |
