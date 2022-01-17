@@ -19,7 +19,6 @@ env:
   NODE_ENV: prod
   APP_NAME: release
   AWS_REGION: us-east-2
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_GHP }}
 
 jobs:
   cleanup-pr:
