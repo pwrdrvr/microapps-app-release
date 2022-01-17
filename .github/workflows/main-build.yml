@@ -36,8 +36,9 @@ jobs:
         run: npm ci
 
       - name: Link to node_modules - App
-        working-directory: packages/app/
-        run: ln -s ../../node_modules
+        working-directory: packages/app/node_modules/.bin
+        run: |
+          ln -s ../../../../node_modules/.bin/next
 
       - name: Build All TypeScript
         run: |
