@@ -15,6 +15,10 @@
     "packages/cdk-stack"
   ],
   "scripts": {
+    "clean": "npm run clean:dist && npm run clean:modules && npm run clean:tsbuildinfo",
+    "clean:dist": "npm exec --workspaces -- npx rimraf dist && npx rimraf dist",
+    "clean:modules": "npm exec --workspaces -- npx rimraf node_modules && npx rimraf node_modules",
+    "clean:tsbuildinfo": "npm exec --workspaces -- npx rimraf *.tsbuildinfo",
     "cloc": "cloc --exclude-dir=node_modules,.storybook,.serverless,.serverless_nextjs,.next,storybook-static,cdk.out --exclude-ext=json .",
     "dev": "DEBUG=true next dev",
     "build": "tsc --build tsconfig.json",
@@ -44,7 +48,7 @@
     "@pwrdrvr/microapps-publish": "^0.0.26",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "aws-cdk": "^1.134.0",
+    "aws-cdk": "^1.135.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",

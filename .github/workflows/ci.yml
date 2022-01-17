@@ -16,9 +16,9 @@ env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   APP_NAME: release
   ENV: prod
-  DEPLOYER_LAMBDA_NAME: microapps-ghpublic-deployer-prod
+  DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
   AWS_REGION: us-east-2
-  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic-microapps-ghpublic-prod"
+  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps"
 
 jobs:
   build:
@@ -61,8 +61,9 @@ jobs:
         run: npm ci
 
       - name: Link to node_modules - App
-        working-directory: packages/app/
-        run: ln -s ../../node_modules
+        working-directory: packages/app/node_modules/.bin
+        run: |
+          ln -s ../../../../node_modules/.bin/next
 
       - name: Build All TypeScript
         run: npm run build
