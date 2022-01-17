@@ -16,7 +16,7 @@ env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   APP_NAME: release
   ENV: prod
-  DEPLOYER_LAMBDA_NAME: microapps-ghpublic-deployer-prod
+  DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
   AWS_REGION: us-east-2
   CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic-microapps-ghpublic-prod"
 

@@ -182,7 +182,7 @@ jobs:
       url: https://apps.ghpublic.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
     env:
       ENV: prod
-      DEPLOYER_LAMBDA_NAME: microapps-ghpublic-deployer-prod
+      DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
       CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic-microapps-ghpublic-prod"
     steps:
       - uses: actions/checkout@v2
