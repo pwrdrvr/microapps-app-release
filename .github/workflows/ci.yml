@@ -18,7 +18,7 @@ env:
   ENV: prod
   DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
   AWS_REGION: us-east-2
-  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic-microapps-ghpublic-prod"
+  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps"
 
 jobs:
   build:

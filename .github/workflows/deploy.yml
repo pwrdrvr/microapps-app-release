@@ -183,7 +183,7 @@ jobs:
     env:
       ENV: prod
       DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
-      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic-microapps-ghpublic-prod"
+      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps"
     steps:
       - uses: actions/checkout@v2
 
