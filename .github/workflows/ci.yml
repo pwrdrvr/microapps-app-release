@@ -57,8 +57,13 @@ jobs:
       - name: Compute NPM Version
         id: packageVersion
         run: |
+          if [ -n "${PR_NUMBER}" ]; then
             echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
             echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
+          else
+            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG} >> $GITHUB_ENV
+            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
+          fi
 
       - name: Use Node.js 16
         uses: actions/setup-node@v2
@@ -143,8 +148,15 @@ jobs:
           echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
 
       - name: Compute NPM Version
+        id: packageVersion
         run: |
-          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
+          if [ -n "${PR_NUMBER}" ]; then
+            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
+            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
+          else
+            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG} >> $GITHUB_ENV
+            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
+          fi
 
       - name: Apply NPM Version
         run: |
