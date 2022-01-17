@@ -254,26 +254,32 @@ jobs:
         run: |
           npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s packages/app/storybook-static -i index.html
 
-  deploy-dev:
+  deploy-pwrdrvr:
     needs:
       - version
       - deploy-ghpublic
+    strategy:
+      matrix:
+        env:
+          - dev
+          - qa
+          - prod
     # Limit concurrency to 1, with queueing, per workflow
     # Limit concurrency to 1, with queueing, per workflow per PR
     concurrency:
-      group: deploy-dev-${{ github.workflow }}-${{ github.event.pull_request.number }}
+      group: deploy-${{ matrix.env }}-${{ github.workflow }}-${{ github.event.pull_request.number }}
       cancel-in-progress: false
     permissions:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
     environment:
-      name: dev
-      url: https://apps.dev.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
+      name: ${{ matrix.env }}
+      url: https://apps.${{ steps.getDomainInfix.outputs.domainInfix }}pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
     env:
-      ENV: dev
-      DEPLOYER_LAMBDA_NAME: microapps-deployer-dev
-      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-dev --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.dev-microapps-dev"
+      ENV: ${{ matrix.env }}
+      DEPLOYER_LAMBDA_NAME: microapps-deployer-${{ matrix.env }}
+      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-${{ matrix.env }} --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.${{ matrix.env }}-microapps-${{ matrix.env }}"
     steps:
       - uses: actions/checkout@v2
 
@@ -283,6 +289,15 @@ jobs:
           node-version: 16
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
+
+      - name: Get Domain Infix
+        id: getDomainInfix
+        run: |
+          if [ "${{ matrix.env }}" == "prod" ]; then
+            echo "::set-output name=domainInfix::"
+          else
+            echo "::set-output name=domainInfix::"${{ matrix.env }}.
+          fi
 
       - name: Install Node Modules
         run: npm ci
@@ -338,188 +353,7 @@ jobs:
 
       - name: Publish to MicroApps - App
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION}
-
-      - name: Publish MicroApps - Story Book
-        run: |
-          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s packages/app/storybook-static -i index.html
-
-  deploy-qa:
-    needs:
-      - version
-      - deploy-ghpublic
-    # Limit concurrency to 1, with queueing, per workflow
-    # Limit concurrency to 1, with queueing, per workflow per PR
-    concurrency:
-      group: deploy-qa-${{ github.workflow }}-${{ github.event.pull_request.number }}
-      cancel-in-progress: false
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: ubuntu-latest
-    environment:
-      name: qa
-      url: https://apps.qa.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
-    env:
-      ENV: qa
-      DEPLOYER_LAMBDA_NAME: microapps-deployer-qa
-      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-qa --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.qa-microapps-qa"
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Use Node.js 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-
-      - name: Install Node Modules
-        run: npm ci
-
-      - name: Download Artifact - App
-        uses: actions/download-artifact@v2
-        with:
-          name: app_zip
-          path: packages/app/
-      - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
-
-      # Prevent the static files from getting pulled into the Lambda
-      - name: Remove Static Files from App Build
-        working-directory: packages/app/
-        run: |
-          mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
-
-      - name: Download Artifact - Story Book
-        uses: actions/download-artifact@v2
-        with:
-          name: storybook_zip
-          path: packages/app/
-      - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip storybook-static.zip
-
-      - name: Download Artifact - Version.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: version-txt
-      - run: echo PACKAGE_VERSION=$(cat version.txt) >> $GITHUB_ENV
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-session-name: microapps-app-release-build
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Preflight Check Version - App
-        run: |
-          npx microapps-publish preflight -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
-
-      - name: Preflight Check Version - Story Book
-        run: |
-          npx microapps-publish preflight -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
-
-      - name: Deploy CDK Stack - App
-        run: npx cdk deploy ${CDK_CONTEXT_ARGS} --hotswap --require-approval never app
-
-      - name: Publish to MicroApps - App
-        run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION}
-
-      - name: Publish MicroApps - Story Book
-        run: |
-          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s packages/app/storybook-static -i index.html
-
-
-  deploy-prod:
-    needs:
-      - version
-      - deploy-ghpublic
-    # Limit concurrency to 1, with queueing, per workflow
-    # Limit concurrency to 1, with queueing, per workflow per PR
-    concurrency:
-      group: deploy-prod-${{ github.workflow }}-${{ github.event.pull_request.number }}
-      cancel-in-progress: false
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: ubuntu-latest
-    environment:
-      name: prod
-      url: https://apps.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
-    env:
-      ENV: prod
-      DEPLOYER_LAMBDA_NAME: microapps-deployer-prod
-      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr-microapps-prod"
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Use Node.js 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-
-      - name: Install Node Modules
-        run: npm ci
-
-      - name: Download Artifact - App
-        uses: actions/download-artifact@v2
-        with:
-          name: app_zip
-          path: packages/app/
-      - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
-
-      # Prevent the static files from getting pulled into the Lambda
-      - name: Remove Static Files from App Build
-        working-directory: packages/app/
-        run: |
-          mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
-
-      - name: Download Artifact - Story Book
-        uses: actions/download-artifact@v2
-        with:
-          name: storybook_zip
-          path: packages/app/
-      - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip storybook-static.zip
-
-      - name: Download Artifact - Version.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: version-txt
-      - run: echo PACKAGE_VERSION=$(cat version.txt) >> $GITHUB_ENV
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-session-name: microapps-app-release-build
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Preflight Check Version - App
-        run: |
-          npx microapps-publish preflight -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
-
-      - name: Preflight Check Version - Story Book
-        run: |
-          npx microapps-publish preflight -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
-
-      - name: Deploy CDK Stack - App
-        run: npx cdk deploy ${CDK_CONTEXT_ARGS} --hotswap --require-approval never app
-
-      - name: Publish to MicroApps - App
-        run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION}
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${{ matrix.env }} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION}
 
       - name: Publish MicroApps - Story Book
         run: |
