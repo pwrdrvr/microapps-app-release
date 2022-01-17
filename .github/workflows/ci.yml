@@ -87,6 +87,7 @@ jobs:
         run: npm run lint
 
       - name: Apply NPM Version
+        if: github.event_name == 'pull_request'
         run: |
           npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
 
@@ -159,6 +160,7 @@ jobs:
           fi
 
       - name: Apply NPM Version
+        if: github.event_name == 'pull_request'
         run: |
           npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
 
