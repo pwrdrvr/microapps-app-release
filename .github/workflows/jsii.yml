@@ -93,25 +93,10 @@ jobs:
         run: |
           npm run build:jsii     
 
-      - name: Upload CDK Construct Artifact
-        if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: cdk-construct-dist
-          path: packages/cdk-construct/dist
-
-      # Create the Release on GH now that build has finished
-      # - if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-      #   name: Create Release
-      #   run: |
-      #     gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish CDK Construct
+      - name: Confirm No Doc Changes
         working-directory: packages/cdk-construct/
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
+        run: |
+          git diff --ignore-space-at-eol --exit-code
+
     container:
       image: jsii/superchain
