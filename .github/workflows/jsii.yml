@@ -3,13 +3,13 @@
 
 # Workflow syntax reference:
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
-name: Main Build
+name: JSII Build
 
 on:
   push:
     branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 env:
   # This is used by the SharedProps to detect a PR build
@@ -62,3 +62,56 @@ jobs:
       - name: Build Story Book
         run: |
           npm run -w @pwrdrvr/microapps-app-release build-storybook
+
+  jsii:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      #
+      # Build Construct with JSII
+      #
+
+      # JSII does not work well with monorepos
+      # - name: Move root NPM modules out of the way
+      #   run: mv node_modules node_modules_hide
+
+      - name: Install CDK Construct Deps
+        working-directory: packages/cdk-construct/
+        run: |
+          npm ci
+
+      - name: Build with JSII
+        working-directory: packages/cdk-construct/
+        run: |
+          npm run build:jsii     
+
+      - name: Upload CDK Construct Artifact
+        if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: cdk-construct-dist
+          path: packages/cdk-construct/dist
+
+      # Create the Release on GH now that build has finished
+      # - if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
+      #   name: Create Release
+      #   run: |
+      #     gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish CDK Construct
+        working-directory: packages/cdk-construct/
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
+    container:
+      image: jsii/superchain

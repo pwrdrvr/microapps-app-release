@@ -1,4 +1,4 @@
-import * as cdk from '@aws-cdk/core';
+import { Construct } from 'constructs';
 import { Env } from './Types';
 
 export default class SharedProps {
@@ -54,7 +54,7 @@ export default class SharedProps {
     return this._region;
   }
 
-  constructor(scope: cdk.Construct) {
+  constructor(scope: Construct) {
     this._tableName = scope.node.tryGetContext('@pwrdrvr/microapps:tableName') ?? 'microapps';
     this._s3BucketName = scope.node.tryGetContext('@pwrdrvr/microapps:s3BucketName') ?? 'microapps';
     this._account =
