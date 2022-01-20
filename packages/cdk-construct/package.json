@@ -1,9 +1,10 @@
 {
   "name": "@pwrdrvr/microapps-app-release-cdk",
+  "description": "Release app for the MicroApps framework, by PwrDrvr LLC. Provides the ability to control which version of an app is launched.",
   "version": "0.0.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pwrdrvr/microapps-app-release.git"
+    "url": "https://github.com/pwrdrvr/microapps-app-release"
   },
   "bugs": {
     "url": "https://github.com/pwrdrvr/microapps-app-release/issues"
@@ -11,6 +12,11 @@
   "engine": {
     "node": ">= 12.0.0"
   },
+  "keywords": [
+    "awscdk",
+    "cdk",
+    "microapps"
+  ],
   "author": "PwrDrvr LLC",
   "license": "MIT",
   "main": "lib/index.js",
@@ -20,43 +26,60 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
+    "build:jsii": "jsii --silence-warnings=reserved-word --no-fix-peer-dependencies && jsii-docgen && jsii-pacmak",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^1.135.0",
-    "@aws-cdk/aws-dynamodb": "^1.135.0",
-    "@aws-cdk/aws-lambda": "^1.135.0",
-    "@aws-cdk/aws-logs": "^1.135.0",
-    "@aws-cdk/aws-s3": "^1.135.0",
-    "@aws-cdk/core": "^1.135.0",
+    "aws-cdk-lib": "2.8.0",
+    "constructs": "10.0.5",
     "@types/jest": "^26.0.10",
     "@types/node": "^12.0.0",
     "@types/source-map-support": "^0.5.3",
+    "jsii": "^1.52.1",
+    "jsii-diff": "^1.52.1",
+    "jsii-docgen": "^2.0.7",
+    "jsii-pacmak": "^1.52.1",
     "source-map-support": "^0.5.16",
     "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "@aws-cdk/assert": "^1.135.0",
-    "@aws-cdk/aws-dynamodb": "^1.135.0",
-    "@aws-cdk/aws-lambda": "^1.135.0",
-    "@aws-cdk/aws-logs": "^1.135.0",
-    "@aws-cdk/aws-s3": "^1.135.0",
-    "@aws-cdk/core": "^1.135.0"
+    "aws-cdk-lib": "^2.8.0",
+    "constructs": "^10.0.5"
   },
   "dependencies": {
-    "@aws-cdk/assert": "^1.135.0",
-    "@aws-cdk/aws-dynamodb": "^1.135.0",
-    "@aws-cdk/aws-lambda": "^1.135.0",
-    "@aws-cdk/aws-logs": "^1.135.0",
-    "@aws-cdk/aws-s3": "^1.135.0",
-    "@aws-cdk/core": "^1.135.0"
+    "aws-cdk-lib": "^2.8.0",
+    "constructs": "^10.0.5"
   },
   "files": [
     "lib",
     "src",
     "package.json",
     "LICENSE"
-  ]
+  ],
+  "jsii": {
+    "outdir": "dist",
+    "targets": {
+      "java": {
+        "package": "com.pwrdrvr.microapps.releaseappcdk",
+        "maven": {
+          "groupId": "com.pwrdrvr.microapps",
+          "artifactId": "releaseappcdk"
+        }
+      },
+      "python": {
+        "distName": "pwrdrvr.microapps.releaseappcdk",
+        "module": "pwrdrvr.microapps.releaseappcdk"
+      },
+      "dotnet": {
+        "namespace": "PwrDrvr.MicroApps.ReleaseAppCDK",
+        "packageId": "PwrDrvr.MicroApps.ReleaseAppCDK"
+      }
+    },
+    "tsc": {
+      "outDir": "lib",
+      "rootDir": "src"
+    }
+  }
 }
