@@ -69,6 +69,17 @@ jobs:
         run: |
           ln -s ../../../../node_modules/.bin/next
 
+      # Fixes errors due to JSII tsconfig.json not ignoring libs
+      # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
+      # Error: node_modules/flatpickr/dist/types/instance.d.ts(82,56): error TS2304: Cannot find name 'HTMLElementTagNameMap'.
+      # Error: node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts(46,80): error TS2304: Cannot find name 'File'.
+      # Error: node_modules/@types/overlayscrollbars/index.d.ts(348,19): error TS2304: Cannot find name 'NodeListOf'.
+      - name: Modify cdk-construct tsconfig.json
+        run: |
+          mv ./packages/cdk-construct/tsconfig.json ./src/cdk-construct/tsconfig.jsii.json
+          jq ".compilerOptions += { \"skipLibCheck\": true }" ./src/cdk-construct/tsconfig.jsii.json > ./src/cdk-construct/tsconfig.json
+
+
       - name: Build All TypeScript
         run: npm run build
 
