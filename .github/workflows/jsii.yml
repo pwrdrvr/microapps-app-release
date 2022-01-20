@@ -1,0 +1,113 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+# Workflow syntax reference:
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
+name: JSII Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  # This is used by the SharedProps to detect a PR build
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  APP_NAME: release
+  ENV: dev
+  DEPLOYER_LAMBDA_NAME: microapps-deployer-dev
+  AWS_REGION: us-east-2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install Node Modules
+        run: npm ci
+
+      - name: Link to node_modules - App
+        working-directory: packages/app/node_modules/.bin
+        run: |
+          ln -s ../../../../node_modules/.bin/next
+
+      # Fixes errors due to JSII tsconfig.json not ignoring libs
+      # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
+      # Error: node_modules/flatpickr/dist/types/instance.d.ts(82,56): error TS2304: Cannot find name 'HTMLElementTagNameMap'.
+      # Error: node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts(46,80): error TS2304: Cannot find name 'File'.
+      # Error: node_modules/@types/overlayscrollbars/index.d.ts(348,19): error TS2304: Cannot find name 'NodeListOf'.
+      - name: Modify cdk-construct tsconfig.json
+        run: |
+          mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
+          jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
+
+
+      - name: Build All TypeScript
+        run: |
+          npm run build --if-present
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Extract Current NPM Version
+        run: |
+          echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
+
+      - name: Apply Next.js Version
+        run: |
+          npx -w @pwrdrvr/microapps-app-release microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+
+      - name: Build Serverless Next.js
+        run: |
+          npx -w @pwrdrvr/microapps-app-release serverless
+
+      - name: Build Story Book
+        run: |
+          npm run -w @pwrdrvr/microapps-app-release build-storybook
+
+  jsii:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      #
+      # Build Construct with JSII
+      #
+
+      # JSII does not work well with monorepos
+      # - name: Move root NPM modules out of the way
+      #   run: mv node_modules node_modules_hide
+
+      - name: Install CDK Construct Deps
+        working-directory: packages/cdk-construct/
+        run: |
+          npm ci
+
+      - name: Build with JSII
+        working-directory: packages/cdk-construct/
+        run: |
+          npm run build:jsii     
+
+      - name: Confirm No Doc Changes
+        working-directory: packages/cdk-construct/
+        run: |
+          git diff --ignore-space-at-eol --exit-code
+
+    container:
+      image: jsii/superchain

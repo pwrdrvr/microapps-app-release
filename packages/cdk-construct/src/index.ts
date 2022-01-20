@@ -1,11 +1,15 @@
 import { existsSync } from 'fs';
-import * as cdk from '@aws-cdk/core';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as logs from '@aws-cdk/aws-logs';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { Construct } from 'constructs';
 import * as path from 'path';
 
+/**
+ * Properties to initialize an instance of `MicroAppsAppRelease`.
+ */
 export interface MicroAppsAppReleaseProps {
   /**
    * Name for the Lambda function.
@@ -15,48 +19,59 @@ export interface MicroAppsAppReleaseProps {
    *
    * @default auto-generated
    */
-  functionName?: string;
+  readonly functionName?: string;
 
   /**
    * Bucket with the static assets of the app.
    *
    * Next.js apps need access to the static assets bucket.
    */
-  staticAssetsS3Bucket: s3.IBucket;
+  readonly staticAssetsS3Bucket: s3.IBucket;
 
   /**
    * DynamoDB table for data displayed / edited in the app.
    *
    * This table is used by @pwrdrvr/microapps-datalib.
    */
-  table: dynamodb.ITable;
+  readonly table: dynamodb.ITable;
 
   /**
    * Removal Policy to pass to assets (e.g. Lambda function)
    */
-  removalPolicy?: cdk.RemovalPolicy;
+  readonly removalPolicy?: RemovalPolicy;
 
   /**
    * `sharp` node module Lambda Layer for Next.js image adjustments
    *
    * @example https://github.com/zoellner/sharp-heic-lambda-layer/pull/3
    */
-  sharpLayer?: lambda.ILayerVersion;
+  readonly sharpLayer?: lambda.ILayerVersion;
 
   /**
    * NODE_ENV to set on Lambda
    */
-  nodeEnv?: 'dev' | 'qa' | 'prod';
+  readonly nodeEnv?: 'dev' | 'qa' | 'prod';
 }
 
+/**
+ * Represents a Release app
+ */
 export interface IMicroAppsAppRelease {
   /**
    * The Lambda function created
    */
-  lambdaFunction: lambda.IFunction;
+  readonly lambdaFunction: lambda.IFunction;
 }
 
-export class MicroAppsAppRelease extends cdk.Construct implements IMicroAppsAppRelease {
+/**
+ * Release app for MicroApps framework.
+ *
+ * @remarks
+ * The Release app lists apps, versions, and allows setting the default
+ * version of an app.  The app is just an example of what can be done, it
+ * is not feature complete for all use cases.
+ */
+export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelease {
   private _lambdaFunction: lambda.Function;
   public get lambdaFunction(): lambda.IFunction {
     return this._lambdaFunction;
@@ -68,7 +83,7 @@ export class MicroAppsAppRelease extends cdk.Construct implements IMicroAppsAppR
    * @param id
    * @param props
    */
-  constructor(scope: cdk.Construct, id: string, props: MicroAppsAppReleaseProps) {
+  constructor(scope: Construct, id: string, props: MicroAppsAppReleaseProps) {
     super(scope, id);
 
     const {
@@ -106,7 +121,7 @@ export class MicroAppsAppRelease extends cdk.Construct implements IMicroAppsAppR
       },
       logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1769,
-      timeout: cdk.Duration.seconds(15),
+      timeout: Duration.seconds(15),
     });
     if (removalPolicy !== undefined) {
       this._lambdaFunction.applyRemovalPolicy(removalPolicy);
