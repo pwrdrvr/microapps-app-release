@@ -4,6 +4,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "outDir": "dist",
+    "lib": ["es2018", "DOM"],
     "declaration": true,
     "declarationMap": true,
     "composite": true,
