@@ -24,7 +24,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "stability": "alpha",
+  "stability": "experimental",
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "build:jsii-all": "npm run build:jsii && npm run build:jsii-docgen && npm run build:jsii-pacmak",
