@@ -193,7 +193,11 @@ jobs:
       # Move static files out of serverless_nextjs
       - name: Move Files to Right Place
         run: |
+          find packages/app/
+          find packages/cdk-construct/lib/
           mv packages/app/.serverless_nextjs packages/cdk-construct/lib/
+          find packages/app/
+          find packages/cdk-construct/lib/
           mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
 
       #
