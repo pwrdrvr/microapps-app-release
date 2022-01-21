@@ -26,7 +26,10 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "build:jsii": "jsii --silence-warnings=reserved-word --no-fix-peer-dependencies && jsii-docgen && jsii-pacmak",
+    "build:jsii-all": "npm run build:jsii && npm run build:jsii-docgen && npm run build:jsii-pacmak",
+    "build:jsii": "jsii --silence-warnings=reserved-word --no-fix-peer-dependencies",
+    "build:jsii-docgen": "jsii-docgen",
+    "build:jsii-pacmak": "jsii-pacmak",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"

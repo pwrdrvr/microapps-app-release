@@ -210,8 +210,11 @@ jobs:
       - name: Build with JSII
         working-directory: packages/cdk-construct/
         run: |
+          find lib/
           npm run build:jsii
-          find packages/cdk-construct/lib/
+          find lib/
+          npm run build:jsii-docgen
+          npm run build:jsii-pacmak
 
       - name: Upload CDK Construct Artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}

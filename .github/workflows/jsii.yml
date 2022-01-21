@@ -102,7 +102,7 @@ jobs:
       - name: Build with JSII
         working-directory: packages/cdk-construct/
         run: |
-          npm run build:jsii     
+          npm run build:jsii-all
 
       - name: Confirm No Doc Changes
         working-directory: packages/cdk-construct/
