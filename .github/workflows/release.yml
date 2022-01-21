@@ -31,6 +31,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
       - name: Install Node Modules
         run: npm ci
@@ -132,6 +134,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
       - name: Set git identity
         run: |-
@@ -187,18 +191,14 @@ jobs:
 
       # Copy the serverless_nextjs build into the Construct output
       # Move static files out of serverless_nextjs
-      - name: Zip Package
+      - name: Move Files to Right Place
         run: |
-          mv packages/app/.serverless_nextjs packages/cdk-construct/lib
+          mv packages/app/.serverless_nextjs packages/cdk-construct/lib/
           mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
 
       #
       # Build Construct with JSII
       #
-
-      # JSII does not work well with monorepos
-      - name: Move root NPM modules out of the way
-        run: mv node_modules node_modules_hide
 
       - name: Install CDK Construct Deps
         working-directory: packages/cdk-construct/
