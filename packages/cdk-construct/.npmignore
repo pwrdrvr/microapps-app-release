@@ -2,6 +2,7 @@
 # Exclude typescript source and config
 *.ts
 tsconfig.json
+tsconfig.tsbuildinfo
 
 # Include javascript files and typescript declarations
 !*.js
