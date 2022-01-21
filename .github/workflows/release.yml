@@ -189,17 +189,6 @@ jobs:
         working-directory: packages/app/
         run: unzip serverless_nextjs.zip
 
-      # Copy the serverless_nextjs build into the Construct output
-      # Move static files out of serverless_nextjs
-      - name: Move Files to Right Place
-        run: |
-          find packages/app/
-          find packages/cdk-construct/lib/
-          mv packages/app/.serverless_nextjs packages/cdk-construct/lib/
-          find packages/app/
-          find packages/cdk-construct/lib/
-          mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
-
       #
       # Build Construct with JSII
       #
@@ -209,10 +198,20 @@ jobs:
         run: |
           npm ci
 
+      # Copy the serverless_nextjs build into the Construct output
+      # Move static files out of serverless_nextjs
+      - name: Move App to Right Place
+        run: |
+          mkdir -p packages/cdk-construct/lib/
+          mv packages/app/.serverless_nextjs packages/cdk-construct/lib/
+          mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
+          find packages/cdk-construct/lib/
+
       - name: Build with JSII
         working-directory: packages/cdk-construct/
         run: |
-          npm run build:jsii     
+          npm run build:jsii
+          find packages/cdk-construct/lib/
 
       - name: Upload CDK Construct Artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
