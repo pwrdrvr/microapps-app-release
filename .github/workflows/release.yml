@@ -15,9 +15,9 @@ on:
   # workflow_dispatch:
 
 jobs:
-  build-cdk-construct:
+  build-app:
     if: startsWith( github.ref, 'refs/tags/v')
-    name: Build CDK Construct
+    name: Build App
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -106,13 +106,91 @@ jobs:
         run: |
           rm -rf .serverless_nextjs/image-lambda/node_modules
 
+      # Upload Artifact
+      - name: Zip Package
+        working-directory: packages/app/
+        run: zip -r serverless_nextjs.zip .serverless_nextjs
+      - name: Upload Zip
+        uses: actions/upload-artifact@v2
+        with:
+          name: app_zip
+          path: packages/app/serverless_nextjs.zip
+
+  build-cdk-construct:
+    name: Build CDK Construct
+    needs: [ build-app ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
+      packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Set git identity
+        run: |-
+          git config user.name "Automation"
+          git config user.email "github-actions@github.com"
+
+      # - name: Bump Version by Patch - Push Tag to GH - Apply to Package.json
+      #   run: |
+      #     npm version patch
+      #     git push —-tags
+
+      - name: Apply Version from Git Tag
+        run: |
+          npm version from-git --no-git-tag-version
+
+      - name: Extract Package Version
+        run: |
+          echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
+
+      - name: Apply NPM Version to Everything
+        run: |
+          npm version ${PACKAGE_VERSION} --no-git-tag-version --allow-same-version --workspaces
+
+      # Fixes errors due to JSII tsconfig.json not ignoring libs
+      # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
+      # Error: node_modules/flatpickr/dist/types/instance.d.ts(82,56): error TS2304: Cannot find name 'HTMLElementTagNameMap'.
+      # Error: node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts(46,80): error TS2304: Cannot find name 'File'.
+      # Error: node_modules/@types/overlayscrollbars/index.d.ts(348,19): error TS2304: Cannot find name 'NodeListOf'.
+      # - name: Modify cdk-construct tsconfig.json
+      #   run: |
+      #     mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
+      #     jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
+
+      - name: Check for new commits
+        id: git_remote
+        run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{
+          github.ref }} | cut -f1)"
+
+      #
+      # Download the App Artifact and put it in the right place
+      # Can't build this in the jsii/superchain because `npm ci`
+      # gets OOM killed at 2 GB of RAM usage for some reason.
+      #
+      - name: Download Artifact - App
+        uses: actions/download-artifact@v2
+        with:
+          name: app_zip
+          path: packages/app/
+
+      - name: Unzip Artifact - App
+        working-directory: packages/app/
+        run: unzip serverless_nextjs.zip
+
       # Copy the serverless_nextjs build into the Construct output
       # Move static files out of serverless_nextjs
       - name: Zip Package
         run: |
           mv packages/app/.serverless_nextjs packages/cdk-construct/lib
           mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
-
 
       #
       # Build Construct with JSII
@@ -138,20 +216,6 @@ jobs:
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
-
-      # Create the Release on GH now that build has finished
-      # - if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-      #   name: Create Release
-      #   run: |
-      #     gh release create v${PACKAGE_VERSION} -t v${PACKAGE_VERSION}
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish CDK Construct
-        working-directory: packages/cdk-construct/
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
     container:
       image: jsii/superchain
 
