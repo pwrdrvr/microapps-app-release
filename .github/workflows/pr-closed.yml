@@ -54,7 +54,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-session-name: microapps-app-serverless-${{ env.APP_NAME }}-build
+          role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
           aws-region: ${{ env.AWS_REGION }}
 
