@@ -2,4 +2,59 @@
 
 # Overview
 
-This is the Release Console for the MicroApps framework.
+Example / basic Next.js-based Release app for the [MicroApps framework](https://github.com/pwrdrvr/microapps-core).
+
+# Screenshot
+
+![Main View Screenshot of App](https://github.com/pwrdrvr/microapps-app-release/blob/main/assets/images/app-main.png)
+
+# Try the App
+
+[Launch the App](https://dukw9jtyq2dwo.cloudfront.net/prefix/release/)
+
+# Video Preview of the App
+
+![Video Preview of App](https://github.com/pwrdrvr/microapps-app-release/blob/main/assets/images/app-overview.gif)
+
+# Functionality
+
+- Lists all deployed applications
+- Shows all versions and rules per application
+- Allows setting the `default` rule (pointer to version) for each application
+
+# Installation
+
+The application is intended to be deployed upon the [MicroApps framework](https://github.com/pwrdrvr/microapps-core) and it operates on a DynamoDB Table created by the MicroApps framework. Thus, it is required that there be a deployment of MicroApps that can receive this application. Deploying the MicroApps framework and general application deployment instructions are covered by the MicroApps documentation.
+
+The application is packaged for deployment via AWS CDK and consists of a single Lambda function that reads/writes the MicroApps DynamoDB Table.
+
+The CDK Construct is available for TypeScript, DotNet, Java, and Python with docs and install instructions available on [@pwrdrvr/microapps-app-release-cdk - Construct Hub](https://constructs.dev/packages/@pwrdrvr/microapps-app-release-cdk).
+
+## Quick Notes for TypeScript / Node.js Installation
+
+```sh
+npm i --save-dev @pwrdrvr/microapps-app-release-cdk
+```
+
+## Sharp Image Processing Lambda Layer
+
+The Sharp layer is extracted and shared across all Serverless Next.js apps. The Sharp layer can be built with whatever features you are licensed for (or just open source features) following the example in this PR:
+
+https://github.com/zoellner/sharp-heic-lambda-layer/pull/3
+
+## Add the Construct to your CDK Stack
+
+See [cdk-stack](packages/cdk-stack/lib/svcs.ts) for a complete example used to deploy this app for PR builds.
+
+```typescript
+import { MicroAppsAppRelease } from '@pwrdrvr/microapps-app-release-cdk';
+
+const app = new MicroAppsAppRelease(this, 'app', {
+  functionName: `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}`,
+  staticAssetsS3Bucket: s3.Bucket.fromBucketName(this, 'apps-bucket', shared.s3BucketName),
+  table: dynamodb.Table.fromTableName(this, 'apps-table', shared.tableName),
+  nodeEnv: shared.env as Env,
+  removalPolicy: shared.isPR ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
+  sharpLayer,
+});
+```
