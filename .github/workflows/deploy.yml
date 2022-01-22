@@ -13,6 +13,7 @@ env:
   # This is used by the SharedProps to detect a PR build
   APP_NAME: release
   AWS_REGION: us-east-2
+  APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
 
 jobs:
   version:
@@ -103,15 +104,15 @@ jobs:
 
       - name: Apply Next.js Version
         run: |
-          npx -w @pwrdrvr/microapps-app-release microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+          npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
         run: |
-          npx -w @pwrdrvr/microapps-app-release serverless
+          npx -w ${APP_PACKAGE_NAME} serverless
 
       - name: Copy in Serverless-NextJS-Router
         run: |
-          npm run -w @pwrdrvr/microapps-app-release copy-router
+          npm run -w ${APP_PACKAGE_NAME} copy-router
 
       # We are using a shared Sharp node_modules layer
       - name: Remove Sharp from App Build
@@ -161,7 +162,7 @@ jobs:
 
       - name: Build Story Book
         run: |
-          npm run -w @pwrdrvr/microapps-app-release build-storybook
+          npm run -w ${APP_PACKAGE_NAME} build-storybook
 
       # Upload Artifact
       - name: Zip Package
@@ -189,7 +190,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ghpublic
-      url: https://apps.ghpublic.pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
+      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}
     env:
       ENV: prod
       DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
@@ -241,7 +242,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-session-name: microapps-app-release-build
+          role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
           aws-region: ${{ env.AWS_REGION }}
 
@@ -285,7 +286,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ matrix.env }}
-      url: https://apps.${{ steps.getDomainInfix.outputs.domainInfix }}pwrdrvr.com/release/${{ needs.version.outputs.packageVersion }}
+      url: https://apps.${{ steps.getDomainInfix.outputs.domainInfix }}pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}
     env:
       ENV: ${{ matrix.env }}
       DEPLOYER_LAMBDA_NAME: microapps-deployer-${{ matrix.env }}
@@ -346,7 +347,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-session-name: microapps-app-release-build
+          role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
           aws-region: ${{ env.AWS_REGION }}
 

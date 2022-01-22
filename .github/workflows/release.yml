@@ -13,6 +13,8 @@ on:
     types: [published]
 
   # workflow_dispatch:
+env:
+  APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
 
 jobs:
   build-app:
@@ -90,15 +92,15 @@ jobs:
 
       - name: Apply Next.js Version
         run: |
-          npx -w @pwrdrvr/microapps-app-release microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+          npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
         run: |
-          npx -w @pwrdrvr/microapps-app-release serverless
+          npx -w ${APP_PACKAGE_NAME} serverless
 
       - name: Copy in Serverless-NextJS-Router
         run: |
-          npm run -w @pwrdrvr/microapps-app-release copy-router
+          npm run -w ${APP_PACKAGE_NAME} copy-router
 
       # Remove Sharp package from image-lambda
       # Consumer can install sharp and copy to this location
