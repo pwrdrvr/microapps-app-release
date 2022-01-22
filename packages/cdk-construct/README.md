@@ -14,7 +14,7 @@ Example / basic Next.js-based Release app for the [MicroApps framework](https://
 
 # Video Preview of the App
 
-![Video Preview of App](https://github.com/pwrdrvr/microapps-app-release/blob/main/assets/images/app-overview.gif)
+![Video Preview of App](https://github.com/pwrdrvr/microapps-app-release/blob/main/assets/videos/app-overview.gif)
 
 # Functionality
 
