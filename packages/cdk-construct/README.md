@@ -4,6 +4,19 @@
 
 Example / basic Next.js-based Release app for the [MicroApps framework](https://github.com/pwrdrvr/microapps-core).
 
+# Table of Contents <!-- omit in toc -->
+
+- [Overview](#overview)
+- [Screenshot](#screenshot)
+- [Try the App](#try-the-app)
+- [Video Preview of the App](#video-preview-of-the-app)
+- [Functionality](#functionality)
+- [Installation](#installation)
+  - [Installation of CDK Construct](#installation-of-cdk-construct)
+    - [Node.js TypeScript/JavaScript](#nodejs-typescriptjavascript)
+  - [Sharp Image Processing Lambda Layer](#sharp-image-processing-lambda-layer)
+  - [Add the Construct to your CDK Stack](#add-the-construct-to-your-cdk-stack)
+
 # Screenshot
 
 ![Main View Screenshot of App](https://raw.githubusercontent.com/pwrdrvr/microapps-app-release/blob/main/assets/images/app-main.png)
@@ -24,13 +37,18 @@ Example / basic Next.js-based Release app for the [MicroApps framework](https://
 
 # Installation
 
+Example CDK Stack that deploys `@pwrdrvr/microapps-app-release`:
+- [Deploying the MicroAppsAppRelease CDK Construct on the MicroApps CDK Construct](https://github.com/pwrdrvr/microapps-core/blob/main/packages/cdk/lib/MicroApps.ts#L260-L267)
+
 The application is intended to be deployed upon the [MicroApps framework](https://github.com/pwrdrvr/microapps-core) and it operates on a DynamoDB Table created by the MicroApps framework. Thus, it is required that there be a deployment of MicroApps that can receive this application. Deploying the MicroApps framework and general application deployment instructions are covered by the MicroApps documentation.
 
 The application is packaged for deployment via AWS CDK and consists of a single Lambda function that reads/writes the MicroApps DynamoDB Table.
 
 The CDK Construct is available for TypeScript, DotNet, Java, and Python with docs and install instructions available on [@pwrdrvr/microapps-app-release-cdk - Construct Hub](https://constructs.dev/packages/@pwrdrvr/microapps-app-release-cdk).
 
-## Quick Notes for TypeScript / Node.js Installation
+## Installation of CDK Construct
+
+### Node.js TypeScript/JavaScript
 
 ```sh
 npm i --save-dev @pwrdrvr/microapps-app-release-cdk
