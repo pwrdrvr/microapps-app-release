@@ -197,7 +197,7 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
           }}
         >
           {/* <button onClick={this.refresh}>Refresh</button> */}
-          <TableContainer title={'Applications'} />
+          <TableContainer title={'Applications - Hi SEO Squad!'} />
           <div style={{ flex: '1 0 auto' }}>
             <AutoResizer>
               {({ width, height }) => (
