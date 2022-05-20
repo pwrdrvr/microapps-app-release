@@ -223,7 +223,8 @@ jobs:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
     container:
-      image: jsii/superchain
+      # https://hub.docker.com/r/jsii/superchain
+      image: jsii/superchain:1-buster-slim-node16
 
   #
   # Release Assets
@@ -298,4 +299,5 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }} # jsii-release requires NPM_TOKEN as an env var
 
     container:
-      image: jsii/superchain
+      # https://hub.docker.com/r/jsii/superchain
+      image: jsii/superchain:1-buster-slim-node16
