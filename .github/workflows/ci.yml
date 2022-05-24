@@ -9,9 +9,9 @@ on:
   # Deploys with overwrite as current package.json version to main deploy
   # New versions are deployed with `deploy` build
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   # This is used by the SharedProps to detect a PR build
@@ -21,7 +21,7 @@ env:
   ENV: prod
   DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
   AWS_REGION: us-east-2
-  CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps"
+  CDK_CONTEXT_ARGS: '--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps'
 
 jobs:
   build:
@@ -70,11 +70,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Link to node_modules - App
         working-directory: packages/app/node_modules/.bin
@@ -90,7 +90,6 @@ jobs:
         run: |
           mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
           jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
-
 
       - name: Build All TypeScript
         run: npm run build
@@ -115,29 +114,19 @@ jobs:
         run: |
           npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
-      - name: Build Serverless Next.js
+      - name: Build Next.js
         run: |
-          npx -w ${APP_PACKAGE_NAME} serverless
-
-      - name: Copy in Serverless-NextJS-Router
-        run: |
-          npm run -w ${APP_PACKAGE_NAME} copy-router
-
-      # We are using a shared Sharp node_modules layer
-      - name: Remove Sharp from App Build
-        working-directory: packages/app/
-        run: |
-          rm -rf .serverless_nextjs/image-lambda/node_modules
+          yarn workspace ${APP_PACKAGE_NAME} serverless
 
       # Upload Artifact
       - name: Zip Package
         working-directory: packages/app/
-        run: zip -r serverless_nextjs.zip .serverless_nextjs
+        run: zip -r next.zip .next
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: app_zip
-          path: packages/app/serverless_nextjs.zip
+          path: packages/app/next.zip
 
   build-storybook:
     permissions:
@@ -150,12 +139,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Install Node Modules
-        run: npm ci
-      
+        run: yarn install --frozen-lockfile
+
       - name: Extract Current NPM Version
         run: |
           echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
@@ -212,11 +201,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       # Fixes errors due to JSII tsconfig.json not ignoring libs
       # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
@@ -239,14 +228,18 @@ jobs:
 
       - name: Unzip Artifact - App
         working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        run: unzip next.zip
 
-      # Prevent the static files from getting pulled into the Lambda
-      - name: Remove Static Files from App Build
+      # Copy the static files to where microapps-publish will look for them
+      # Note: we allow a copy in the Lambdas so that testing that bypasses
+      # CloudFront can still load the static files.
+      # This can be replaced with an express route in `server.ts` that proxies the static
+      # file requests to S3 if the Lambda code size needs to be reduced.
+      - name: Copy Static Files for microapps-publish
         working-directory: packages/app/
         run: |
           mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
+          cp -R .next/static .static_files
 
       - name: Download Artifact - Story Book
         uses: actions/download-artifact@v2

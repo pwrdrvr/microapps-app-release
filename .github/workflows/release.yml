@@ -33,11 +33,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Set git identity
         run: |-
@@ -122,7 +122,7 @@ jobs:
 
   build-cdk-construct:
     name: Build CDK Construct
-    needs: [ build-app ]
+    needs: [build-app]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -136,8 +136,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Set git identity
         run: |-
@@ -197,16 +197,15 @@ jobs:
 
       - name: Install CDK Construct Deps
         working-directory: packages/cdk-construct/
-        run: |
-          npm ci
+        run: yarn install --frozen-lockfile
 
       # Copy the serverless_nextjs build into the Construct output
       # Move static files out of serverless_nextjs
       - name: Move App to Right Place
         run: |
           mkdir -p packages/cdk-construct/lib/
-          mv packages/app/.serverless_nextjs packages/cdk-construct/lib/
-          mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
+          mv packages/app/.next packages/cdk-construct/lib/
+          cp -R packages/cdk-construct/lib/.next/static packages/cdk-construct/lib/.static_files
           find packages/cdk-construct/lib/
 
       - name: Build with JSII
@@ -230,7 +229,7 @@ jobs:
   #
   release-assets:
     name: Release Assets
-    needs: [ build-cdk-construct ]
+    needs: [build-cdk-construct]
     runs-on: ubuntu-latest
     permissions:
       contents: read

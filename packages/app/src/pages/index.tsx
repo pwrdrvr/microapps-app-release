@@ -283,7 +283,10 @@ class HomeImpl extends React.PureComponent<IPageProps, RootState> {
   }
 }
 
-export const getServerSideProps = wrapper.getServerSideProps((store) => async () => {
+export const getServerSideProps = wrapper.getServerSideProps((store) => async ({ req }) => {
+  // @ts-expect-error we know that this is an Express request object
+  console.log("request.get('host')", req.get('host'));
+
   await store.dispatch(fetchAppsThunk());
   //await asyncSleep(10000);
   return {

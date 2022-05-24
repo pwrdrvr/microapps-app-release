@@ -9,6 +9,7 @@
   "files.associations": {
     "Dockerfile*": "dockerfile"
   },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "yaml.schemas": {
     "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.ya?ml"
   }

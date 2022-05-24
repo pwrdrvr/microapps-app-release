@@ -1,6 +1,10 @@
 {
   "name": "@pwrdrvr/microapps-app-release-workspace",
   "version": "0.0.0",
+  "resolutions": {
+    "react-dom": "17.0.2",
+    "@types/react": "17.0.2"
+  },
   "private": true,
   "repository": {
     "type": "git",
@@ -10,9 +14,7 @@
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
   "workspaces": [
-    "packages/app",
-    "packages/cdk-construct",
-    "packages/cdk-stack"
+    "packages/*"
   ],
   "scripts": {
     "clean": "npm run clean:dist && npm run clean:modules && npm run clean:tsbuildinfo",
@@ -20,16 +22,11 @@
     "clean:modules": "npm exec --workspaces -- npx rimraf node_modules && npx rimraf node_modules",
     "clean:tsbuildinfo": "npm exec --workspaces -- npx rimraf *.tsbuildinfo",
     "cloc": "cloc --exclude-dir=node_modules,.storybook,.serverless,.serverless_nextjs,.next,storybook-static,cdk.out --exclude-ext=json .",
-    "dev": "DEBUG=true next dev",
+    "dev": "DEBUG=true ts-node --project packages/app/tsconfig.json packages/app/server.ts",
+    "dev:next": "DEBUG=true next dev",
     "build": "tsc --build tsconfig.json",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -48,10 +45,11 @@
     "@pwrdrvr/microapps-publish": "^0.2.5",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "aws-cdk": "^2.8.0",
+    "aws-cdk": "^2.25.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jest": "^26.2.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
     "prettier": "^2.2.1",

@@ -28,8 +28,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Apply Version from Git Tag
         run: |
@@ -50,7 +50,6 @@ jobs:
           name: version-txt
           path: version.txt
 
-
   build:
     if: startsWith( github.ref, 'refs/tags/release/')
     needs:
@@ -65,11 +64,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Link to node_modules - App
         working-directory: packages/app/node_modules/.bin
@@ -108,7 +107,7 @@ jobs:
 
       - name: Build Serverless Next.js
         run: |
-          npx -w ${APP_PACKAGE_NAME} serverless
+          yarn workspace ${APP_PACKAGE_NAME} build
 
       - name: Copy in Serverless-NextJS-Router
         run: |
@@ -144,12 +143,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Install Node Modules
-        run: npm ci
-      
+        run: yarn install --frozen-lockfile
+
       - name: Download Artifact - Version.txt
         uses: actions/download-artifact@v2
         with:
@@ -194,7 +193,7 @@ jobs:
     env:
       ENV: prod
       DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
-      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps"
+      CDK_CONTEXT_ARGS: '--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps'
     steps:
       - uses: actions/checkout@v2
 
@@ -202,11 +201,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Download Artifact - App
         uses: actions/download-artifact@v2
@@ -222,7 +221,7 @@ jobs:
         working-directory: packages/app/
         run: |
           mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
+          cp -R .next/static .static_files
 
       - name: Download Artifact - Story Book
         uses: actions/download-artifact@v2
@@ -290,7 +289,7 @@ jobs:
     env:
       ENV: ${{ matrix.env }}
       DEPLOYER_LAMBDA_NAME: microapps-deployer-${{ matrix.env }}
-      CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-${{ matrix.env }} --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.${{ matrix.env }}-microapps-${{ matrix.env }}"
+      CDK_CONTEXT_ARGS: '--context @pwrdrvr/microapps:tableName=microapps-${{ matrix.env }} --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.${{ matrix.env }}-microapps-${{ matrix.env }}'
     steps:
       - uses: actions/checkout@v2
 
@@ -298,8 +297,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - name: Get Domain Infix
         id: getDomainInfix
@@ -311,7 +310,7 @@ jobs:
           fi
 
       - name: Install Node Modules
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Download Artifact - App
         uses: actions/download-artifact@v2
@@ -322,12 +321,16 @@ jobs:
         working-directory: packages/app/
         run: unzip serverless_nextjs.zip
 
-      # Prevent the static files from getting pulled into the Lambda
-      - name: Remove Static Files from App Build
+      # Copy the static files to where microapps-publish will look for them
+      # Note: we allow a copy in the Lambdas so that testing that bypasses
+      # CloudFront can still load the static files.
+      # This can be replaced with an express route in `server.ts` that proxies the static
+      # file requests to S3 if the Lambda code size needs to be reduced.
+      - name: Copy Static Files for microapps-publish
         working-directory: packages/app/
         run: |
           mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
+          cp -R .next/static .static_files
 
       - name: Download Artifact - Story Book
         uses: actions/download-artifact@v2
