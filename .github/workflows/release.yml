@@ -64,10 +64,6 @@ jobs:
       #
       # Do the build
       #
-      - name: Link to node_modules - App
-        working-directory: packages/app/node_modules/.bin
-        run: |
-          ln -s ../../../../node_modules/.bin/next
 
       # Fixes errors due to JSII tsconfig.json not ignoring libs
       # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
