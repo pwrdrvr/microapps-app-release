@@ -61,7 +61,7 @@ jobs:
 
       - name: Build Serverless Next.js
         run: |
-          npx -w ${APP_PACKAGE_NAME} build
+          yarn workspace ${APP_PACKAGE_NAME} build
 
       - name: Build Story Book
         run: |
