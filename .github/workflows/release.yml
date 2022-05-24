@@ -94,27 +94,15 @@ jobs:
         run: |
           yarn workspace ${APP_PACKAGE_NAME} build
 
-      - name: Copy in Serverless-NextJS-Router
-        run: |
-          npm run -w ${APP_PACKAGE_NAME} copy-router
-
-      # Remove Sharp package from image-lambda
-      # Consumer can install sharp and copy to this location
-      # OR Use a shared layer with Sharp in their AWS account
-      - name: Remove Sharp from App Build
-        working-directory: packages/app/
-        run: |
-          rm -rf .serverless_nextjs/image-lambda/node_modules
-
       # Upload Artifact
       - name: Zip Package
         working-directory: packages/app/
-        run: zip -r serverless_nextjs.zip .serverless_nextjs
+        run: zip -r next.zip .next
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: app_zip
-          path: packages/app/serverless_nextjs.zip
+          path: packages/app/next.zip
 
   build-cdk-construct:
     name: Build CDK Construct
@@ -185,7 +173,7 @@ jobs:
 
       - name: Unzip Artifact - App
         working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        run: unzip next.zip
 
       #
       # Build Construct with JSII
@@ -195,8 +183,8 @@ jobs:
         working-directory: packages/cdk-construct/
         run: yarn install --frozen-lockfile
 
-      # Copy the serverless_nextjs build into the Construct output
-      # Move static files out of serverless_nextjs
+      # Copy the next build into the Construct output
+      # Move static files out of next
       - name: Move App to Right Place
         run: |
           mkdir -p packages/cdk-construct/lib/

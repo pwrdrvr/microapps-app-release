@@ -104,25 +104,15 @@ jobs:
         run: |
           yarn workspace ${APP_PACKAGE_NAME} build
 
-      - name: Copy in Serverless-NextJS-Router
-        run: |
-          npm run -w ${APP_PACKAGE_NAME} copy-router
-
-      # We are using a shared Sharp node_modules layer
-      - name: Remove Sharp from App Build
-        working-directory: packages/app/
-        run: |
-          rm -rf .serverless_nextjs/image-lambda/node_modules
-
       # Upload Artifact
       - name: Zip Package
         working-directory: packages/app/
-        run: zip -r serverless_nextjs.zip .serverless_nextjs
+        run: zip -r next.zip .next
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: app_zip
-          path: packages/app/serverless_nextjs.zip
+          path: packages/app/next.zip
 
   build-storybook:
     if: startsWith( github.ref, 'refs/tags/release/')
@@ -209,7 +199,7 @@ jobs:
           path: packages/app/
       - name: Unzip Artifact - App
         working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        run: unzip next.zip
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
@@ -314,7 +304,7 @@ jobs:
           path: packages/app/
       - name: Unzip Artifact - App
         working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        run: unzip next.zip
 
       # Copy the static files to where microapps-publish will look for them
       # Note: we allow a copy in the Lambdas so that testing that bypasses
