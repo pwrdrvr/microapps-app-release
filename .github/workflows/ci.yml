@@ -111,7 +111,7 @@ jobs:
 
       - name: Build Next.js
         run: |
-          yarn workspace ${APP_PACKAGE_NAME} serverless
+          yarn workspace ${APP_PACKAGE_NAME} build
 
       # Upload Artifact
       - name: Zip Package

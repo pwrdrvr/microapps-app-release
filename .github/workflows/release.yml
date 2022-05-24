@@ -92,7 +92,7 @@ jobs:
 
       - name: Build Serverless Next.js
         run: |
-          npx -w ${APP_PACKAGE_NAME} serverless
+          npx -w ${APP_PACKAGE_NAME} build
 
       - name: Copy in Serverless-NextJS-Router
         run: |
