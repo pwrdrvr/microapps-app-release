@@ -223,7 +223,7 @@ jobs:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
     container:
-      image: jsii/superchain
+      image: jsii/superchain:1-buster-slim-node16
 
   #
   # Release Assets
@@ -254,7 +254,7 @@ jobs:
       - name: Release CDK Construct - PyPI
         working-directory: packages/cdk-construct/
         run: |
-          npx -p jsii-release@latest jsii-release-pypi
+          npx -p npx -p publib@latest publib-pypi
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
@@ -266,7 +266,7 @@ jobs:
       - name: Release CDK Construct - NuGet.org
         working-directory: packages/cdk-construct/
         run: |
-          npx -p jsii-release@latest jsii-release-nuget
+          npx -p npx -p publib@latest publib-nuget
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_MICROAPPS }}
 
@@ -277,7 +277,7 @@ jobs:
       - name: Release CDK Construct - Maven Central
         working-directory: packages/cdk-construct/
         run: |
-          npx -p jsii-release@latest jsii-release-maven
+          npx -p npx -p publib@latest publib-maven
         env:
           MAVEN_ENDPOINT: https://s01.oss.sonatype.org
           MAVEN_STAGING_PROFILE_ID: 3127710ac57dbb
@@ -293,9 +293,9 @@ jobs:
       - name: Release CDK Construct - npmjs.org
         working-directory: packages/cdk-construct/
         run: |
-          npx -p jsii-release@latest jsii-release-npm
+          npx -p publib@latest publib-npm
         env:
           NPM_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }} # jsii-release requires NPM_TOKEN as an env var
 
     container:
-      image: jsii/superchain
+      image: jsii/superchain:1-buster-slim-node16
