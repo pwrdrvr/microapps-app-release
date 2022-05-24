@@ -79,9 +79,6 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: '**/yarn.lock'
 
-      - name: Install Node Modules
-        run: yarn install --frozen-lockfile
-
       #
       # Build Construct with JSII
       #
@@ -90,15 +87,9 @@ jobs:
       # - name: Move root NPM modules out of the way
       #   run: mv node_modules node_modules_hide
 
-      # - name: Install CDK Construct Deps
-      #   working-directory: packages/cdk-construct/
-      #   run: yarn install --frozen-lockfile
-
-      - name: Remove Types that Get in JSII's way
-        run: |
-          rm -rf ./node_modules/@types/prettier/
-          rm -rf ./node_modules/@types/carbon-components-react/
-          rm -rf ./node_modules/flatpickr/dist/types/
+      - name: Install CDK Construct Deps
+        working-directory: packages/cdk-construct/
+        run: yarn install --frozen-lockfile
 
       - name: Build with JSII
         working-directory: packages/cdk-construct/

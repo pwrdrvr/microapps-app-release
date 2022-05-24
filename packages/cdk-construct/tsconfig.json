@@ -1,11 +1,12 @@
 {
-  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
     "outDir": "lib",
     "rootDir": "src",
+    "skipLibCheck": true,
     "alwaysStrict": true,
     "charset": "utf8",
     "declaration": true,
+    "declarationMap": true,
     "experimentalDecorators": true,
     "incremental": true,
     "inlineSourceMap": true,

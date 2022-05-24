@@ -13,9 +13,15 @@
   "author": "PwrDrvr LLC",
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/constructs",
+      "**/constructs/*"
+    ]
+  },
   "scripts": {
     "clean": "npm run clean:dist && npm run clean:modules && npm run clean:tsbuildinfo",
     "clean:dist": "npm exec --workspaces -- npx rimraf dist && npx rimraf dist",
@@ -26,7 +32,8 @@
     "dev:next": "DEBUG=true next dev",
     "build": "tsc --build tsconfig.json",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
-    "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix"
+    "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
+    "postinstall": "patch-package"
   },
   "browserslist": {
     "production": [
@@ -52,6 +59,7 @@
     "eslint-plugin-jest": "^26.2.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
+    "patch-package": "^6.4.7",
     "prettier": "^2.2.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.3.5"

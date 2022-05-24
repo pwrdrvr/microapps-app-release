@@ -192,12 +192,6 @@ jobs:
           cp -R packages/cdk-construct/lib/.next/static packages/cdk-construct/lib/.static_files
           find packages/cdk-construct/lib/
 
-      - name: Remove Types that Get in JSII's way
-        run: |
-          rm -rf ./node_modules/@types/prettier/
-          rm -rf ./node_modules/@types/carbon-components-react/
-          rm -rf ./node_modules/flatpickr/dist/types/
-
       - name: Build with JSII
         working-directory: packages/cdk-construct/
         run: |

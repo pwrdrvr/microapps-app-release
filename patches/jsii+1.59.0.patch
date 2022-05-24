@@ -1,0 +1,12 @@
+diff --git a/node_modules/jsii/lib/compiler.js b/node_modules/jsii/lib/compiler.js
+index 269a9ad..579313b 100644
+--- a/node_modules/jsii/lib/compiler.js
++++ b/node_modules/jsii/lib/compiler.js
+@@ -12,6 +12,7 @@ const jsii_diagnostic_1 = require("./jsii-diagnostic");
+ const deprecation_warnings_1 = require("./transforms/deprecation-warnings");
+ const utils = require("./utils");
+ const BASE_COMPILER_OPTIONS = {
++    skipLibCheck: true,
+     alwaysStrict: true,
+     charset: 'utf8',
+     declaration: true,
