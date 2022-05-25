@@ -97,12 +97,14 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
 
     // Create Lambda Function
     let code: lambda.AssetCode;
-    if (existsSync(path.join(__dirname, '.serverless_nextjs', 'index.js'))) {
+    if (existsSync(path.join(__dirname, '.next', 'server', 'server.js'))) {
       // This is for built apps packaged with the CDK construct
-      code = lambda.Code.fromAsset(path.join(__dirname, '.serverless_nextjs'));
+      code = lambda.Code.fromAsset(path.join(__dirname, '.next', 'server', 'server.js'));
     } else {
       // This is the path for local / developer builds
-      code = lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'app', '.serverless_nextjs'));
+      code = lambda.Code.fromAsset(
+        path.join(__dirname, '..', '..', 'app', '.next', 'server', 'server.js'),
+      );
     }
 
     //
