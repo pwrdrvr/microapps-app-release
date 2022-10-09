@@ -1,7 +1,13 @@
 # Overview
 
-[TBC]
+# Table of Contents <!-- omit in toc -->
 
+- [Overview](#overview)
+- [Developer Notes](#developer-notes)
+  - [Debugging the Next.js App](#debugging-the-nextjs-app)
+  - [nextjs-redux-wrapper](#nextjs-redux-wrapper)
+  - [Adding Storybook to Existing NPM React / Next Project](#adding-storybook-to-existing-npm-react--next-project)
+- [Errors During `npm run build` Locally](#errors-during-npm-run-build-locally)
 # Developer Notes
 
 ## Debugging the Next.js App
@@ -50,3 +56,49 @@ https://github.com/kirill-konshin/next-redux-wrapper/pull/295/files#diff-b335630
 `npm i -g sb`
 `npx sb init -N`
 `npx sb upgrade --prerelease -N`
+
+# Errors During `npm run build` Locally
+
+`packages/cdk-construct/tsconfig.json` is missing `"skipLibCheck": true` in the `compilerOptions` section. This causes the errors below.  This is handled during the GitHub Actions workflows by patching in the setting before running `npm run build`.  This is not as simple as passing the `--skipLibCheck` flag to the `tsc` command because `tsc` does not allow that flag when `--build` is passed:
+
+[tsc does not allow flags when --build is passed](https://github.com/microsoft/TypeScript/issues/25613)
+
+```log
+node_modules/flatpickr/dist/types/instance.d.ts:37:21 - error TS2304: Cannot find name 'Node'.
+
+37     pluginElements: Node[];
+                       ~~~~
+
+node_modules/flatpickr/dist/types/instance.d.ts:82:56 - error TS2304: Cannot find name 'HTMLElementTagNameMap'.
+
+82     _createElement: <E extends HTMLElement>(tag: keyof HTMLElementTagNameMap, className: string, content?: string) => E;
+                                                          ~~~~~~~~~~~~~~~~~~~~~
+
+node_modules/flatpickr/dist/types/instance.d.ts:93:16 - error TS2304: Cannot find name 'Node'.
+
+93     (selector: Node, config?: Options): Instance;
+                  ~~~~
+
+node_modules/flatpickr/dist/types/instance.d.ts:94:26 - error TS2304: Cannot find name 'Node'.
+
+94     (selector: ArrayLike<Node>, config?: Options): Instance[];
+                            ~~~~
+
+node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts:46:80 - error TS2304: Cannot find name 'File'.
+
+46     onAddFiles?: ((event: React.DragEvent<HTMLElement>, content: { addedFiles: File[] }) => void) | undefined;
+                                                                                  ~~~~
+
+node_modules/@types/overlayscrollbars/index.d.ts:348:19 - error TS2304: Cannot find name 'NodeListOf'.
+
+348         elements: NodeListOf<Element> | ReadonlyArray<Element> | JQuery,
+                      ~~~~~~~~~~
+
+node_modules/@types/overlayscrollbars/index.d.ts:353:19 - error TS2304: Cannot find name 'NodeListOf'.
+
+353         elements: NodeListOf<Element> | ReadonlyArray<Element> | JQuery,
+                      ~~~~~~~~~~
+
+
+Found 7 errors.
+```
