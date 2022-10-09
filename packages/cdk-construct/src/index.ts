@@ -115,7 +115,8 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
       functionName,
       environment: {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-        NODE_ENV: nodeEnv,
+        NODE_ENV: 'production',
+        NODE_CONFIG_ENV: nodeEnv,
         S3BUCKETNAME: staticAssetsS3Bucket.bucketName,
         DATABASE_TABLE_NAME: table.tableName,
       },

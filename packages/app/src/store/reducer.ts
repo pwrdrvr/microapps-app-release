@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from '@reduxjs/toolkit';
 // import { diff } from 'jsondiffpatch';
 // import { HYDRATE } from 'next-redux-wrapper';
 import mainPage from './main/index';

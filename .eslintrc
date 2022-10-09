@@ -8,7 +8,7 @@
       "jsx": true
     }
   },
-  "plugins": ["@typescript-eslint", "import", "prettier"],
+  "plugins": ["@typescript-eslint", "import", "prettier", "react-hooks"],
   "settings": {
     "react": {
       "version": "detect"
@@ -26,6 +26,8 @@
   "rules": {
     "no-console": 1, // Means warning
     "prettier/prettier": 2, // Means error
-    "@typescript-eslint/ban-ts-comment": "off"
+    "@typescript-eslint/ban-ts-comment": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   }
 }
