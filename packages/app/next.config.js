@@ -14,9 +14,10 @@ module.exports = {
   // sassOptions: {
   //   includePaths: [path.join(__dirname, 'styles')],
   // },
-  webpack: (config, _options) => {
-    //   config.resolve.modules.push(path.resolve('./'));
-    //   return config;
+  webpack: (config, { dev, isServer }) => {
+    if (isServer && config.name === 'server' && !dev) {
+      config.optimization.minimize = true;
+    }
     return config;
   },
   basePath: appRoot,

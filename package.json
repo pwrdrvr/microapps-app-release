@@ -15,6 +15,9 @@
     "packages/cdk-stack"
   ],
   "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "build:next": "npm run -w @pwrdrvr/microapps-app-release build",
+    "build:serverless": "npm run -w @pwrdrvr/microapps-app-release build:serverless",
     "clean": "npm run clean:dist && npm run clean:tsbuildinfo",
     "clean:deep": "npm run clean:dist && npm run clean:modules && npm run clean:tsbuildinfo",
     "clean:dist": "npm exec --workspaces -- npx rimraf dist && npx rimraf dist",
@@ -22,7 +25,6 @@
     "clean:tsbuildinfo": "npm exec --workspaces -- npx rimraf *.tsbuildinfo",
     "cloc": "cloc --exclude-dir=node_modules,.storybook,.serverless,.serverless_nextjs,.next,storybook-static,cdk.out --exclude-ext=json .",
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run dev",
-    "build": "tsc --build tsconfig.json",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
     "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} npm -w @shutterstock/app-seo-service run start"

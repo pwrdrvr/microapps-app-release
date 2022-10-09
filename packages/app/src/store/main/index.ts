@@ -198,7 +198,7 @@ export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, t
 
     return thunkAPI.dispatch(mainSlice.actions.success({ apps, versions, rules }));
   } catch (error) {
-    log.error(`error getting apps: ${error.message}}`);
+    log.error(`error getting apps: ${error.message}`);
     log.error(error);
     return thunkAPI.dispatch(mainSlice.actions.failure());
   }
@@ -228,7 +228,7 @@ export const refreshThunk = createAsyncThunk(
 
       return thunkAPI.dispatch(mainSlice.actions.success(props));
     } catch (error) {
-      log.error(`error getting apps: ${error.message}}`);
+      log.error(`error getting apps: ${error.message}`);
       log.error(error);
       return thunkAPI.dispatch(mainSlice.actions.failure());
     }
@@ -248,7 +248,7 @@ export const updateDefaultVersionThunk = createAsyncThunk(
 
       log.info('mainPage/updateDefaultVersion - got response', { props });
     } catch (error) {
-      log.error(`error getting apps: ${error.message}}`);
+      log.error(`error getting apps: ${error.message}`);
       log.error(error);
     }
   },
