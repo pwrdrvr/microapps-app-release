@@ -18,7 +18,7 @@ RUN rm -rf image-lambda/node_modules/ && \
 
 
 
-FROM public.ecr.aws/lambda/nodejs:14 AS final
+FROM public.ecr.aws/lambda/nodejs:16 AS final
 
 # Copy in the munged code
 COPY --from=base /app .

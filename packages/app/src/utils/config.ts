@@ -20,7 +20,7 @@ export class Config implements IConfig {
   }
 
   public static get envLevel(): 'dev' | 'qa' | 'prod' | 'local' {
-    const nodeEnv = process.env.NODE_ENV || 'dev';
+    const nodeEnv = process.env.NODE_CONFIG_ENV || 'dev';
     if (nodeEnv.startsWith('prod')) {
       return 'prod';
     } else if ((nodeEnv as string) === 'qa') {
