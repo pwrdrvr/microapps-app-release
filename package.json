@@ -27,7 +27,7 @@
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run dev",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
-    "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} npm -w @shutterstock/app-seo-service run start"
+    "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} npm -w @pwrdrvr/microapps-app-release run start"
   },
   "eslintConfig": {
     "extends": [
