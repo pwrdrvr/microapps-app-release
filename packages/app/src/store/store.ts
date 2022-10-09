@@ -1,24 +1,36 @@
 import { Action, AnyAction, configureStore, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { createWrapper } from 'next-redux-wrapper';
-import rootReducer from './reducer';
+import { createWrapper, HYDRATE } from 'next-redux-wrapper';
+import combinedReducer from './reducer';
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof combinedReducer>;
+
+const reducer: typeof combinedReducer = (state, action) => {
+  if (action.type === HYDRATE) {
+    const nextState = {
+      ...state,
+      ...action.payload,
+    };
+    return nextState;
+  } else {
+    return combinedReducer(state, action);
+  }
+};
 
 /**
  * @param initialState The store's initial state (on the client side, the state of the server-side store is passed here)
  */
 const makeStore = () => {
-  const store = configureStore({ reducer: rootReducer });
+  const store = configureStore({ reducer });
 
   // @ts-ignore
-  if (process.env.NODE_ENV === 'development' && module.hot) {
-    // @ts-ignore
-    module.hot.accept('./reducer', () => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const newRootReducer = require('./reducer').default;
-      store.replaceReducer(newRootReducer);
-    });
-  }
+  // if (process.env.NODE_ENV === 'development' && module.hot) {
+  //   // @ts-ignore
+  //   module.hot.accept('./reducer', () => {
+  //     // eslint-disable-next-line @typescript-eslint/no-var-requires
+  //     const newRootReducer = require('./reducer').default;
+  //     store.replaceReducer(newRootReducer);
+  //   });
+  // }
 
   return store;
 };

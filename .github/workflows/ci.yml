@@ -116,6 +116,8 @@ jobs:
           npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
       - name: Build Serverless Next.js
+        env:
+          NODE_ENV: production
         run: |
           npx -w ${APP_PACKAGE_NAME} serverless
 
