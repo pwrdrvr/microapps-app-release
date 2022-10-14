@@ -73,7 +73,17 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Install Node Modules
+      # https://www.jonathan-wilkinson.com/github-actions-cache-everything
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Install Node-Prune
@@ -139,6 +149,7 @@ jobs:
           npm run build:entry
         
       - name: Install Runtime Deps for Rollup
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: packages/app-entry/runtime-deps/
         run: |
           npm ci --omit=dev
@@ -182,7 +193,17 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Install Node Modules
+      # https://www.jonathan-wilkinson.com/github-actions-cache-everything
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       
       - name: Extract Current NPM Version
@@ -243,7 +264,17 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Install Node Modules
+      # https://www.jonathan-wilkinson.com/github-actions-cache-everything
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Download Artifact - Story Book
@@ -301,7 +332,17 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Install Node Modules
+      # https://www.jonathan-wilkinson.com/github-actions-cache-everything
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
       # Fixes errors due to JSII tsconfig.json not ignoring libs
