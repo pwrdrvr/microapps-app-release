@@ -10,24 +10,25 @@
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
   "workspaces": [
-    "packages/app",
-    "packages/cdk-construct",
-    "packages/cdk-stack"
+    "packages/*"
   ],
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "build:next": "npm run -w @pwrdrvr/microapps-app-release build",
-    "build:serverless": "npm run -w @pwrdrvr/microapps-app-release build:serverless",
+    "build:entry": "rollup --config rollup.entry.js",
+    "build:local": "NODE_OPTIONS=\"--max-old-space-size=8192\" rollup --config rollup.local.js",
     "clean": "npm run clean:dist && npm run clean:tsbuildinfo",
     "clean:deep": "npm run clean:dist && npm run clean:modules && npm run clean:tsbuildinfo",
     "clean:dist": "npm exec --workspaces -- npx rimraf dist && npx rimraf dist",
     "clean:modules": "npm exec --workspaces -- npx rimraf node_modules && npx rimraf node_modules",
     "clean:tsbuildinfo": "npm exec --workspaces -- npx rimraf *.tsbuildinfo",
-    "cloc": "cloc --exclude-dir=node_modules,.storybook,.serverless,.serverless_nextjs,.next,storybook-static,cdk.out --exclude-ext=json .",
+    "cloc": "cloc --exclude-dir=node_modules,.storybook.next,storybook-static,cdk.out --exclude-ext=json .",
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run dev",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
-    "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} npm -w @pwrdrvr/microapps-app-release run start"
+    "start:app:express": "NODE_ENV=${NODE_ENV:-production} NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-qa} npm run -w @pwrdrvr/microapps-app-release start:express",
+    "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} npm -w @pwrdrvr/microapps-app-release run start",
+    "install:node-prune": "curl -sf https://gobinaries.com/tj/node-prune | sh"
   },
   "eslintConfig": {
     "extends": [
@@ -47,9 +48,11 @@
       "last 1 safari version"
     ]
   },
-  "dependencies": {},
   "devDependencies": {
     "@pwrdrvr/microapps-publish": "^0.2.5",
+    "@rollup/plugin-commonjs": "^23.0.0",
+    "@rollup/plugin-json": "^5.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
     "aws-cdk": "^2.8.0",
@@ -58,9 +61,14 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
-    "rimraf": "3.0.2",
     "prettier": "^2.2.1",
+    "rimraf": "3.0.2",
+    "rollup": "^2.6.0",
+    "rollup-plugin-node-externals": "^5.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.34.1",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "webpack-cli": "^4.10.0"
   }
 }

@@ -97,12 +97,12 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
 
     // Create Lambda Function
     let code: lambda.AssetCode;
-    if (existsSync(path.join(__dirname, '.serverless_nextjs', 'index.js'))) {
+    if (existsSync(path.join(__dirname, 'microapps-app-release', 'index.mjs'))) {
       // This is for built apps packaged with the CDK construct
-      code = lambda.Code.fromAsset(path.join(__dirname, '.serverless_nextjs'));
+      code = lambda.Code.fromAsset(path.join(__dirname, 'microapps-app-release'));
     } else {
       // This is the path for local / developer builds
-      code = lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'app', '.serverless_nextjs'));
+      code = lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'app', '.next'));
     }
 
     //
@@ -119,6 +119,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
         NODE_CONFIG_ENV: nodeEnv,
         S3BUCKETNAME: staticAssetsS3Bucket.bucketName,
         DATABASE_TABLE_NAME: table.tableName,
+        AWS_XRAY_CONTEXT_MISSING: 'IGNORE_ERROR',
       },
       logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1769,

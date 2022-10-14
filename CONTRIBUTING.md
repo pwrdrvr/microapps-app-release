@@ -19,14 +19,12 @@ Either run commands from the `packages/app` directory OR run from the root and u
   - Start App: `npm run -w @pwrdrvr/microapps-app-release dev`
   - Build: `npm run -w @pwrdrvr/microapps-app-release build`
   - Debug: `npm run -w @pwrdrvr/microapps-app-release debug`
-  - Package Serverless: `npx -w @pwrdrvr/microapps-app-release serverless`
 
 - From `packages/app/` Directory
 
   - Start App: `npm run dev`
   - Build: `npm run build`
   - Debug: `npm run debug`
-  - Package Serverless: `npx serverless`
 
 - Open Local App in Browser
 

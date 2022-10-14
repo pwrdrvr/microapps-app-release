@@ -76,6 +76,9 @@ jobs:
       - name: Install Node Modules
         run: npm ci
 
+      - name: Install Node-Prune
+        run: npm run install:node-prune
+
       - name: Restore Next.js Build Cache
         uses: actions/cache@v2
         with:
@@ -104,7 +107,6 @@ jobs:
           mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
           jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
 
-
       - name: Build All TypeScript
         run: npm run build
 
@@ -128,31 +130,45 @@ jobs:
         run: |
           npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
-      - name: Build Serverless Next.js
+      - name: Build Next.js App
         run: |
-          npx -w ${APP_PACKAGE_NAME} serverless
+          npm run build:next
+      
+      - name: Build Entry for App
+        run: |
+          npm run build:entry
+        
+      - name: Install Runtime Deps for Rollup
+        working-directory: packages/app-entry/runtime-deps/
+        run: |
+          npm ci --omit=dev
 
-      - name: Copy in Serverless-NextJS-Router
+      - name: Remove Extraneous Files from Runtime Deps
+        working-directory: packages/app-entry/runtime-deps/
         run: |
-          npm run -w ${APP_PACKAGE_NAME} copy-router
+          node-prune
 
-      # We are using a shared Sharp node_modules layer
-      - name: Remove Sharp from App Build
-        working-directory: packages/app/
+      - name: Combine Build Outputs
         run: |
-          rm -rf .serverless_nextjs/image-lambda/node_modules
+          rm -rf ./packages/app/.next/cache
+          mkdir -p ./packages/cdk-construct/lib/microapps-app-release
+          cp -R ./packages/app/.next ./packages/cdk-construct/lib/microapps-app-release
+          cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/microapps-app-release
+          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-release
+          cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/microapps-app-release/.next/serverless/
 
       # Upload Artifact
       - name: Zip Package
-        working-directory: packages/app/
-        run: zip -r serverless_nextjs.zip .serverless_nextjs
+        working-directory: packages/cdk-construct/lib/
+        run: zip -r nextjs.zip microapps-app-release
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: app_zip
-          path: packages/app/serverless_nextjs.zip
+          path: packages/cdk-construct/lib/nextjs.zip
 
   build-storybook:
+    if: github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'BUILD-STORYBOOK')
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -191,7 +207,7 @@ jobs:
 
       - name: Build Story Book
         run: |
-          npm run -w ${APP_PACKAGE_NAME} build-storybook
+          npm run -w ${APP_PACKAGE_NAME} build:storybook
 
       # Upload Artifact
       - name: Zip Package
@@ -203,12 +219,69 @@ jobs:
           name: storybook_zip
           path: packages/app/storybook-static.zip
 
+  deploy-storybook:
+    needs:
+      - build-storybook
+    concurrency:
+      group: deploy-storybook-${{ github.workflow }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    environment:
+      name: ghpublic
+      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.build.outputs.packageVersion }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install Node Modules
+        run: npm ci
+
+      - name: Download Artifact - Story Book
+        uses: actions/download-artifact@v2
+        with:
+          name: storybook_zip
+          path: packages/app/
+
+      - name: Unzip Artifact - Story Book
+        working-directory: packages/app/
+        run: unzip storybook-static.zip
+
+      - name: Download Artifact - Version.txt
+        uses: actions/download-artifact@v2
+        with:
+          name: version-txt
+      - run: echo PACKAGE_VERSION=$(cat version.txt) >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-session-name: microapps-app-${{ env.APP_NAME }}-build
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Preflight Check Version - Story Book
+        run: |
+          npx microapps-publish preflight -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+
+      - name: Publish MicroApps - Story Book
+        run: |
+          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s packages/app/storybook-static -i index.html --overwrite --noCache
+
   deploy-ghpublic:
     needs:
       - build
-      - build-storybook
     concurrency:
-      group: deploy-ghpublic-${{ github.workflow }}-${{ github.event.pull_request.number }}
+      group: deploy-app-${{ github.workflow }}-${{ github.event.pull_request.number }}
       cancel-in-progress: false
     permissions:
       contents: read
@@ -248,28 +321,25 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app_zip
-          path: packages/app/
+          path: packages/cdk-construct/lib/
 
       - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        working-directory: packages/cdk-construct/lib/
+        run: unzip nextjs.zip
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
-        working-directory: packages/app/
+        working-directory: packages/cdk-construct/lib/
         run: |
-          mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
+          mkdir -p .static_files/_next/static/
+          mv microapps-app-release/.next/static .static_files/_next/static/
 
-      - name: Download Artifact - Story Book
-        uses: actions/download-artifact@v2
-        with:
-          name: storybook_zip
-          path: packages/app/
-
-      - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip storybook-static.zip
+      # Move to .mjs so it's treated as as module even though package.json will
+      # have type=commonjs
+      # - name: Move index.js to index.mjs
+      #   working-directory: packages/cdk-construct/lib/microapps-app-release/
+      #   run: |
+      #     mv ./index.js ./index.mjs
 
       - name: Download Artifact - Version.txt
         uses: actions/download-artifact@v2
@@ -288,17 +358,9 @@ jobs:
         run: |
           npx microapps-publish preflight -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
 
-      - name: Preflight Check Version - Story Book
-        run: |
-          npx microapps-publish preflight -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
-
       - name: Deploy CDK Stack - App
         run: npx cdk deploy ${CDK_CONTEXT_ARGS} ${HOTSWAP_FLAG} --require-approval never app
 
       - name: Publish to MicroApps - App
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION} --overwrite --noCache
-
-      - name: Publish MicroApps - Story Book
-        run: |
-          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s packages/app/storybook-static -i index.html --overwrite --noCache
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} -s packages/cdk-construct/lib/.static_files/static --overwrite --noCache
