@@ -223,7 +223,7 @@ jobs:
     needs:
       - build-storybook
     concurrency:
-      group: deploy-storybook-${{ github.workflow }}-${{ github.event.pull_request.number }}
+      group: deploy-storybook-${{ github.workflow }}-${{ (github.event_name == 'pull_request' && github.event.pull_request.number) || github.head_ref }}
       cancel-in-progress: false
     permissions:
       contents: read
@@ -281,7 +281,7 @@ jobs:
     needs:
       - build
     concurrency:
-      group: deploy-app-${{ github.workflow }}-${{ github.event.pull_request.number }}
+      group: deploy-app-${{ github.workflow }}-${{ (github.event_name == 'pull_request' && github.event.pull_request.number) || github.head_ref }}
       cancel-in-progress: false
     permissions:
       contents: read
