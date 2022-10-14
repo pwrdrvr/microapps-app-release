@@ -170,6 +170,7 @@ jobs:
           cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/microapps-app-release/.next/serverless/
 
       - name: Build the NPM tarball for Examination
+        working-directory: packages/cdk-construct/
         run: |
           npm pack
       - name: Upload NPM tarball
