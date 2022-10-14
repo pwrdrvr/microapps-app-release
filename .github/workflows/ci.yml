@@ -168,6 +168,15 @@ jobs:
           cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-release
           cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/microapps-app-release/.next/serverless/
 
+      - name: Build the NPM tarball for Examination
+        run: |
+          npm pack
+      - name: Upload NPM tarball
+        uses: actions/upload-artifact@v2
+        with:
+          name: cdk_npm_package
+          path: packages/cdk-construct/pwrdrvr-microapps-app-release-cdk-${{ env.PACKAGE_VERSION }}.tgz
+
       # Upload Artifact
       - name: Zip Package
         working-directory: packages/cdk-construct/lib/
