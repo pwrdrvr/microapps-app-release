@@ -376,7 +376,7 @@ jobs:
 
       - name: Unzip Artifact - App
         working-directory: packages/cdk-construct/lib/
-        run: unzip nextjs.zip
+        run: unzip -o nextjs.zip
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
