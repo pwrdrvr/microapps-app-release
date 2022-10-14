@@ -331,8 +331,8 @@ jobs:
       - name: Remove Static Files from App Build
         working-directory: packages/cdk-construct/lib/
         run: |
-          mkdir -p .static_files/_next/static/
-          mv microapps-app-release/.next/static .static_files/_next/static/
+          mkdir -p .static_files/_next/
+          mv microapps-app-release/.next/static .static_files/_next/
 
       # Move to .mjs so it's treated as as module even though package.json will
       # have type=commonjs
@@ -356,11 +356,18 @@ jobs:
 
       - name: Preflight Check Version - App
         run: |
-          npx microapps-publish preflight -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+          npx microapps-publish preflight -a ${APP_NAME} \
+            -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
 
       - name: Deploy CDK Stack - App
-        run: npx cdk deploy ${CDK_CONTEXT_ARGS} ${HOTSWAP_FLAG} --require-approval never app
+        run: |
+          npx cdk deploy ${CDK_CONTEXT_ARGS} ${HOTSWAP_FLAG} \
+            --require-approval never app
 
       - name: Publish to MicroApps - App
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} -s packages/cdk-construct/lib/.static_files/static --overwrite --noCache
+          npx microapps-publish publish -a ${APP_NAME} \
+            -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} \
+            -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} \
+            -s packages/cdk-construct/lib/.static_files \
+            --overwrite --noCache
