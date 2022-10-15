@@ -24,6 +24,19 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "API.md",
+    "README.md",
+    "lib/*.js",
+    "lib/*.d.ts",
+    "lib/microapps-app-release/.next/*",
+    "lib/microapps-app-release/node_modules/*",
+    "lib/microapps-app-release/index.mjs",
+    "lib/microapps-app-release/index.mjs.map",
+    "package.json",
+    "index.js*",
+    "package.json"
+  ],
   "stability": "experimental",
   "scripts": {
     "build": "tsc --build tsconfig.json",
