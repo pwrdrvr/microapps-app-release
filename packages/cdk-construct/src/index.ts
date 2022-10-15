@@ -44,6 +44,8 @@ export interface MicroAppsAppReleaseProps {
    * `sharp` node module Lambda Layer for Next.js image adjustments
    *
    * @example https://github.com/zoellner/sharp-heic-lambda-layer/pull/3
+   *
+   * @deprecated Ignored if passed, this is no longer needed
    */
   readonly sharpLayer?: lambda.ILayerVersion;
 
@@ -86,14 +88,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
   constructor(scope: Construct, id: string, props: MicroAppsAppReleaseProps) {
     super(scope, id);
 
-    const {
-      functionName,
-      nodeEnv = 'dev',
-      removalPolicy,
-      sharpLayer,
-      staticAssetsS3Bucket,
-      table,
-    } = props;
+    const { functionName, nodeEnv = 'dev', removalPolicy, staticAssetsS3Bucket, table } = props;
 
     // Create Lambda Function
     let code: lambda.AssetCode;
@@ -127,10 +122,6 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     });
     if (removalPolicy !== undefined) {
       this._lambdaFunction.applyRemovalPolicy(removalPolicy);
-    }
-    // Add the Sharp layer if it was provided, else skip it
-    if (sharpLayer !== undefined) {
-      this._lambdaFunction.addLayers(sharpLayer);
     }
 
     // Give permission to the table

@@ -73,6 +73,5 @@ const app = new MicroAppsAppRelease(this, 'app', {
   table: dynamodb.Table.fromTableName(this, 'apps-table', shared.tableName),
   nodeEnv: shared.env as Env,
   removalPolicy: shared.isPR ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
-  sharpLayer,
 });
 ```
