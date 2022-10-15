@@ -27,10 +27,10 @@ jobs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -135,10 +135,10 @@ jobs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -240,7 +240,7 @@ jobs:
       packages: write
     steps:
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 

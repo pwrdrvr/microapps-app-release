@@ -30,7 +30,7 @@ jobs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Compute PR Suffix
         id: prSuffix
@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -76,7 +76,7 @@ jobs:
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
         id: cache-node-modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             **/node_modules
@@ -96,12 +96,11 @@ jobs:
         run: npm run install:node-prune
 
       - name: Restore Next.js Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           # See here for caching with `yarn` https://github.com/actions/cache/blob/main/examples.md#node---yarn or you can leverage caching with actions/setup-node https://github.com/actions/setup-node
           path: |
-            ~/.npm
-            ${{ github.workspace }}/.next/cache
+            ${{ github.workspace }}/packages/app/.next/cache
           # Generate a new cache whenever packages or source files change.
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           # If source files changed but packages didn't, rebuild from a prior cache.
@@ -162,9 +161,9 @@ jobs:
 
       - name: Combine Build Outputs
         run: |
-          rm -rf ./packages/app/.next/cache
           mkdir -p ./packages/cdk-construct/lib/microapps-app-release
           cp -R ./packages/app/.next ./packages/cdk-construct/lib/microapps-app-release
+          rm -rf ./packages/cdk-construct/lib/microapps-app-release/.next/cache
           cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/microapps-app-release
           cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-release
           cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/microapps-app-release/.next/serverless/
@@ -195,10 +194,10 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -207,7 +206,7 @@ jobs:
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
         id: cache-node-modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             **/node_modules
@@ -266,10 +265,10 @@ jobs:
       url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.build.outputs.packageVersion }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -278,7 +277,7 @@ jobs:
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
         id: cache-node-modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             **/node_modules
@@ -334,10 +333,10 @@ jobs:
       url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.build.outputs.packageVersion }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -346,7 +345,7 @@ jobs:
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
         id: cache-node-modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             **/node_modules
