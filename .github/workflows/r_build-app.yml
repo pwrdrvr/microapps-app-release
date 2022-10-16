@@ -128,7 +128,7 @@ jobs:
       - name: Create version.txt
         run: echo ${PACKAGE_VERSION} > version.txt
       - name: Upload version.txt
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: version-txt
           path: version.txt
@@ -170,7 +170,7 @@ jobs:
         run: |
           npm pack
       - name: Upload NPM tarball
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cdk_npm_package
           path: packages/cdk-construct/pwrdrvr-microapps-app-${{ env.APP_NAME }}-cdk-${{ env.PACKAGE_VERSION }}.tgz
@@ -180,7 +180,7 @@ jobs:
         working-directory: packages/cdk-construct/lib/
         run: zip -r nextjs.zip microapps-app-${APP_NAME}
       - name: Upload Zip
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: app_zip
           path: packages/cdk-construct/lib/nextjs.zip

@@ -86,7 +86,7 @@ jobs:
       # gets OOM killed at 2 GB of RAM usage for some reason.
       #
       - name: Download Artifact - App
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: app_zip
           path: packages/cdk-construct/lib/
@@ -120,7 +120,7 @@ jobs:
 
       - name: Upload CDK Construct Artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
@@ -144,7 +144,7 @@ jobs:
           node-version: 16
 
       - name: Download CDK Construct build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
