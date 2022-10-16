@@ -24,9 +24,9 @@ export interface MicroAppsAppReleaseProps {
   /**
    * Bucket with the static assets of the app.
    *
-   * Next.js apps need access to the static assets bucket.
+   * @deprecated Ignored if passed, this is no longer needed
    */
-  readonly staticAssetsS3Bucket: s3.IBucket;
+  readonly staticAssetsS3Bucket?: s3.IBucket;
 
   /**
    * DynamoDB table for data displayed / edited in the app.
@@ -88,7 +88,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
   constructor(scope: Construct, id: string, props: MicroAppsAppReleaseProps) {
     super(scope, id);
 
-    const { functionName, nodeEnv = 'dev', removalPolicy, staticAssetsS3Bucket, table } = props;
+    const { functionName, nodeEnv = 'dev', removalPolicy, table } = props;
 
     // Create Lambda Function
     let code: lambda.AssetCode;
@@ -112,7 +112,6 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
         NODE_ENV: 'production',
         NODE_CONFIG_ENV: nodeEnv,
-        S3BUCKETNAME: staticAssetsS3Bucket.bucketName,
         DATABASE_TABLE_NAME: table.tableName,
         AWS_XRAY_CONTEXT_MISSING: 'IGNORE_ERROR',
       },
@@ -127,9 +126,5 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     // Give permission to the table
     table.grantReadWriteData(this._lambdaFunction);
     table.grant(this._lambdaFunction, 'dynamodb:DescribeTable');
-
-    // S3 bucket for deployed apps
-    // Next.js apps need read/write access to their directory
-    staticAssetsS3Bucket.grantReadWrite(this._lambdaFunction);
   }
 }
