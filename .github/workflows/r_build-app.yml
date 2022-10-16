@@ -14,6 +14,13 @@ on:
         required: false
         type: string
         default: ''
+    outputs:
+      packageVersion:
+        description: "Computed NPM Package Version (e.g. '1.0.0-pr.1')"
+        value: ${{ jobs.build.outputs.packageVersion }}
+      prSuffix:
+        description: "Computed PR Suffix (e.g. '-pr-1' or '')"
+        value: ${{ jobs.build.outputs.prSuffix }}
 
 env:
   APP_NAME: ${{ inputs.APP_NAME }}
