@@ -25,168 +25,10 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    outputs:
-      prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
-      packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Compute PR Suffix
-        id: prSuffix
-        run: |
-          if [ -n "${PR_NUMBER}" ]; then
-            echo "::set-output name=prSuffix::-pr-${PR_NUMBER}"
-            echo "PR_SUFFIX=-pr-"${PR_NUMBER} >> $GITHUB_ENV
-          else
-            echo "::set-output name=prSuffix::"
-            echo "PR_SUFFIX=" >> $GITHUB_ENV
-          fi
-
-      - name: Set Hotswap Flag
-        run: |
-          if [ -n "${PR_NUMBER}" ]; then
-            echo "HOTSWAP_FLAG=--hotswap" >> $GITHUB_ENV
-          else
-            echo "HOTSWAP_FLAG=" >> $GITHUB_ENV
-          fi
-
-      - name: Extract Current NPM Version
-        run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
-      - name: Compute NPM Version
-        id: packageVersion
-        run: |
-          if [ -n "${PR_NUMBER}" ]; then
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
-          else
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
-          fi
-
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-
-      # https://www.jonathan-wilkinson.com/github-actions-cache-everything
-      - name: Cache Node Modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            **/node_modules
-          key: node-modules-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Install Dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci
-
-      - name: Link to node_modules - App
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        working-directory: packages/app/node_modules/.bin
-        run: |
-          ln -s ../../../../node_modules/.bin/next
-
-      - name: Install Node-Prune
-        run: npm run install:node-prune
-
-      - name: Restore Next.js Build Cache
-        uses: actions/cache@v3
-        with:
-          # See here for caching with `yarn` https://github.com/actions/cache/blob/main/examples.md#node---yarn or you can leverage caching with actions/setup-node https://github.com/actions/setup-node
-          path: |
-            ${{ github.workspace }}/packages/app/.next/cache
-          # Generate a new cache whenever packages or source files change.
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          # If source files changed but packages didn't, rebuild from a prior cache.
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
-      # Fixes errors due to JSII tsconfig.json not ignoring libs
-      # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
-      # Error: node_modules/flatpickr/dist/types/instance.d.ts(82,56): error TS2304: Cannot find name 'HTMLElementTagNameMap'.
-      # Error: node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts(46,80): error TS2304: Cannot find name 'File'.
-      # Error: node_modules/@types/overlayscrollbars/index.d.ts(348,19): error TS2304: Cannot find name 'NodeListOf'.
-      - name: Modify cdk-construct tsconfig.json
-        run: |
-          mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
-          jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
-
-      - name: Build All TypeScript
-        run: npm run build
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Apply NPM Version
-        if: github.event_name == 'pull_request'
-        run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
-
-      - name: Create version.txt
-        run: echo ${PACKAGE_VERSION} > version.txt
-      - name: Upload version.txt
-        uses: actions/upload-artifact@v2
-        with:
-          name: version-txt
-          path: version.txt
-
-      - name: Apply Next.js Version
-        run: |
-          npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
-
-      - name: Build Next.js App
-        run: |
-          npm run build:next
-      
-      - name: Build Entry for App
-        run: |
-          npm run build:entry
-        
-      - name: Install Runtime Deps for Rollup
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: packages/app-entry/runtime-deps/
-        run: |
-          npm ci --omit=dev
-
-      - name: Remove Extraneous Files from Runtime Deps
-        working-directory: packages/app-entry/runtime-deps/
-        run: |
-          node-prune
-
-      - name: Combine Build Outputs
-        run: |
-          mkdir -p ./packages/cdk-construct/lib/microapps-app-release
-          cp -R ./packages/app/.next ./packages/cdk-construct/lib/microapps-app-release
-          rm -rf ./packages/cdk-construct/lib/microapps-app-release/.next/cache
-          cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/microapps-app-release
-          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-release
-          cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/microapps-app-release/.next/serverless/
-
-      - name: Build the NPM tarball for Examination
-        working-directory: packages/cdk-construct/
-        run: |
-          npm pack
-      - name: Upload NPM tarball
-        uses: actions/upload-artifact@v2
-        with:
-          name: cdk_npm_package
-          path: packages/cdk-construct/pwrdrvr-microapps-app-release-cdk-${{ env.PACKAGE_VERSION }}.tgz
-
-      # Upload Artifact
-      - name: Zip Package
-        working-directory: packages/cdk-construct/lib/
-        run: zip -r nextjs.zip microapps-app-release
-      - name: Upload Zip
-        uses: actions/upload-artifact@v2
-        with:
-          name: app_zip
-          path: packages/cdk-construct/lib/nextjs.zip
+    uses: ./.github/workflows/r_build-app.yml
+    with:
+      APP_NAME: release
+      APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
 
   build-storybook:
     if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'BUILD-STORYBOOK'))
@@ -245,7 +87,7 @@ jobs:
         working-directory: packages/app/
         run: zip -r storybook-static.zip storybook-static
       - name: Upload Zip
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: storybook_zip
           path: packages/app/storybook-static.zip
@@ -288,7 +130,7 @@ jobs:
         run: npm ci
 
       - name: Download Artifact - Story Book
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: storybook_zip
           path: packages/app/
@@ -298,7 +140,7 @@ jobs:
         run: unzip storybook-static.zip
 
       - name: Download Artifact - Version.txt
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: version-txt
       - run: echo PACKAGE_VERSION=$(cat version.txt) >> $GITHUB_ENV
@@ -369,7 +211,7 @@ jobs:
         run: npm run build
 
       - name: Download Artifact - App
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: app_zip
           path: packages/cdk-construct/lib/
@@ -385,19 +227,6 @@ jobs:
           mkdir -p .static_files/_next/
           mv microapps-app-release/.next/static .static_files/_next/
 
-      # Move to .mjs so it's treated as as module even though package.json will
-      # have type=commonjs
-      # - name: Move index.js to index.mjs
-      #   working-directory: packages/cdk-construct/lib/microapps-app-release/
-      #   run: |
-      #     mv ./index.js ./index.mjs
-
-      - name: Download Artifact - Version.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: version-txt
-      - run: echo PACKAGE_VERSION=$(cat version.txt) >> $GITHUB_ENV
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -408,7 +237,7 @@ jobs:
       - name: Preflight Check Version - App
         run: |
           npx microapps-publish preflight -a ${APP_NAME} \
-            -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+            -n ${{ needs.build.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
 
       - name: Deploy CDK Stack - App
         run: |
@@ -418,7 +247,7 @@ jobs:
       - name: Publish to MicroApps - App
         run: |
           npx microapps-publish publish -a ${APP_NAME} \
-            -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} \
+            -n ${{ needs.build.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} \
             -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} \
             -s packages/cdk-construct/lib/.static_files \
             --overwrite --noCache
