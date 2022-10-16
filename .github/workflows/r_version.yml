@@ -1,0 +1,81 @@
+name: Version
+
+on:
+  workflow_call:
+    inputs:
+      APP_PACKAGE_NAME:
+        required: true
+        type: string
+    # Map the workflow outputs to job outputs
+    outputs:
+      packageVersion:
+        description: "Computed NPM Package Version (e.g. '1.0.0-pr.1')"
+        value: ${{ jobs.version.outputs.packageVersion }}
+      prSuffix:
+        description: "Computed PR Suffix (e.g. '-pr-1' or '')"
+        value: ${{ jobs.version.outputs.prSuffix }}
+
+env:
+  APP_PACKAGE_NAME: ${{ inputs.APP_PACKAGE_NAME }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
+      packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Compute PR Suffix
+        id: prSuffix
+        run: |
+          if [ -n "${PR_NUMBER}" ]; then
+            echo "::set-output name=prSuffix::-pr-${PR_NUMBER}"
+            echo "PR_SUFFIX=-pr-"${PR_NUMBER} >> $GITHUB_ENV
+          else
+            echo "::set-output name=prSuffix::"
+            echo "PR_SUFFIX=" >> $GITHUB_ENV
+          fi
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+
+      # Use the tagged version as NPM package version for releases.
+      # This will cause versions to be deployed matching the tag on dev/qa/prod
+      # when a release is created from main.
+      - name: Apply Version from Git Tag
+        if: github.event_name == 'release'
+        run: |
+          npm version from-git --no-git-tag-version --workspaces
+          npm version from-git --no-git-tag-version
+
+      - name: Extract Current NPM Version
+        run: |
+          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
+          echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
+
+      - name: Compute NPM Version
+        id: packageVersion
+        run: |
+          if [ -n "${PR_NUMBER}" ]; then
+            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
+            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
+          else
+            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG} >> $GITHUB_ENV
+            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
+          fi
+
+      - name: Create version.txt
+        run: echo ${PACKAGE_VERSION} > version.txt
+
+      - name: Upload version.txt
+        uses: actions/upload-artifact@v2
+        with:
+          name: version-txt
+          path: version.txt

@@ -7,8 +7,8 @@ name: Release Package
 
 on:
   # Pull Request - Only when testing workflow
-  # pull_request:
-  #   branches: [ main ]
+  pull_request:
+    branches: [ main ]
   release:
     types: [published]
 
@@ -17,22 +17,30 @@ env:
   APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
 
 jobs:
+  version:
+    if: startsWith( github.ref, 'refs/tags/v') || (github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'BUILD-RELEASE-DRY-RUN'))
+    uses: ./.github/workflows/r_version.yml
+    with:
+      APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
+
   build-app:
-    if: startsWith( github.ref, 'refs/tags/v')
+    needs:
+      - version
     uses: ./.github/workflows/r_build-app.yml
     with:
       APP_NAME: release
       APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
+      packageVersion: ${{ needs.version.outputs.packageVersion }}
+      prSuffix: ${{ needs.version.outputs.prSuffix }}
 
   build-cdk-construct:
     name: Build CDK Construct
-    needs: [ build-app ]
+    needs:
+      - version
+      - build-app
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
-      packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
       - uses: actions/checkout@v3
 
@@ -48,22 +56,10 @@ jobs:
           git config user.name "Automation"
           git config user.email "github-actions@github.com"
 
-      # - name: Bump Version by Patch - Push Tag to GH - Apply to Package.json
-      #   run: |
-      #     npm version patch
-      #     git push —-tags
-
-      - name: Apply Version from Git Tag
-        run: |
-          npm version from-git --no-git-tag-version
-
-      - name: Extract Package Version
-        run: |
-          echo 'PACKAGE_VERSION='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
       - name: Apply NPM Version to Everything
         run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version --allow-same-version --workspaces
+          npm version ${{ needs.version.packageVersion }} --no-git-tag-version --allow-same-version
+          npm version ${{ needs.version.packageVersion }} --no-git-tag-version --allow-same-version --workspaces
 
       # Fixes errors due to JSII tsconfig.json not ignoring libs
       # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
@@ -123,6 +119,7 @@ jobs:
   # Release Assets
   #
   release-assets:
+    if: github.event_name != 'pull_request' || !contains( github.event.pull_request.labels.*.name, 'BUILD-RELEASE-DRY-RUN')
     name: Release Assets
     needs: [ build-cdk-construct ]
     runs-on: ubuntu-latest
