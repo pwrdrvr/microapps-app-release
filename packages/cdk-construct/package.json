@@ -30,7 +30,7 @@
     "lib/*.js",
     "lib/*.d.ts",
     "lib/microapps-app-release/.next/*",
-    "lib/.static_files/*",
+    "lib/microapps-app-release/.static_files/*",
     "lib/microapps-app-release/node_modules/*",
     "lib/microapps-app-release/index.mjs",
     "lib/microapps-app-release/index.mjs.map",
