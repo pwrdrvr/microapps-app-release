@@ -189,7 +189,7 @@ jobs:
           path: packages/cdk-construct/lib/nextjs.zip
 
   build-storybook:
-    if: github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'BUILD-STORYBOOK')
+    if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'BUILD-STORYBOOK'))
     permissions:
       contents: read
     runs-on: ubuntu-latest
