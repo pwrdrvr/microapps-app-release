@@ -21,8 +21,8 @@ jobs:
     if: startsWith( github.ref, 'refs/tags/v')
     uses: ./.github/workflows/r_build-app.yml
     with:
-      APP_NAME: ${{ env.APP_NAME }}
-      APP_PACKAGE_NAME: ${{ env.APP_PACKAGE_NAME }}
+      APP_NAME: ${ env.APP_NAME }
+      APP_PACKAGE_NAME: ${ env.APP_PACKAGE_NAME }
 
   build-cdk-construct:
     name: Build CDK Construct
