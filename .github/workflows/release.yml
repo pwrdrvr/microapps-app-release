@@ -123,6 +123,8 @@ jobs:
     name: Release Assets
     needs: [ build-cdk-construct ]
     runs-on: ubuntu-latest
+    environment:
+      name: publish
     permissions:
       contents: read
       packages: write
