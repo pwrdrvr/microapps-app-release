@@ -20,12 +20,13 @@ env:
 
 jobs:
   build:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -65,21 +66,38 @@ jobs:
         run: |
           npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
-      - name: Build Serverless Next.js
+      - name: Build Next.js App
         run: |
-          npx -w ${APP_PACKAGE_NAME} serverless
+          npm run build:next
+      
+      - name: Build Entry for App
+        run: |
+          npm run build:entry
+
+      - name: Install Next.js for Rollup
+        working-directory: packages/app-entry/runtime-deps/
+        run: |
+          npm ci --omit=dev
+
+      - name: Combine Build Outputs
+        run: |
+          rm -rf ./packages/app/.next/cache
+          mkdir -p ./packages/cdk-construct/lib/microapps-app-release
+          mv ./packages/app/.next/serverless ./packages/app/.next/server
+          cp -R ./packages/app/.next ./packages/cdk-construct/lib/microapps-app-release
+          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-release
 
       - name: Build Story Book
         run: |
-          npm run -w ${APP_PACKAGE_NAME} build-storybook
+          npm run -w ${APP_PACKAGE_NAME} build:storybook
 
   jsii:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'

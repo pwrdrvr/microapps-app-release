@@ -22,10 +22,10 @@ jobs:
     outputs:
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -50,7 +50,6 @@ jobs:
           name: version-txt
           path: version.txt
 
-
   build:
     if: startsWith( github.ref, 'refs/tags/release/')
     needs:
@@ -59,10 +58,10 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -106,29 +105,36 @@ jobs:
         run: |
           npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
-      - name: Build Serverless Next.js
+      - name: Build Next.js App
         run: |
-          npx -w ${APP_PACKAGE_NAME} serverless
+          npm run build:next
+      
+      - name: Build Entry for App
+        run: |
+          npm run build:entry
 
-      - name: Copy in Serverless-NextJS-Router
+      - name: Install Next.js for Rollup
+        working-directory: packages/app-entry/runtime-deps/
         run: |
-          npm run -w ${APP_PACKAGE_NAME} copy-router
+          npm ci --omit=dev
 
-      # We are using a shared Sharp node_modules layer
-      - name: Remove Sharp from App Build
-        working-directory: packages/app/
+      - name: Combine Build Outputs
         run: |
-          rm -rf .serverless_nextjs/image-lambda/node_modules
+          rm -rf ./packages/app/.next/cache
+          mkdir -p ./packages/cdk-construct/lib/microapps-app-release
+          mv ./packages/app/.next/serverless ./packages/app/.next/server
+          cp -R ./packages/app/.next ./packages/cdk-construct/lib/microapps-app-release
+          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-release
 
       # Upload Artifact
       - name: Zip Package
-        working-directory: packages/app/
-        run: zip -r serverless_nextjs.zip .serverless_nextjs
+        working-directory: packages/cdk-construct/lib/
+        run: zip -r nextjs.zip microapps-app-release
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: app_zip
-          path: packages/app/serverless_nextjs.zip
+          path: packages/cdk-construct/lib/nextjs.zip
 
   build-storybook:
     if: startsWith( github.ref, 'refs/tags/release/')
@@ -138,10 +144,10 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -162,7 +168,7 @@ jobs:
 
       - name: Build Story Book
         run: |
-          npm run -w ${APP_PACKAGE_NAME} build-storybook
+          npm run -w ${APP_PACKAGE_NAME} build:storybook
 
       # Upload Artifact
       - name: Zip Package
@@ -196,10 +202,10 @@ jobs:
       DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
       CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.ghpublic.apps"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -212,17 +218,24 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app_zip
-          path: packages/app/
+          path: packages/cdk-construct/lib/
       - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        working-directory: packages/cdk-construct/lib/
+        run: unzip nextjs.zip
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
-        working-directory: packages/app/
+        working-directory: packages/cdk-construct/lib/
         run: |
           mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
+          mv microapps-app-release/.next/static .static_files
+
+      # Move to .mjs so it's treated as as module even though package.json will
+      # have type=commonjs
+      # - name: Move index.js to index.mjs
+      #   working-directory: packages/cdk-construct/lib/microapps-app-release/
+      #   run: |
+      #     mv ./index.js ./index.mjs
 
       - name: Download Artifact - Story Book
         uses: actions/download-artifact@v2
@@ -259,7 +272,7 @@ jobs:
 
       - name: Publish to MicroApps - App
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION}
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${ENV} -s packages/cdk-construct/lib/.static_files/static
 
       - name: Publish MicroApps - Story Book
         run: |
@@ -292,10 +305,10 @@ jobs:
       DEPLOYER_LAMBDA_NAME: microapps-deployer-${{ matrix.env }}
       CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-${{ matrix.env }} --context @pwrdrvr/microapps:s3BucketName=com.pwrdrvr.${{ matrix.env }}-microapps-${{ matrix.env }}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -317,17 +330,24 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app_zip
-          path: packages/app/
+          path: packages/cdk-construct/lib/
       - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        working-directory: packages/cdk-construct/lib/
+        run: unzip nextjs.zip
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
-        working-directory: packages/app/
+        working-directory: packages/cdk-construct/lib/
         run: |
           mkdir .static_files
-          mv .serverless_nextjs/assets .static_files
+          mv microapps-app-release/.next/static .static_files
+
+      # Move to .mjs so it's treated as as module even though package.json will
+      # have type=commonjs
+      # - name: Move index.js to index.mjs
+      #   working-directory: packages/cdk-construct/lib/microapps-app-release/
+      #   run: |
+      #     mv ./index.js ./index.mjs
 
       - name: Download Artifact - Story Book
         uses: actions/download-artifact@v2
@@ -364,7 +384,7 @@ jobs:
 
       - name: Publish to MicroApps - App
         run: |
-          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${{ matrix.env }} -s packages/app/.static_files/assets/${APP_NAME}/${PACKAGE_VERSION}
+          npx microapps-publish publish -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -l microapps-app-${APP_NAME}-${{ matrix.env }} -s packages/cdk-construct/lib/.static_files/static
 
       - name: Publish MicroApps - Story Book
         run: |

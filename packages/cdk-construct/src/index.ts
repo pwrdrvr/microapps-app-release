@@ -44,6 +44,8 @@ export interface MicroAppsAppReleaseProps {
    * `sharp` node module Lambda Layer for Next.js image adjustments
    *
    * @example https://github.com/zoellner/sharp-heic-lambda-layer/pull/3
+   *
+   * @deprecated Ignored if passed, this is no longer needed
    */
   readonly sharpLayer?: lambda.ILayerVersion;
 
@@ -86,23 +88,16 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
   constructor(scope: Construct, id: string, props: MicroAppsAppReleaseProps) {
     super(scope, id);
 
-    const {
-      functionName,
-      nodeEnv = 'dev',
-      removalPolicy,
-      sharpLayer,
-      staticAssetsS3Bucket,
-      table,
-    } = props;
+    const { functionName, nodeEnv = 'dev', removalPolicy, staticAssetsS3Bucket, table } = props;
 
     // Create Lambda Function
     let code: lambda.AssetCode;
-    if (existsSync(path.join(__dirname, '.serverless_nextjs', 'index.js'))) {
+    if (existsSync(path.join(__dirname, 'microapps-app-release', 'index.mjs'))) {
       // This is for built apps packaged with the CDK construct
-      code = lambda.Code.fromAsset(path.join(__dirname, '.serverless_nextjs'));
+      code = lambda.Code.fromAsset(path.join(__dirname, 'microapps-app-release'));
     } else {
       // This is the path for local / developer builds
-      code = lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'app', '.serverless_nextjs'));
+      code = lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'app', '.next'));
     }
 
     //
@@ -119,6 +114,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
         NODE_CONFIG_ENV: nodeEnv,
         S3BUCKETNAME: staticAssetsS3Bucket.bucketName,
         DATABASE_TABLE_NAME: table.tableName,
+        AWS_XRAY_CONTEXT_MISSING: 'IGNORE_ERROR',
       },
       logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1769,
@@ -126,10 +122,6 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     });
     if (removalPolicy !== undefined) {
       this._lambdaFunction.applyRemovalPolicy(removalPolicy);
-    }
-    // Add the Sharp layer if it was provided, else skip it
-    if (sharpLayer !== undefined) {
-      this._lambdaFunction.addLayers(sharpLayer);
     }
 
     // Give permission to the table

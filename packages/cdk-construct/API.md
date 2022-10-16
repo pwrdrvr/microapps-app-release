@@ -109,7 +109,9 @@ Removal Policy to pass to assets (e.g. Lambda function).
 
 ---
 
-##### `sharpLayer`<sup>Optional</sup> <a name="@pwrdrvr/microapps-app-release-cdk.MicroAppsAppReleaseProps.sharpLayer"></a>
+##### ~~`sharpLayer`~~<sup>Optional</sup> <a name="@pwrdrvr/microapps-app-release-cdk.MicroAppsAppReleaseProps.sharpLayer"></a>
+
+- *Deprecated:* Ignored if passed, this is no longer needed
 
 - *Type:* [`aws-cdk-lib.aws_lambda.ILayerVersion`](#aws-cdk-lib.aws_lambda.ILayerVersion)
 

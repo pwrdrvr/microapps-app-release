@@ -27,10 +27,10 @@ jobs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -94,31 +94,36 @@ jobs:
         run: |
           npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
 
-      - name: Build Serverless Next.js
+      - name: Build Next.js App
         run: |
-          npx -w ${APP_PACKAGE_NAME} serverless
+          npm run build:next
+      
+      - name: Build Entry for App
+        run: |
+          npm run build:entry
 
-      - name: Copy in Serverless-NextJS-Router
+      - name: Install Next.js for Rollup
+        working-directory: packages/app-entry/runtime-deps/
         run: |
-          npm run -w ${APP_PACKAGE_NAME} copy-router
+          npm ci --omit=dev
 
-      # Remove Sharp package from image-lambda
-      # Consumer can install sharp and copy to this location
-      # OR Use a shared layer with Sharp in their AWS account
-      - name: Remove Sharp from App Build
-        working-directory: packages/app/
+      - name: Combine Build Outputs
         run: |
-          rm -rf .serverless_nextjs/image-lambda/node_modules
+          rm -rf ./packages/app/.next/cache
+          mkdir -p ./packages/cdk-construct/lib/microapps-app-release
+          mv ./packages/app/.next/serverless ./packages/app/.next/server
+          cp -R ./packages/app/.next ./packages/cdk-construct/lib/microapps-app-release
+          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-release
 
       # Upload Artifact
       - name: Zip Package
-        working-directory: packages/app/
-        run: zip -r serverless_nextjs.zip .serverless_nextjs
+        working-directory: packages/cdk-construct/lib/
+        run: zip -r nextjs.zip microapps-app-release
       - name: Upload Zip
         uses: actions/upload-artifact@v2
         with:
           name: app_zip
-          path: packages/app/serverless_nextjs.zip
+          path: packages/cdk-construct/lib/nextjs.zip
 
   build-cdk-construct:
     name: Build CDK Construct
@@ -130,10 +135,10 @@ jobs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
@@ -185,11 +190,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app_zip
-          path: packages/app/
-
+          path: packages/cdk-construct/lib/
       - name: Unzip Artifact - App
-        working-directory: packages/app/
-        run: unzip serverless_nextjs.zip
+        working-directory: packages/cdk-construct/lib/
+        run: unzip nextjs.zip
 
       #
       # Build Construct with JSII
@@ -200,14 +204,13 @@ jobs:
         run: |
           npm ci
 
-      # Copy the serverless_nextjs build into the Construct output
-      # Move static files out of serverless_nextjs
+      # Copy the Nextjs build into the Construct output
+      # Move static files out of the Lambda files
       - name: Move App to Right Place
         run: |
           mkdir -p packages/cdk-construct/lib/
-          mv packages/app/.serverless_nextjs packages/cdk-construct/lib/
-          mv packages/cdk-construct/lib/.serverless_nextjs/assets packages/cdk-construct/lib/.static_files
-          find packages/cdk-construct/lib/
+          mv packages/app/.next packages/cdk-construct/lib/microapps-app-release/
+          mv packages/cdk-construct/lib/microapps-app-release/.next/static packages/cdk-construct/lib/.static_files
 
       - name: Build with JSII
         working-directory: packages/cdk-construct/
@@ -237,7 +240,7 @@ jobs:
       packages: write
     steps:
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 
