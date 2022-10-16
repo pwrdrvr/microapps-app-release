@@ -1,4 +1,4 @@
-![Build/Deploy CI](https://github.com/pwrdrvr/microapps-app-release/actions/workflows/ci.yml/badge.svg) ![Main Build](https://github.com/pwrdrvr/microapps-app-release/actions/workflows/jsii.yml/badge.svg) ![Deploy](https://github.com/pwrdrvr/microapps-app-release/actions/workflows/deploy.yml/badge.svg) ![Release](https://github.com/pwrdrvr/microapps-app-release/actions/workflows/release.yml/badge.svg)
+![Build/Deploy CI](https://github.com/pwrdrvr/microapps-app-release/actions/workflows/ci.yml/badge.svg) ![JSII Build](https://github.com/pwrdrvr/microapps-app-release/actions/workflows/jsii.yml/badge.svg) ![Release](https://github.com/pwrdrvr/microapps-app-release/actions/workflows/release.yml/badge.svg)
 
 # Overview
 
@@ -14,7 +14,6 @@ Example / basic Next.js-based Release app for the [MicroApps framework](https://
 - [Installation](#installation)
   - [Installation of CDK Construct](#installation-of-cdk-construct)
     - [Node.js TypeScript/JavaScript](#nodejs-typescriptjavascript)
-  - [Sharp Image Processing Lambda Layer](#sharp-image-processing-lambda-layer)
   - [Add the Construct to your CDK Stack](#add-the-construct-to-your-cdk-stack)
 
 # Screenshot
@@ -54,12 +53,6 @@ The CDK Construct is available for TypeScript, DotNet, Java, and Python with doc
 npm i --save-dev @pwrdrvr/microapps-app-release-cdk
 ```
 
-## Sharp Image Processing Lambda Layer
-
-The Sharp layer is extracted and shared across all Serverless Next.js apps. The Sharp layer can be built with whatever features you are licensed for (or just open source features) following the example in this PR:
-
-https://github.com/zoellner/sharp-heic-lambda-layer/pull/3
-
 ## Add the Construct to your CDK Stack
 
 See [cdk-stack](packages/cdk-stack/lib/svcs.ts) for a complete example used to deploy this app for PR builds.
@@ -69,7 +62,6 @@ import { MicroAppsAppRelease } from '@pwrdrvr/microapps-app-release-cdk';
 
 const app = new MicroAppsAppRelease(this, 'app', {
   functionName: `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}`,
-  staticAssetsS3Bucket: s3.Bucket.fromBucketName(this, 'apps-bucket', shared.s3BucketName),
   table: dynamodb.Table.fromTableName(this, 'apps-table', shared.tableName),
   nodeEnv: shared.env as Env,
   removalPolicy: shared.isPR ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,

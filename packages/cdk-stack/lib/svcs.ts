@@ -23,7 +23,6 @@ export class SvcsStack extends Stack {
 
     const app = new MicroAppsAppRelease(this, 'app', {
       functionName: `microapps-app-${appName}${shared.envSuffix}${shared.prSuffix}`,
-      staticAssetsS3Bucket: s3.Bucket.fromBucketName(this, 'apps-bucket', shared.s3BucketName),
       table: dynamodb.Table.fromTableName(this, 'apps-table', shared.tableName),
       nodeEnv: shared.env as Env,
       removalPolicy: shared.isPR ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
