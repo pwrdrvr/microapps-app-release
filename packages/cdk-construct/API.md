@@ -61,16 +61,6 @@ import { MicroAppsAppReleaseProps } from '@pwrdrvr/microapps-app-release-cdk'
 const microAppsAppReleaseProps: MicroAppsAppReleaseProps = { ... }
 ```
 
-##### `staticAssetsS3Bucket`<sup>Required</sup> <a name="@pwrdrvr/microapps-app-release-cdk.MicroAppsAppReleaseProps.staticAssetsS3Bucket"></a>
-
-- *Type:* [`aws-cdk-lib.aws_s3.IBucket`](#aws-cdk-lib.aws_s3.IBucket)
-
-Bucket with the static assets of the app.
-
-Next.js apps need access to the static assets bucket.
-
----
-
 ##### `table`<sup>Required</sup> <a name="@pwrdrvr/microapps-app-release-cdk.MicroAppsAppReleaseProps.table"></a>
 
 - *Type:* [`aws-cdk-lib.aws_dynamodb.ITable`](#aws-cdk-lib.aws_dynamodb.ITable)
@@ -116,6 +106,16 @@ Removal Policy to pass to assets (e.g. Lambda function).
 - *Type:* [`aws-cdk-lib.aws_lambda.ILayerVersion`](#aws-cdk-lib.aws_lambda.ILayerVersion)
 
 `sharp` node module Lambda Layer for Next.js image adjustments.
+
+---
+
+##### ~~`staticAssetsS3Bucket`~~<sup>Optional</sup> <a name="@pwrdrvr/microapps-app-release-cdk.MicroAppsAppReleaseProps.staticAssetsS3Bucket"></a>
+
+- *Deprecated:* Ignored if passed, this is no longer needed
+
+- *Type:* [`aws-cdk-lib.aws_s3.IBucket`](#aws-cdk-lib.aws_s3.IBucket)
+
+Bucket with the static assets of the app.
 
 ---
 
