@@ -176,8 +176,8 @@ jobs:
       - name: Remove Static Files from App Build
         working-directory: packages/cdk-construct/lib/
         run: |
-          mkdir -p .static_files/_next/
-          mv microapps-app-release/.next/static .static_files/_next/
+          mkdir -p microapps-app-release/.static_files/_next/
+          mv microapps-app-release/.next/static microapps-app-release/.static_files/_next/
 
       - name: Build the NPM tarball for Examination
         working-directory: packages/cdk-construct/

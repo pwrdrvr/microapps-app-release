@@ -242,5 +242,5 @@ jobs:
           npx microapps-publish publish -a ${APP_NAME} \
             -n ${{ needs.build.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} \
             -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} \
-            -s packages/cdk-construct/lib/.static_files \
+            -s packages/cdk-construct/lib/microapps-app-release/.static_files \
             --overwrite --noCache
