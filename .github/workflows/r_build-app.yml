@@ -172,6 +172,13 @@ jobs:
           cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-${APP_NAME}
           cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/microapps-app-${APP_NAME}/.next/serverless/
 
+      # Prevent the static files from getting pulled into the Lambda
+      - name: Remove Static Files from App Build
+        working-directory: packages/cdk-construct/lib/
+        run: |
+          mkdir -p microapps-app-release/.static_files/_next/
+          mv microapps-app-release/.next/static microapps-app-release/.static_files/_next/
+
       - name: Build the NPM tarball for Examination
         working-directory: packages/cdk-construct/
         run: |

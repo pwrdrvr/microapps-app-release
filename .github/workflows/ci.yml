@@ -220,13 +220,6 @@ jobs:
         working-directory: packages/cdk-construct/lib/
         run: unzip -o nextjs.zip
 
-      # Prevent the static files from getting pulled into the Lambda
-      - name: Remove Static Files from App Build
-        working-directory: packages/cdk-construct/lib/
-        run: |
-          mkdir -p .static_files/_next/
-          mv microapps-app-release/.next/static .static_files/_next/
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -249,5 +242,5 @@ jobs:
           npx microapps-publish publish -a ${APP_NAME} \
             -n ${{ needs.build.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} \
             -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} \
-            -s packages/cdk-construct/lib/.static_files \
+            -s packages/cdk-construct/lib/microapps-app-release/.static_files \
             --overwrite --noCache
