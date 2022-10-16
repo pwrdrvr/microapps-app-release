@@ -30,6 +30,8 @@ jobs:
     with:
       APP_NAME: release
       APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
+      packageVersion: ${{ needs.version.outputs.packageVersion }}
+      prSuffix: ${{ needs.version.outputs.prSuffix }}
 
   build-cdk-construct:
     name: Build CDK Construct
