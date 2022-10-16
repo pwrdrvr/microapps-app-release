@@ -86,12 +86,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Apply NPM Version
+      - name: Dump info from version reusable workflow
+        run: |
+          echo "packageVersion: ${{ inputs.packageVersion }}"
+          echo "prSuffix: ${{ inputs.prSuffix }}"
+      
+      - name: Apply NPM Version to Everything
         run: |
           npm version ${{ inputs.packageVersion }} \
-            --no-git-tag-version --allow-same-version --workspaces
-          npm version ${{ inputs.packageVersion }} \
             --no-git-tag-version --allow-same-version
+          npm version ${{ inputs.packageVersion }} \
+            --no-git-tag-version --allow-same-version --workspaces
 
       - name: Apply Next.js Version
         run: |

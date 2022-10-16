@@ -12,6 +12,8 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  release:
+    types: [published]
 
 env:
   # This is used by the SharedProps to detect a PR build
@@ -68,11 +70,18 @@ jobs:
       - name: Install Dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
-      
-      - name: Apply NPM Version
-        if: github.event_name == 'pull_request'
+
+      - name: Dump info from version reusable workflow
         run: |
-          npm version ${{ needs.version.packageVersion }} --no-git-tag-version --workspaces
+          echo "packageVersion: ${{ needs.version.outputs.packageVersion }}"
+          echo "prSuffix: ${{ needs.version.outputs.prSuffix }}"
+      
+      - name: Apply NPM Version to Everything
+        run: |
+          npm version ${{ needs.version.outputs.packageVersion }} \
+            --no-git-tag-version --allow-same-version
+          npm version ${{ needs.version.outputs.packageVersion }} \
+            --no-git-tag-version --allow-same-version --workspaces
 
       - name: Build Story Book
         run: |
