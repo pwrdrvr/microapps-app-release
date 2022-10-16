@@ -9,11 +9,7 @@ on:
 
   workflow_dispatch:
 
-# Limit concurrency to 1, with queueing, per workflow
-# Limit concurrency to 1, with queueing, per workflow per PR
-concurrency:
-  group: build-${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+
 env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   NODE_ENV: prod
@@ -24,6 +20,9 @@ env:
 
 jobs:
   cleanup-pr:
+    concurrency:
+      group: pr-closed-${{ github.workflow }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
     environment:
       name: ghpublic
     permissions:

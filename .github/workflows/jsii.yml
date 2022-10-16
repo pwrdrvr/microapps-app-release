@@ -19,13 +19,6 @@ env:
   ENV: dev
 
 jobs:
-  build:
-    if: github.event_name != 'pull_request'
-    uses: ./.github/workflows/r_build-app.yml
-    with:
-      APP_NAME: release
-      APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
-
   jsii:
     runs-on: ubuntu-latest
     steps:
