@@ -103,13 +103,12 @@ jobs:
         run: |
           npm ci
 
-      # Copy the Nextjs build into the Construct output
-      # Move static files out of the Lambda files
-      - name: Move App to Right Place
+      # Prevent the static files from getting pulled into the Lambda
+      - name: Remove Static Files from App Build
+        working-directory: packages/cdk-construct/lib/
         run: |
-          mkdir -p packages/cdk-construct/lib/
-          mv packages/app/.next packages/cdk-construct/lib/microapps-app-release/
-          mv packages/cdk-construct/lib/microapps-app-release/.next/static packages/cdk-construct/lib/.static_files
+          mkdir -p .static_files/_next/
+          mv microapps-app-release/.next/static .static_files/_next/
 
       - name: Build with JSII
         working-directory: packages/cdk-construct/
