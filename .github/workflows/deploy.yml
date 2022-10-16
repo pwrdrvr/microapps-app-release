@@ -17,7 +17,7 @@ env:
 
 jobs:
   version:
-    if: startsWith( github.ref, 'refs/tags/release/')
+    if: startsWith( github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     outputs:
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
@@ -51,7 +51,7 @@ jobs:
           path: version.txt
 
   build:
-    if: startsWith( github.ref, 'refs/tags/release/')
+    if: startsWith( github.ref, 'refs/tags/v')
     needs:
       - version
     permissions:
@@ -137,7 +137,7 @@ jobs:
           path: packages/cdk-construct/lib/nextjs.zip
 
   build-storybook:
-    if: startsWith( github.ref, 'refs/tags/release/')
+    if: startsWith( github.ref, 'refs/tags/v')
     needs:
       - version
     permissions:
