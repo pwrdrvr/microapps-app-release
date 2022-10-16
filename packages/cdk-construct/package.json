@@ -34,6 +34,7 @@
     "lib/microapps-app-release/node_modules/*",
     "lib/microapps-app-release/index.mjs",
     "lib/microapps-app-release/index.mjs.map",
+    "lib/microapps-app-release/next.config.js",
     "package.json",
     "index.js*",
     "package.json"

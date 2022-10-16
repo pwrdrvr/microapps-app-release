@@ -10,17 +10,13 @@ on:
       APP_PACKAGE_NAME:
         required: true
         type: string
+      packageVersion:
+        required: true
+        type: string
       prSuffix:
         required: false
         type: string
         default: ''
-    outputs:
-      packageVersion:
-        description: "Computed NPM Package Version (e.g. '1.0.0-pr.1')"
-        value: ${{ jobs.build.outputs.packageVersion }}
-      prSuffix:
-        description: "Computed PR Suffix (e.g. '-pr-1' or '')"
-        value: ${{ jobs.build.outputs.prSuffix }}
 
 env:
   APP_NAME: ${{ inputs.APP_NAME }}
@@ -30,45 +26,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
-      packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
     steps:
       - uses: actions/checkout@v3
-
-      - name: Compute PR Suffix
-        id: prSuffix
-        run: |
-          if [ -n "${PR_NUMBER}" ]; then
-            echo "::set-output name=prSuffix::-pr-${PR_NUMBER}"
-            echo "PR_SUFFIX=-pr-"${PR_NUMBER} >> $GITHUB_ENV
-          else
-            echo "::set-output name=prSuffix::"
-            echo "PR_SUFFIX=" >> $GITHUB_ENV
-          fi
-
-      - name: Set Hotswap Flag
-        run: |
-          if [ -n "${PR_NUMBER}" ]; then
-            echo "HOTSWAP_FLAG=--hotswap" >> $GITHUB_ENV
-          else
-            echo "HOTSWAP_FLAG=" >> $GITHUB_ENV
-          fi
-
-      - name: Extract Current NPM Version
-        run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
-      - name: Compute NPM Version
-        id: packageVersion
-        run: |
-          if [ -n "${PR_NUMBER}" ]; then
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
-          else
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
-          fi
 
       - name: Use Node.js 16
         uses: actions/setup-node@v3
@@ -128,21 +87,15 @@ jobs:
         run: npm run lint
 
       - name: Apply NPM Version
-        if: github.event_name == 'pull_request'
         run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
-
-      - name: Create version.txt
-        run: echo ${PACKAGE_VERSION} > version.txt
-      - name: Upload version.txt
-        uses: actions/upload-artifact@v3
-        with:
-          name: version-txt
-          path: version.txt
+          npm version ${{ inputs.packageVersion }} \
+            --no-git-tag-version --allow-same-version --workspaces
+          npm version ${{ inputs.packageVersion }} \
+            --no-git-tag-version --allow-same-version
 
       - name: Apply Next.js Version
         run: |
-          npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${PACKAGE_VERSION}
+          npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${{ inputs.packageVersion }}
 
       - name: Build Next.js App
         run: |
@@ -187,7 +140,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: cdk_npm_package
-          path: packages/cdk-construct/pwrdrvr-microapps-app-${{ env.APP_NAME }}-cdk-${{ env.PACKAGE_VERSION }}.tgz
+          path: packages/cdk-construct/pwrdrvr-microapps-app-${{ env.APP_NAME }}-cdk-${{ inputs.packageVersion }}.tgz
 
       # Upload Artifact
       - name: Zip Package

@@ -24,13 +24,24 @@ env:
   CDK_CONTEXT_ARGS: "--context @pwrdrvr/microapps:tableName=microapps-core-ghpublic-prod"
 
 jobs:
+  version:
+    uses: ./.github/workflows/r_version.yml
+    with:
+      APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
+
   build:
+    needs:
+      - version
     uses: ./.github/workflows/r_build-app.yml
     with:
       APP_NAME: release
       APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
+      packageVersion: ${{ needs.version.outputs.packageVersion }}
+      prSuffix: ${{ needs.version.outputs.prSuffix }}
 
   build-storybook:
+    needs:
+      - version
     if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'BUILD-STORYBOOK'))
     permissions:
       contents: read
@@ -58,25 +69,10 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
       
-      - name: Extract Current NPM Version
-        run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
-      - name: Compute NPM Version
-        id: packageVersion
-        run: |
-          if [ -n "${PR_NUMBER}" ]; then
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
-          else
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
-          fi
-
       - name: Apply NPM Version
         if: github.event_name == 'pull_request'
         run: |
-          npm version ${PACKAGE_VERSION} --no-git-tag-version --workspaces
+          npm version ${{ needs.version.packageVersion }} --no-git-tag-version --workspaces
 
       - name: Build Story Book
         run: |
@@ -94,6 +90,7 @@ jobs:
 
   deploy-storybook:
     needs:
+      - version
       - build-storybook
     concurrency:
       group: deploy-storybook-${{ github.workflow }}-${{ (github.event_name == 'pull_request' && github.event.pull_request.number) || github.head_ref }}
@@ -104,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ghpublic
-      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.build.outputs.packageVersion }}
+      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.version.outputs.packageVersion }}
 
     steps:
       - uses: actions/checkout@v3
@@ -139,12 +136,6 @@ jobs:
         working-directory: packages/app/
         run: unzip storybook-static.zip
 
-      - name: Download Artifact - Version.txt
-        uses: actions/download-artifact@v3
-        with:
-          name: version-txt
-      - run: echo PACKAGE_VERSION=$(cat version.txt) >> $GITHUB_ENV
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -154,14 +145,23 @@ jobs:
 
       - name: Preflight Check Version - Story Book
         run: |
-          npx microapps-publish preflight -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+          npx microapps-publish preflight \
+            -a ${APP_NAME}-storybook \
+            -n ${{ needs.version.outputs.packageVersion }} \
+            -d ${DEPLOYER_LAMBDA_NAME} --overwrite
 
       - name: Publish MicroApps - Story Book
         run: |
-          npx microapps-publish publish-static -a ${APP_NAME}-storybook -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME} -s packages/app/storybook-static -i index.html --overwrite --noCache
+          npx microapps-publish publish-static \
+            -a ${APP_NAME}-storybook \
+            -n ${{ needs.version.outputs.packageVersion }} \
+            -d ${DEPLOYER_LAMBDA_NAME} \
+            -s packages/app/storybook-static \
+            -i index.html --overwrite --noCache
 
   deploy-ghpublic:
     needs:
+      - version
       - build
     concurrency:
       group: deploy-app-${{ github.workflow }}-${{ (github.event_name == 'pull_request' && github.event.pull_request.number) || github.head_ref }}
@@ -172,7 +172,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ghpublic
-      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.build.outputs.packageVersion }}
+      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}
 
     steps:
       - uses: actions/checkout@v3
@@ -230,7 +230,15 @@ jobs:
       - name: Preflight Check Version - App
         run: |
           npx microapps-publish preflight -a ${APP_NAME} \
-            -n ${{ needs.build.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+            -n ${{ needs.version.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+
+      - name: Set Hotswap Flag
+        run: |
+          if [ -n "${PR_NUMBER}" ]; then
+            echo "HOTSWAP_FLAG=--hotswap" >> $GITHUB_ENV
+          else
+            echo "HOTSWAP_FLAG=" >> $GITHUB_ENV
+          fi
 
       - name: Deploy CDK Stack - App
         run: |
@@ -240,7 +248,7 @@ jobs:
       - name: Publish to MicroApps - App
         run: |
           npx microapps-publish publish -a ${APP_NAME} \
-            -n ${{ needs.build.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} \
-            -l microapps-app-${APP_NAME}-${ENV}${{ needs.build.outputs.prSuffix }} \
+            -n ${{ needs.version.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} \
+            -l microapps-app-${APP_NAME}-${ENV}${{ needs.version.outputs.prSuffix }} \
             -s packages/cdk-construct/lib/microapps-app-release/.static_files \
             --overwrite --noCache
