@@ -55,7 +55,7 @@ jobs:
           key: node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
       
       - name: Extract Current NPM Version
@@ -126,7 +126,7 @@ jobs:
           key: node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Download Artifact - Story Book
@@ -194,7 +194,7 @@ jobs:
           key: node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
       # Fixes errors due to JSII tsconfig.json not ignoring libs
