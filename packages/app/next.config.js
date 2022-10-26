@@ -8,14 +8,46 @@
 
 const crypto = require('crypto');
 
-const appRoot = '/release/0.0.0';
+const BASE_PREFIX_APP = '/release';
+const BASE_VERSION_ONLY = '/0.0.0'
+const BASE_PREFIX_APP_WITH_VERSION = `${BASE_PREFIX_APP}${BASE_VERSION_ONLY}`;
 
 // eslint-disable-next-line no-undef
 module.exports = {
   target: 'serverless',
-  // sassOptions: {
-  //   includePaths: [path.join(__dirname, 'styles')],
-  // },
+
+  // We want the app under the app name like /release
+  basePath: BASE_PREFIX_APP,
+
+  // We want the static assets, api calls, and _next/data calls
+  // to have /release/0.0.0/ as the prefix so they route cleanly
+  // to an isolated folder on the S3 bucket and to a specific
+  // lambda URL without having to do any path manipulation
+  assetPrefix: BASE_PREFIX_APP_WITH_VERSION,
+
+  // Strip the version out of the path
+  // When static assets reach S3 they will still have the version
+  // in the path, which is perfect because that's where the assets
+  // will be on the S3 bucket.
+  async rewrites() {
+    return [
+      {
+        /** Static Assets and getServerSideProps (_next/data/) */
+        source: `${BASE_VERSION_ONLY}/_next/:path*`,
+        destination: `/_next/:path*`
+      },
+      {
+        /** Images */
+        source: `${BASE_VERSION_ONLY}/images/:query*`,
+        destination: `/_next/image/:query*`
+      },
+      /** Api Calls */
+      {
+        source: `${BASE_VERSION_ONLY}/api/:path*`,
+        destination: `/api/:path*`
+      }
+    ]
+  },
   webpack: (config, { dev, isServer }) => {
     if (isServer && config.name === 'server' && !dev) {
       config.optimization.minimize = true;
@@ -70,12 +102,5 @@ module.exports = {
     }
 
     return config;
-  },
-  basePath: appRoot,
-  // assetPrefix doesn't appear to do much
-  // assetPrefix: '/app/1.2.3',
-  publicRuntimeConfig: {
-    // Will be available on both server and client
-    staticFolder: appRoot,
   },
 };
