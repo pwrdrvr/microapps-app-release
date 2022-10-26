@@ -12,6 +12,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "resolutions": {
+    "class-transformer": "0.5.1"
+  },
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "build:next": "npm run -w @pwrdrvr/microapps-app-release build",
@@ -61,6 +64,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
+    "npm-force-resolutions": "^0.0.10",
     "prettier": "^2.2.1",
     "rimraf": "3.0.2",
     "rollup": "^2.6.0",
