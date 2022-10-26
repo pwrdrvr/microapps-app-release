@@ -257,7 +257,10 @@ jobs:
       - name: Publish to MicroApps - App
         run: |
           npx microapps-publish publish -a ${APP_NAME} \
-            -n ${{ needs.version.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} \
+            -t lambda-url \
+            --startup-type direct \
+            -n ${{ needs.version.outputs.packageVersion }} \
+            -d ${DEPLOYER_LAMBDA_NAME} \
             -l microapps-app-${APP_NAME}-${ENV}${{ needs.version.outputs.prSuffix }} \
             -s packages/cdk-construct/lib/microapps-app-release/.static_files \
             --overwrite --noCache
