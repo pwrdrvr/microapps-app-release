@@ -26,7 +26,7 @@
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run dev",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
-    "start:app:express": "NODE_ENV=${NODE_ENV:-production} NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-qa} npm run -w @pwrdrvr/microapps-app-release start:express",
+    "start:app:express": "NODE_ENV=${NODE_ENV:-production} NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm run -w @pwrdrvr/microapps-app-release start:express",
     "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} npm -w @pwrdrvr/microapps-app-release run start",
     "install:node-prune": "curl -sf https://gobinaries.com/tj/node-prune | sh"
   },
