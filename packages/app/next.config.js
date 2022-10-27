@@ -30,6 +30,13 @@ module.exports = {
     apiPrefix: BASE_PREFIX_APP_WITH_VERSION,
   },
 
+  // Get the _next/data calls rebased with the version
+  // This requires custom Next.js routing in the Origin Request
+  // Lambda function
+  async generateBuildId() {
+    return BASE_VERSION_ONLY.slice(1);
+  },
+
   async redirects() {
     return [
       // assetPrefix breaks webpack-hmr, so we fix it here.

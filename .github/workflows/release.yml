@@ -30,6 +30,7 @@ jobs:
     with:
       APP_NAME: release
       APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
+      APP_CONSTRUCT_FOLDER_NAME: microapps-app-release
       packageVersion: ${{ needs.version.outputs.packageVersion }}
       prSuffix: ${{ needs.version.outputs.prSuffix }}
 
