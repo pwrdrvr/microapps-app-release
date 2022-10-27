@@ -7,6 +7,11 @@ import { ColumnShape, SortOrder } from 'react-base-table';
 import React from 'react';
 import semver from 'semver';
 import { DbManager } from '../../utils/dbManager';
+import getConfig from 'next/config';
+
+const {
+  publicRuntimeConfig: { apiPrefix },
+} = getConfig();
 
 const log = createLogger('mainSlice'); //, ctx?.req?.url);
 
@@ -218,9 +223,7 @@ export const refreshThunk = createAsyncThunk(
 
       // Fetch api/refresh
       const url =
-        appName !== undefined
-          ? `${window.document.URL}/api/refresh/${appName}`
-          : `${window.document.URL}/api/refresh`;
+        appName !== undefined ? `${apiPrefix}/api/refresh/${appName}` : `${apiPrefix}/api/refresh`;
       const res = await fetch(url);
       const props = (await res.json()) as IPageState;
 
@@ -242,7 +245,7 @@ export const updateDefaultVersionThunk = createAsyncThunk(
       log.info('mainPage/updateDefaultVersion', { appName });
 
       // Fetch api/refresh
-      const url = `${window.document.URL}/api/update/default/${appName}/${semVer}`;
+      const url = `${apiPrefix}/api/update/default/${appName}/${semVer}`;
       const res = await fetch(url);
       const props = (await res.json()) as IPageState;
 
