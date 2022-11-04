@@ -17,6 +17,7 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
+    "build:jsii-all": "npm run -w @pwrdrvr/microapps-app-release-cdk build:jsii-all",
     "build:next": "npm run -w @pwrdrvr/microapps-app-release build",
     "build:entry": "rollup --config rollup.entry.js",
     "build:local": "NODE_OPTIONS=\"--max-old-space-size=8192\" rollup --config rollup.local.js",
