@@ -18,6 +18,7 @@ on:
 env:
   # This is used by the SharedProps to detect a PR build
   PR_NUMBER: ${{ github.event.pull_request.number }}
+  APP_CONSTRUCT_FOLDER_NAME: microapps-app-release
   APP_NAME: release
   APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
   ENV: prod
