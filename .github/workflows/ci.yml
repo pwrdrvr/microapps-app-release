@@ -109,6 +109,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      statuses: write
     runs-on: ubuntu-latest
     environment:
       name: ghpublic
@@ -170,6 +171,16 @@ jobs:
             -s packages/app/storybook-static \
             -i index.html --overwrite --noCache
 
+      - name: App URL
+        uses: Sibz/github-status-action@v1
+        with: 
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'Storybook URL'
+          description: 'Passed'
+          state: 'success'
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
+          target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.version.outputs.packageVersion }}
+
   deploy-ghpublic:
     needs:
       - version
@@ -180,10 +191,11 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      statuses: write
     runs-on: ubuntu-latest
     environment:
       name: ghpublic
-      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}
+      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
 
     steps:
       - uses: actions/checkout@v3
@@ -266,3 +278,13 @@ jobs:
             -l microapps-app-${APP_NAME}-${ENV}${{ needs.version.outputs.prSuffix }} \
             -s packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}/.static_files \
             --overwrite --noCache
+
+      - name: App URL
+        uses: Sibz/github-status-action@v1
+        with: 
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'App URL'
+          description: 'Passed'
+          state: 'success'
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
+          target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
