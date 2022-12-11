@@ -18,6 +18,7 @@ on:
 env:
   # This is used by the SharedProps to detect a PR build
   PR_NUMBER: ${{ github.event.pull_request.number }}
+  APP_CONSTRUCT_FOLDER_NAME: microapps-app-release
   APP_NAME: release
   APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
   ENV: prod
@@ -38,6 +39,7 @@ jobs:
     with:
       APP_NAME: release
       APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
+      APP_CONSTRUCT_FOLDER_NAME: microapps-app-release
       packageVersion: ${{ needs.version.outputs.packageVersion }}
       prSuffix: ${{ needs.version.outputs.prSuffix }}
 
@@ -107,6 +109,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      statuses: write
     runs-on: ubuntu-latest
     environment:
       name: ghpublic
@@ -168,6 +171,16 @@ jobs:
             -s packages/app/storybook-static \
             -i index.html --overwrite --noCache
 
+      - name: App URL
+        uses: Sibz/github-status-action@v1
+        with: 
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'Storybook URL'
+          description: 'Passed'
+          state: 'success'
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
+          target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.version.outputs.packageVersion }}
+
   deploy-ghpublic:
     needs:
       - version
@@ -178,10 +191,11 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      statuses: write
     runs-on: ubuntu-latest
     environment:
       name: ghpublic
-      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}
+      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
 
     steps:
       - uses: actions/checkout@v3
@@ -257,7 +271,20 @@ jobs:
       - name: Publish to MicroApps - App
         run: |
           npx microapps-publish publish -a ${APP_NAME} \
-            -n ${{ needs.version.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} \
+            -t lambda-url \
+            --startup-type direct \
+            -n ${{ needs.version.outputs.packageVersion }} \
+            -d ${DEPLOYER_LAMBDA_NAME} \
             -l microapps-app-${APP_NAME}-${ENV}${{ needs.version.outputs.prSuffix }} \
-            -s packages/cdk-construct/lib/microapps-app-release/.static_files \
+            -s packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}/.static_files \
             --overwrite --noCache
+
+      - name: App URL
+        uses: Sibz/github-status-action@v1
+        with: 
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'App URL'
+          description: 'Passed'
+          state: 'success'
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
+          target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}

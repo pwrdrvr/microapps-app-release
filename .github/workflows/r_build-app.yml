@@ -10,6 +10,9 @@ on:
       APP_PACKAGE_NAME:
         required: true
         type: string
+      APP_CONSTRUCT_FOLDER_NAME:
+        required: true
+        type: string
       packageVersion:
         required: true
         type: string
@@ -134,8 +137,8 @@ jobs:
       - name: Remove Static Files from App Build
         working-directory: packages/cdk-construct/lib/
         run: |
-          mkdir -p microapps-app-release/.static_files/_next/
-          mv microapps-app-release/.next/static microapps-app-release/.static_files/_next/
+          mkdir -p ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next/
+          mv ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/static ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next/
 
       - name: Build the NPM tarball for Examination
         working-directory: packages/cdk-construct/

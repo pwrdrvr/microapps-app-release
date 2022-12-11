@@ -1,3 +1,4 @@
+import 'source-map-support/register';
 import { start } from './server.cjs';
 import { log } from './utils/log.js';
 import * as serverlessExpress from '@vendia/serverless-express';

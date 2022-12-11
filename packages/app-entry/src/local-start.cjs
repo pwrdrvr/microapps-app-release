@@ -3,12 +3,19 @@ const compression = require('compression');
 const fs = require('fs');
 const spdy = require('spdy');
 
+const keyPath = fs.existsSync('../../config/localhost.key')
+  ? '../../config/localhost.key'
+  : './config/localhost.key';
+const crtPath = fs.existsSync('../../config/localhost.crt')
+  ? '../../config/localhost.crt'
+  : './config/localhost.crt';
+
 async function localStart() {
   const { expressApp } = await start({ compression });
   const server = spdy.createServer(
     {
-      key: fs.readFileSync('./config/localhost.key'),
-      cert: fs.readFileSync('./config/localhost.crt'),
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(crtPath),
     },
     expressApp,
   );

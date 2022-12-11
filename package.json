@@ -12,8 +12,12 @@
   "workspaces": [
     "packages/*"
   ],
+  "resolutions": {
+    "class-transformer": "0.5.1"
+  },
   "scripts": {
     "build": "tsc --build tsconfig.json",
+    "build:jsii-all": "npm run -w @pwrdrvr/microapps-app-release-cdk build:jsii-all",
     "build:next": "npm run -w @pwrdrvr/microapps-app-release build",
     "build:entry": "rollup --config rollup.entry.js",
     "build:local": "NODE_OPTIONS=\"--max-old-space-size=8192\" rollup --config rollup.local.js",
@@ -26,7 +30,7 @@
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run dev",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
-    "start:app:express": "NODE_ENV=${NODE_ENV:-production} NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-qa} npm run -w @pwrdrvr/microapps-app-release start:express",
+    "start:app:express": "NODE_ENV=${NODE_ENV:-production} NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm run -w @pwrdrvr/microapps-app-release start:express",
     "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} npm -w @pwrdrvr/microapps-app-release run start",
     "install:node-prune": "curl -sf https://gobinaries.com/tj/node-prune | sh"
   },
@@ -49,7 +53,7 @@
     ]
   },
   "devDependencies": {
-    "@pwrdrvr/microapps-publish": "^0.2.5",
+    "@pwrdrvr/microapps-publish": "^0.3.0-alpha.1",
     "@rollup/plugin-commonjs": "^23.0.0",
     "@rollup/plugin-json": "^5.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
@@ -61,6 +65,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
+    "npm-force-resolutions": "^0.0.10",
     "prettier": "^2.2.1",
     "rimraf": "3.0.2",
     "rollup": "^2.6.0",
