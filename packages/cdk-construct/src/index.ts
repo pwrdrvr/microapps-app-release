@@ -2,7 +2,6 @@ import { existsSync } from 'fs';
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import * as path from 'path';
@@ -22,13 +21,6 @@ export interface MicroAppsAppReleaseProps {
   readonly functionName?: string;
 
   /**
-   * Bucket with the static assets of the app.
-   *
-   * @deprecated Ignored if passed, this is no longer needed
-   */
-  readonly staticAssetsS3Bucket?: s3.IBucket;
-
-  /**
    * DynamoDB table for data displayed / edited in the app.
    *
    * This table is used by @pwrdrvr/microapps-datalib.
@@ -39,15 +31,6 @@ export interface MicroAppsAppReleaseProps {
    * Removal Policy to pass to assets (e.g. Lambda function)
    */
   readonly removalPolicy?: RemovalPolicy;
-
-  /**
-   * `sharp` node module Lambda Layer for Next.js image adjustments
-   *
-   * @example https://github.com/zoellner/sharp-heic-lambda-layer/pull/3
-   *
-   * @deprecated Ignored if passed, this is no longer needed
-   */
-  readonly sharpLayer?: lambda.ILayerVersion;
 
   /**
    * NODE_ENV to set on Lambda
