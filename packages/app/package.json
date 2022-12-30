@@ -33,7 +33,7 @@
     "@aws-sdk/client-dynamodb": "^3.19.0",
     "@aws-sdk/lib-dynamodb": "^3.19.0",
     "@carbon/themes": "^10.30.0",
-    "@pwrdrvr/microapps-datalib": "^0.3.0-alpha.3",
+    "@pwrdrvr/microapps-datalib": "^0.3.1",
     "@reduxjs/toolkit": "^1.5.1",
     "carbon-components": "^10.31.0",
     "carbon-components-react": "^7.31.0",
@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
-    "@pwrdrvr/microapps-publish": "^0.3.0-alpha.3",
+    "@pwrdrvr/microapps-publish": "^0.3.1",
     "@storybook/addon-actions": "^6.2.8",
     "@storybook/addon-essentials": "^6.2.8",
     "@storybook/addon-links": "^6.2.8",

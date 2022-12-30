@@ -53,7 +53,7 @@
     ]
   },
   "devDependencies": {
-    "@pwrdrvr/microapps-publish": "^0.3.0-alpha.3",
+    "@pwrdrvr/microapps-publish": "^0.3.1",
     "@rollup/plugin-commonjs": "^23.0.0",
     "@rollup/plugin-json": "^5.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
