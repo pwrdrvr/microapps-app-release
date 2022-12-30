@@ -133,6 +133,7 @@ jobs:
           rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/cache
           cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
           cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/serverless/
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
