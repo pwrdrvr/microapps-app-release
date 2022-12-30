@@ -126,19 +126,21 @@ jobs:
 
       - name: Combine Build Outputs
         run: |
-          mkdir -p ./packages/cdk-construct/lib/microapps-app-${APP_NAME}
-          cp -R ./packages/app/.next ./packages/cdk-construct/lib/microapps-app-${APP_NAME}
-          rm -rf ./packages/cdk-construct/lib/microapps-app-${APP_NAME}/.next/cache
-          cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/microapps-app-${APP_NAME}
-          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/microapps-app-${APP_NAME}
-          cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/microapps-app-${APP_NAME}/.next/serverless/
+          mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/
+          cp -R ./packages/app/public/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/
+          cp -R ./packages/app/.next ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/cache
+          cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          cp -R ./packages/app-entry/runtime-deps/font-manifest.json ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/serverless/
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
         working-directory: packages/cdk-construct/lib/
         run: |
           mkdir -p ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next/
-          mv ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/static ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next/
+          mv ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/static ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next
 
       - name: Build the NPM tarball for Examination
         working-directory: packages/cdk-construct/
