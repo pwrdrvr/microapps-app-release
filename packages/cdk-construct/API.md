@@ -99,26 +99,6 @@ Removal Policy to pass to assets (e.g. Lambda function).
 
 ---
 
-##### ~~`sharpLayer`~~<sup>Optional</sup> <a name="@pwrdrvr/microapps-app-release-cdk.MicroAppsAppReleaseProps.sharpLayer"></a>
-
-- *Deprecated:* Ignored if passed, this is no longer needed
-
-- *Type:* [`aws-cdk-lib.aws_lambda.ILayerVersion`](#aws-cdk-lib.aws_lambda.ILayerVersion)
-
-`sharp` node module Lambda Layer for Next.js image adjustments.
-
----
-
-##### ~~`staticAssetsS3Bucket`~~<sup>Optional</sup> <a name="@pwrdrvr/microapps-app-release-cdk.MicroAppsAppReleaseProps.staticAssetsS3Bucket"></a>
-
-- *Deprecated:* Ignored if passed, this is no longer needed
-
-- *Type:* [`aws-cdk-lib.aws_s3.IBucket`](#aws-cdk-lib.aws_s3.IBucket)
-
-Bucket with the static assets of the app.
-
----
-
 
 ## Protocols <a name="Protocols"></a>
 
