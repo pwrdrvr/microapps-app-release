@@ -53,7 +53,7 @@ jobs:
       - name: Confirm No Doc Changes
         working-directory: packages/cdk-construct/
         run: |
-          git diff --ignore-space-at-eol --exit-code
+          git diff --ignore-space-at-eol --exit-code -- ":(exclude)packages/cdk-construct/tsconfig.json"
 
     container:
       image: jsii/superchain:1-buster-slim-node16
