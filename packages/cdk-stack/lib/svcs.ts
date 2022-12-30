@@ -1,7 +1,5 @@
 import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import SharedProps from './SharedProps';
 import { MicroAppsAppRelease } from '@pwrdrvr/microapps-app-release-cdk';
