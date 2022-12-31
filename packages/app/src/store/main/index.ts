@@ -59,6 +59,10 @@ const initialState: IPageState = {
   versionsSortBy: { key: 'SemVer', order: 'desc' },
 };
 
+const escapeAppName = (appName: string): string => {
+  return appName.replace(/\[/g, '%5B').replace(/\]/g, '%5D');
+};
+
 const hydrate = createAction<AppState>(HYDRATE);
 
 const mainSlice = createSlice({
@@ -223,7 +227,9 @@ export const refreshThunk = createAsyncThunk(
 
       // Fetch api/refresh
       const url =
-        appName !== undefined ? `${apiPrefix}/api/refresh/${appName}` : `${apiPrefix}/api/refresh`;
+        appName !== undefined
+          ? `${apiPrefix}/api/refresh/${escapeAppName(appName)}`
+          : `${apiPrefix}/api/refresh`;
       const res = await fetch(url);
       const props = (await res.json()) as IPageState;
 
@@ -245,7 +251,7 @@ export const updateDefaultVersionThunk = createAsyncThunk(
       log.info('mainPage/updateDefaultVersion', { appName });
 
       // Fetch api/refresh
-      const url = `${apiPrefix}/api/update/default/${appName}/${semVer}`;
+      const url = `${apiPrefix}/api/update/default/${escapeAppName(appName)}/${semVer}`;
       const res = await fetch(url);
       const props = (await res.json()) as IPageState;
 
