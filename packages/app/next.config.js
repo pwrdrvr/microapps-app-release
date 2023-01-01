@@ -14,8 +14,6 @@ const BASE_PREFIX_APP_WITH_VERSION = `${BASE_PREFIX_APP}${BASE_VERSION_ONLY}`;
 
 // eslint-disable-next-line no-undef
 module.exports = {
-  target: 'serverless',
-
   // We want the app under the app name like /release
   basePath: BASE_PREFIX_APP,
 

@@ -149,7 +149,7 @@ jobs:
         run: unzip storybook-static.zip
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
@@ -244,7 +244,7 @@ jobs:
         run: unzip -o nextjs.zip
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
@@ -288,3 +288,10 @@ jobs:
           state: 'success'
           sha: ${{github.event.pull_request.head.sha || github.sha}}
           target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
+
+      - name: Test App
+        run: |
+          echo Testing App HTML Loading
+          curl -H"accept: text/html" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
+          echo Testing App Method Invocation
+          curl -H"accept: application/json" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}/api/refresh/${{ env.APP_NAME }}
