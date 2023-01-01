@@ -103,8 +103,8 @@ jobs:
       #
 
       # JSII does not work well with monorepos
-      # - name: Move root NPM modules out of the way
-      #   run: mv node_modules node_modules_hide
+      - name: Move root NPM modules out of the way
+        run: mv node_modules node_modules_hide
       - name: Move root package-lock.json out of the way
         run: |
           mv package-lock.json package-lock.json_hide
@@ -122,6 +122,8 @@ jobs:
           npm run build:jsii-docgen
           npm run build:jsii-pacmak
 
+      - name: Move root NPM modules back
+        run: mv node_modules_hide node_modules
       - name: Move root package-lock.json back
         run: |
           mv package-lock.json_hide package-lock.json
