@@ -39,6 +39,10 @@ jobs:
       # JSII does not work well with monorepos
       # - name: Move root NPM modules out of the way
       #   run: mv node_modules node_modules_hide
+      - name: Move root package-lock.json out of the way
+        run: |
+          mv package-lock.json package-lock.json_hide
+          mv package.json package.json_hide
 
       - name: Install CDK Construct Deps
         working-directory: packages/cdk-construct/
@@ -49,6 +53,11 @@ jobs:
         working-directory: packages/cdk-construct/
         run: |
           npm run build:jsii-all
+
+      - name: Move root package-lock.json back
+        run: |
+          mv package-lock.json_hide package-lock.json
+          mv package.json_hide package.json
 
       - name: Confirm No Doc Changes
         working-directory: packages/cdk-construct/
