@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import clsx from 'clsx';
 import styles from '../styles/LabeledInput.module.css';
@@ -16,7 +15,7 @@ export function LabeledInput({
   name: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
-  value: string;
+  value?: string;
 }): JSX.Element {
   const labelClassName = clsx(styles.Label, {
     [styles.LabelDisabled]: disabled,
@@ -39,14 +38,6 @@ export function LabeledInput({
     </div>
   );
 }
-LabeledInput.propTypes = {
-  disabled: PropTypes.bool,
-  label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  placeholder: PropTypes.string,
-  value: PropTypes.any,
-};
 
 export function InputRow({ children }: { children: JSX.Element[] }): JSX.Element {
   return <div className={styles.InputRow}>{children}</div>;
