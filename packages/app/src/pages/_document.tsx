@@ -14,6 +14,7 @@ export default class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
+          <title>MicroApps Release</title>
           {/* From: https://favicon.io/favicon-generator/ */}
           <link rel="icon" href={`${isProd ? apiPrefix : basePath}/favicon.ico`} />
           <link
