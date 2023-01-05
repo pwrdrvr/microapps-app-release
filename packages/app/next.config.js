@@ -6,10 +6,10 @@
 // next-images
 // const withImages = require('next-images')
 
-const crypto = require('crypto');
+// const crypto = require('crypto');
 
 const BASE_PREFIX_APP = '/release';
-const BASE_VERSION_ONLY = '/0.0.0'
+const BASE_VERSION_ONLY = '/0.0.0';
 const BASE_PREFIX_APP_WITH_VERSION = `${BASE_PREFIX_APP}${BASE_VERSION_ONLY}`;
 
 // eslint-disable-next-line no-undef
@@ -26,6 +26,7 @@ module.exports = {
   publicRuntimeConfig: {
     // Will be available on both server and client
     apiPrefix: BASE_PREFIX_APP_WITH_VERSION,
+    basePath: BASE_PREFIX_APP,
   },
 
   // Get the _next/data calls rebased with the version
@@ -41,7 +42,7 @@ module.exports = {
       // See: https://github.com/vercel/next.js/issues/18080
       // redirects is used because rewrites does not work for webpack-hmr
       {
-        source: '/:any*/_next/webpack-hmr:path*',
+        source: `${BASE_PREFIX_APP_WITH_VERSION}/_next/webpack-hmr:path*`,
         destination: '/_next/webpack-hmr:path*',
         permanent: false,
       },
@@ -57,19 +58,19 @@ module.exports = {
       {
         /** Static Assets and getServerSideProps (_next/data/) */
         source: `${BASE_VERSION_ONLY}/_next/:path*`,
-        destination: `/_next/:path*`
+        destination: `/_next/:path*`,
       },
       {
         /** Images */
         source: `${BASE_VERSION_ONLY}/images/:query*`,
-        destination: `/_next/image/:query*`
+        destination: `/_next/image/:query*`,
       },
       /** Api Calls */
       {
         source: `${BASE_VERSION_ONLY}/api/:path*`,
-        destination: `/api/:path*`
-      }
-    ]
+        destination: `/api/:path*`,
+      },
+    ];
   },
   webpack: (config, { dev, isServer }) => {
     if (isServer && config.name === 'server' && !dev) {
