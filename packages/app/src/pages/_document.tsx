@@ -34,7 +34,11 @@ export default class MyDocument extends Document {
             sizes="16x16"
             href={`${isProd ? apiPrefix : basePath}/favicon-16x16.png`}
           />
-          <link rel="manifest" href={`${apiPrefix}/api/webmanifest`} />
+          <link
+            rel="manifest"
+            href={`${apiPrefix}/api/webmanifest`}
+            crossOrigin="use-credentials"
+          />
         </Head>
         <body>
           <Main />
