@@ -37,19 +37,6 @@ module.exports = {
     return BASE_VERSION_ONLY.slice(1);
   },
 
-  async redirects() {
-    return [
-      // assetPrefix breaks webpack-hmr, so we fix it here.
-      // See: https://github.com/vercel/next.js/issues/18080
-      // redirects is used because rewrites does not work for webpack-hmr
-      {
-        source: `${BASE_PREFIX_APP}/_next/webpack-hmr:path*`,
-        destination: '/_next/webpack-hmr:path*',
-        permanent: false,
-      },
-    ];
-  },
-
   // Strip the version out of the path
   // When static assets reach S3 they will still have the version
   // in the path, which is perfect because that's where the assets
