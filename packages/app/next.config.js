@@ -7,6 +7,7 @@
 // const withImages = require('next-images')
 
 // const crypto = require('crypto');
+const isProd = process.env.NODE_ENV === 'production';
 
 const BASE_PREFIX_APP = '/release';
 const BASE_VERSION_ONLY = '/0.0.0';
@@ -21,11 +22,11 @@ module.exports = {
   // to have /release/0.0.0/ as the prefix so they route cleanly
   // to an isolated folder on the S3 bucket and to a specific
   // lambda URL without having to do any path manipulation
-  assetPrefix: BASE_PREFIX_APP_WITH_VERSION,
+  assetPrefix: isProd ? BASE_PREFIX_APP_WITH_VERSION : undefined,
 
   publicRuntimeConfig: {
     // Will be available on both server and client
-    apiPrefix: BASE_PREFIX_APP_WITH_VERSION,
+    apiPrefix: isProd ? BASE_PREFIX_APP_WITH_VERSION : BASE_PREFIX_APP,
     basePath: BASE_PREFIX_APP,
   },
 
@@ -42,7 +43,7 @@ module.exports = {
       // See: https://github.com/vercel/next.js/issues/18080
       // redirects is used because rewrites does not work for webpack-hmr
       {
-        source: `${BASE_PREFIX_APP_WITH_VERSION}/_next/webpack-hmr:path*`,
+        source: `${BASE_PREFIX_APP}/_next/webpack-hmr:path*`,
         destination: '/_next/webpack-hmr:path*',
         permanent: false,
       },
