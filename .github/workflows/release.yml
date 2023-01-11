@@ -225,4 +225,8 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }} # jsii-release requires NPM_TOKEN as an env var
 
     container:
-      image: jsii/superchain:1-buster-slim-node16
+      # 2023-01-04 release broke the build
+      # ModuleNotFoundError: No module named 'pip._vendor.cachecontrol'
+      # AttributeError: module 'lib' has no attribute 'OpenSSL_add_all_algorithms'
+      # image: jsii/superchain:1-buster-slim-node16
+      image: jsii/superchain@sha256:59ec6f7ebea621ab099ceb1eb3a2ac0129a2062f570d78993a39a69b06f93ccb
