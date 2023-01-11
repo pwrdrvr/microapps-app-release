@@ -36,8 +36,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
 
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
@@ -51,6 +49,12 @@ jobs:
       - name: Install Dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
+
+      - name: Install Runtime Deps for Rollup
+        # if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        working-directory: packages/app-entry/runtime-deps/
+        run: |
+          npm ci --omit=dev
 
       # - name: Link to node_modules - App
       #   if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -112,12 +116,6 @@ jobs:
       - name: Build Entry for App
         run: |
           npm run build:entry
-
-      - name: Install Runtime Deps for Rollup
-        # if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        working-directory: packages/app-entry/runtime-deps/
-        run: |
-          npm ci --omit=dev
 
       - name: Remove Extraneous Files from Runtime Deps
         working-directory: packages/app-entry/runtime-deps/

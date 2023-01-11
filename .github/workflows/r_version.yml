@@ -44,7 +44,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'npm'
 
       # Use the tagged version as NPM package version for releases.
       # This will cause versions to be deployed matching the tag on dev/qa/prod

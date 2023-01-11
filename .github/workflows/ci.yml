@@ -57,8 +57,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
 
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
@@ -66,8 +64,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            **/node_modules
-          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+            node_modules
+            packages/**/node_modules
+          key: node-modules-${{ hashFiles('package.json', '**/package-lock.json') }}
 
       - name: Install Dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -122,8 +121,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
 
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
@@ -131,8 +128,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            **/node_modules
-          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+            node_modules
+            packages/**/node_modules
+          key: node-modules-${{ hashFiles('package.json', '**/package-lock.json') }}
 
       - name: Install Dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -204,8 +202,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
 
       # https://www.jonathan-wilkinson.com/github-actions-cache-everything
       - name: Cache Node Modules
@@ -213,8 +209,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            **/node_modules
-          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+            node_modules
+            packages/**/node_modules
+          key: node-modules-${{ hashFiles('package.json', '**/package-lock.json') }}
 
       - name: Install Dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
