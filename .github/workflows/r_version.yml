@@ -45,6 +45,19 @@ jobs:
         with:
           node-version: 16
 
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            packages/**/node_modules
+          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', '**/package-lock.json') }}
+
+      - name: Optionally Install Node Modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
       # Use the tagged version as NPM package version for releases.
       # This will cause versions to be deployed matching the tag on dev/qa/prod
       # when a release is created from main.
