@@ -224,6 +224,14 @@ jobs:
           mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
           jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
 
+      # Applying the version allows us to use the version in the CDK construct
+      - name: Apply NPM Version to Everything
+        run: |
+          npm version ${{ needs.version.outputs.packageVersion }} \
+            --no-git-tag-version --allow-same-version
+          npm version ${{ needs.version.outputs.packageVersion }} \
+            --no-git-tag-version --allow-same-version --workspaces
+
       - name: Build All TypeScript
         run: npm run build
 
