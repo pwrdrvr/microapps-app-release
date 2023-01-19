@@ -88,7 +88,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     //
     this._lambdaFunction = new lambda.Function(this, 'app-lambda', {
       code,
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       handler: 'index.handler',
       functionName,
       environment: {
@@ -101,10 +101,15 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
       logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1769,
       timeout: Duration.seconds(15),
+      description: process.env.npm_package_version || '',
     });
     if (removalPolicy !== undefined) {
       this._lambdaFunction.applyRemovalPolicy(removalPolicy);
     }
+
+    // Publish a version of the Lambda function when changed
+    const appVersion = this._lambdaFunction.currentVersion;
+    appVersion.applyRemovalPolicy(RemovalPolicy.RETAIN);
 
     // Give permission to the table
     table.grantReadWriteData(this._lambdaFunction);
