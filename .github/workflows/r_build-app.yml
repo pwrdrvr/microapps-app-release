@@ -113,10 +113,6 @@ jobs:
         run: |
           npm run build:next
 
-      - name: Build Entry for App
-        run: |
-          npm run build:entry
-
       - name: Remove Extraneous Files from Runtime Deps
         working-directory: packages/app-entry/runtime-deps/
         run: |
@@ -133,6 +129,8 @@ jobs:
           rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/cache
           cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
           cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          cp -R ./packages/app-entry/run.sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          cp -R ./packages/app-entry/server.js ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
 
       # Prevent the static files from getting pulled into the Lambda
       - name: Remove Static Files from App Build
