@@ -75,7 +75,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
 
     // Create Lambda Function
     let code: lambda.AssetCode;
-    if (existsSync(path.join(__dirname, 'microapps-app-release', 'server.js'))) {
+    if (existsSync(path.join(__dirname, 'microapps-app-release', 'server', 'server.js'))) {
       // This is for built apps packaged with the CDK construct
       code = lambda.Code.fromAsset(path.join(__dirname, 'microapps-app-release', 'server'));
     } else {
