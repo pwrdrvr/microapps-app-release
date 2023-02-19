@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import BaseTable, { AutoResizer, ColumnShape } from 'react-base-table';
-import { TableContainer } from 'carbon-components-react';
+import TableContainer from 'carbon-components-react/lib/components/DataTable/TableContainer';
 import { AppDispatch, RootState, wrapper } from '../store/store';
 import {
   fetchAppsThunk,

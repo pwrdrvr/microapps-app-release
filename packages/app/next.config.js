@@ -13,11 +13,19 @@ const BASE_PREFIX_APP = '/release';
 const BASE_VERSION_ONLY = '/0.0.0';
 const BASE_PREFIX_APP_WITH_VERSION = `${BASE_PREFIX_APP}${BASE_VERSION_ONLY}`;
 
-// eslint-disable-next-line no-undef
+/**
+ * @type {import('next').NextConfig}
+ */
 module.exports = {
+  // We do not use tracing or output='standalone' because:
+  // 1. It picks all the modules that we bundle with bundleServerPackages
+  // 2. It picks all the packages used by Storybook (can this be stopped?)
+  // 3. It results in a 500 MB node_modules folder vs our 50 MB folder
+  // 4. It causes out server package bundling to fail
   experimental: {
     bundleServerPackages: isProd,
   },
+  outputFileTracing: false,
 
   // We want the app under the app name like /release
   basePath: BASE_PREFIX_APP,

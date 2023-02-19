@@ -2,7 +2,8 @@ import styles from '../styles/EditableRuleCell.module.scss';
 import React, { ChangeEvent, RefObject } from 'react';
 import { Overlay } from 'react-overlays';
 import { IVersion } from '../store/main';
-import { Select, SelectItem } from 'carbon-components-react';
+import Select from 'carbon-components-react/lib/components/Select';
+import SelectItem from 'carbon-components-react/lib/components/SelectItem';
 import { noop } from '../utils/noop';
 
 interface IProps {
