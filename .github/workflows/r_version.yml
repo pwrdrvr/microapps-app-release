@@ -87,7 +87,7 @@ jobs:
         run: echo ${PACKAGE_VERSION} > version.txt
 
       - name: Upload version.txt
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: version-txt
           path: version.txt
