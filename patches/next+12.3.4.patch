@@ -1,0 +1,16 @@
+diff --git a/node_modules/next/dist/build/webpack-config.js b/node_modules/next/dist/build/webpack-config.js
+index 8014046..d9fffc5 100644
+--- a/node_modules/next/dist/build/webpack-config.js
++++ b/node_modules/next/dist/build/webpack-config.js
+@@ -459,6 +459,11 @@ async function getBaseWebpackConfig(dir, { buildId , config , compilerType , dev
+         // Anything else that is standard JavaScript within `node_modules`
+         // can be externalized.
+         if (/node_modules[/\\].*\.[mc]?js$/.test(res)) {
++            // HLH Mod - Bundle everything else
++            if (config.experimental.bundleServerPackages) {
++                return;
++            }
++
+             return `${externalType} ${request}`;
+         }
+     // Default behavior: bundle the code!

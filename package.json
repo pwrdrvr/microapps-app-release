@@ -31,6 +31,7 @@
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run dev",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
+    "postinstall": "patch-package --patch-dir ./patches/",
     "start:app:express": "NODE_ENV=${NODE_ENV:-production} NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm run -w @pwrdrvr/microapps-app-release start:express",
     "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run start",
     "install:node-prune": "curl -sf https://gobinaries.com/tj/node-prune | sh"
@@ -67,6 +68,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
     "npm-force-resolutions": "^0.0.10",
+    "patch-package": "6.5.1",
     "prettier": "^2.2.1",
     "rimraf": "3.0.2",
     "rollup": "^2.6.0",

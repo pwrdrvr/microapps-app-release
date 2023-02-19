@@ -9,25 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.19.0",
-    "@aws-sdk/lib-dynamodb": "^3.19.0",
-    "@carbon/themes": "^10.30.0",
-    "@pwrdrvr/microapps-datalib": "^0.3.1",
-    "@reduxjs/toolkit": "^1.5.1",
-    "carbon-components": "^10.31.0",
-    "carbon-components-react": "^7.31.0",
-    "carbon-icons": "^7.0.7",
-    "clsx": "^1.1.1",
-    "lambda-log": "^2.4.0",
     "next": "12.3.4",
-    "next-redux-wrapper": "^8.1.0",
     "react": "17.0.2",
-    "react-base-table": "^1.12.0",
-    "react-dom": "17.0.2",
-    "react-overlays": "^5.0.0",
-    "react-redux": "^7.2.3",
-    "redux-thunk": "^2.3.0",
-    "semver": "^6.3.0",
-    "styled-components": "^5.2.3"
+    "react-dom": "17.0.2"
   }
 }

@@ -121,6 +121,8 @@ jobs:
         working-directory: packages/app-entry/runtime-deps/
         run: |
           node-prune
+          # Remove the SWC files from the runtime deps (these are dev time only)
+          rm -rf node_modules/@next/swc-*
 
       - name: Combine Build Outputs
         run: |
