@@ -89,7 +89,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     this._lambdaFunction = new lambda.Function(this, 'app-lambda', {
       code,
       runtime: lambda.Runtime.NODEJS_16_X,
-      handler: 'index.handler',
+      handler: 'run.sh',
       functionName,
       environment: {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
@@ -101,7 +101,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
         AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap',
         RUST_LOG: 'info',
         PORT: '3000',
-        READINESS_CHECK_PATH: '/nextjs-demo',
+        READINESS_CHECK_PATH: '/release',
       },
       logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1769,
