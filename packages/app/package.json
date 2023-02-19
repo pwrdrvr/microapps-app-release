@@ -15,7 +15,7 @@
     "dev": "DEBUG=true next dev",
     "start": "next start",
     "storybook": "start-storybook -p 6006",
-    "postinstall": "patch-package --patch-dir patches"
+    "postinstall": "patch-package --patch-dir patches || echo 'Skipping packages/app patches'"
   },
   "browserslist": {
     "production": [
