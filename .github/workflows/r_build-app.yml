@@ -121,14 +121,16 @@ jobs:
       - name: Combine Build Outputs
         run: |
           mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-          mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files
-          mv ./packages/app/.next/static ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next
-          cp -R ./packages/app/public/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/
-          cp -R ./packages/app/.next/standalone/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-          cp -R ./packages/app/.next/standalone/.next ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-          cp -R ./packages/app/run.sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files
+          mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
+          mv ./packages/app/.next/static ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/_next
+          cp -R ./packages/app/public/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/
+          cp -R ./packages/app/.next/standalone/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
+          cp -R ./packages/app/.next/standalone/.next ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
+          cp -R ./packages/app/run.sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/*
-          du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/*
+          du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/*
+          du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/*
 
       # Upload Artifact
       - name: Zip Package
