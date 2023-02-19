@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
 import getConfig from 'next/config';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-export default async function handler(req: Request, res: Response): Promise<void> {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const config = getConfig();
   const { publicRuntimeConfig } = config;
   const { apiPrefix, basePath } = publicRuntimeConfig;

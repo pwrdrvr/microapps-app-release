@@ -14,7 +14,6 @@
     "debug": "ENVIRONMENT=.env.development NODE_OPTIONS='--inspect' next dev",
     "dev": "DEBUG=true next dev",
     "start": "next start",
-    "start:express": "node ../app-entry/src/local-start.cjs",
     "storybook": "start-storybook -p 6006"
   },
   "browserslist": {
