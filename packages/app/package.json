@@ -9,12 +9,13 @@
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
   "scripts": {
-    "build": "next build",
+    "build": "NODE_ENV=production next build",
     "build:storybook": "build-storybook",
     "debug": "ENVIRONMENT=.env.development NODE_OPTIONS='--inspect' next dev",
     "dev": "DEBUG=true next dev",
     "start": "next start",
-    "storybook": "start-storybook -p 6006"
+    "storybook": "start-storybook -p 6006",
+    "postinstall": "patch-package --patch-dir patches"
   },
   "browserslist": {
     "production": [
@@ -32,7 +33,7 @@
     "@aws-sdk/client-dynamodb": "^3.19.0",
     "@aws-sdk/lib-dynamodb": "^3.19.0",
     "@carbon/themes": "^10.30.0",
-    "@pwrdrvr/microapps-datalib": "^0.3.1",
+    "@pwrdrvr/microapps-datalib": "0.4.0-alpha.2",
     "@reduxjs/toolkit": "^1.5.1",
     "carbon-components": "^10.31.0",
     "carbon-components-react": "^7.31.0",
@@ -70,6 +71,7 @@
     "babel-preset-react-app": "^10.0.0",
     "css-loader": "^5.2.2",
     "file-loader": "^6.2.0",
+    "patch-package": "6.4.7",
     "sass": "^1.32.8",
     "sass-loader": "^10.1.5",
     "style-loader": "^1.3.0",

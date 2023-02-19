@@ -44,48 +44,19 @@ jobs:
           path: |
             node_modules
             packages/**/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', '**/package-lock.json') }}
+          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', 'patches/*') }}
 
       - name: Optionally Install Node Modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Install Runtime Deps for Rollup
-        # if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        working-directory: packages/app-entry/runtime-deps/
-        run: |
-          npm ci --omit=dev
-
-      # - name: Link to node_modules - App
-      #   if: steps.cache-node-modules.outputs.cache-hit != 'true'
-      #   working-directory: packages/app/node_modules/.bin
-      #   run: |
-      #     ln -s ../../../../node_modules/.bin/next
-
-      - name: Install Node-Prune
-        run: npm run install:node-prune
-
-      - name: Restore Next.js Build Cache
+      - name: Cache App Build Node Modules
+        id: cache-node-modules-app
         uses: actions/cache@v3
         with:
-          # See here for caching with `yarn` https://github.com/actions/cache/blob/main/examples.md#node---yarn or you can leverage caching with actions/setup-node https://github.com/actions/setup-node
           path: |
-            ${{ github.workspace }}/packages/app/.next/cache
-          # Generate a new cache whenever packages or source files change.
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          # If source files changed but packages didn't, rebuild from a prior cache.
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
-      # Fixes errors due to JSII tsconfig.json not ignoring libs
-      # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
-      # Error: node_modules/flatpickr/dist/types/instance.d.ts(82,56): error TS2304: Cannot find name 'HTMLElementTagNameMap'.
-      # Error: node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts(46,80): error TS2304: Cannot find name 'File'.
-      # Error: node_modules/@types/overlayscrollbars/index.d.ts(348,19): error TS2304: Cannot find name 'NodeListOf'.
-      - name: Modify cdk-construct tsconfig.json
-        run: |
-          mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
-          jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
+            packages/app/node_modules
+          key: node-modules-${{ hashFiles('package.json', 'packages/app/package-lock.json', 'packages/app/patches/*') }}
 
       - name: Build All TypeScript
         run: npm run build
@@ -109,45 +80,38 @@ jobs:
         run: |
           npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${{ inputs.packageVersion }}
 
-      - name: Build Next.js App
+      # outputTracing can't follow modules in npm workspaces
+      # npm will not install modules in a workspace folder if there
+      # is a package.json in the parent folder, so move it out of the way
+      - name: Install Runtime Deps for outputTracing
+        if: steps.cache-node-modules-app.outputs.cache-hit != 'true'
+        working-directory: packages/app/
         run: |
-          npm run build:next
+          mv package.json package.json.hide
+          npm ci --omit=dev
+          mv package.json.hide package.json
 
-      - name: Remove Extraneous Files from Runtime Deps
-        working-directory: packages/app-entry/runtime-deps/
+      - name: Restore Next.js Build Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/packages/app/.next/cache
+          # Generate a new cache whenever packages or patches change.
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('packages/app/package-lock.json', 'patches/*') }} }}
+
+      - name: Build Next.js App
+        working-directory: packages/app/
         run: |
-          node-prune
-          # Remove the SWC files from the runtime deps (these are dev time only)
-          rm -rf node_modules/@next/swc-*
+          npm run build
 
       - name: Combine Build Outputs
         run: |
           mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
           mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/
+          mv .packages/app/.next/static ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next
           cp -R ./packages/app/public/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/
-          cp -R ./packages/app/.next ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/cache
-          cp -R ./packages/app/next.config.js ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-          cp -R ./packages/app-entry/runtime-deps/node_modules ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-          cp -R ./packages/app-entry/run.sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-          cp -R ./packages/app-entry/server.js ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
-
-      # Prevent the static files from getting pulled into the Lambda
-      - name: Remove Static Files from App Build
-        working-directory: packages/cdk-construct/lib/
-        run: |
-          mkdir -p ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next/
-          mv ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.next/static ${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/.static_files/_next
-
-      - name: Build the NPM tarball for Examination
-        working-directory: packages/cdk-construct/
-        run: |
-          npm pack
-      - name: Upload NPM tarball
-        uses: actions/upload-artifact@v3
-        with:
-          name: cdk_npm_package
-          path: packages/cdk-construct/pwrdrvr-microapps-app-${{ env.APP_NAME }}-cdk-${{ inputs.packageVersion }}.tgz
+          cp -R ./packages/app/.next/standalone/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
+          cp -R ./packages/app/run.sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}
 
       # Upload Artifact
       - name: Zip Package
