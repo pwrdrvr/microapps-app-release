@@ -55,7 +55,7 @@ jobs:
         with:
           path: |
             packages/app/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'packages/app/package-lock.json', 'packages/app/patches/*') }}
+          key: node-modules-app-${{ hashFiles('package.json', 'packages/app/package-lock.json', 'packages/app/patches/*') }}
 
       # Fixes errors due to JSII tsconfig.json not ignoring libs
       # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
@@ -97,7 +97,9 @@ jobs:
         working-directory: packages/app/
         run: |
           mv ../../package.json ../../package.json.hide
-          npm ci --omit=dev
+          du -sh node_modules
+          npm ci
+          du -sh node_modules
           mv ../../package.json.hide ../../package.json
 
       - name: Restore Next.js Build Cache
@@ -112,6 +114,8 @@ jobs:
         working-directory: packages/app/
         run: |
           npm run build
+          du -sh .next/*
+          du -sh .next/standalone/*
 
       - name: Combine Build Outputs
         run: |
