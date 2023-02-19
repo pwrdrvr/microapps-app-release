@@ -108,7 +108,7 @@ jobs:
           path: |
             ${{ github.workspace }}/packages/app/.next/cache
           # Generate a new cache whenever packages or patches change.
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('packages/app/package-lock.json', 'patches/*') }} }}
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('packages/app/package-lock.json', 'packages/app/patches/*', 'packages/app/next.config.js') }} }}
 
       - name: Build Next.js App
         working-directory: packages/app/
