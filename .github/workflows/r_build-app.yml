@@ -96,9 +96,9 @@ jobs:
         if: steps.cache-node-modules-app.outputs.cache-hit != 'true'
         working-directory: packages/app/
         run: |
-          mv package.json package.json.hide
+          mv ../../package.json ../../package.json.hide
           npm ci --omit=dev
-          mv package.json.hide package.json
+          mv ../../package.json.hide ../../package.json
 
       - name: Restore Next.js Build Cache
         uses: actions/cache@v3
