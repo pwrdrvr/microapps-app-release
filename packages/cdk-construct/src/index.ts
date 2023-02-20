@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Aws, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -75,9 +75,9 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
 
     // Create Lambda Function
     let code: lambda.AssetCode;
-    if (existsSync(path.join(__dirname, 'microapps-app-release', 'index.mjs'))) {
+    if (existsSync(path.join(__dirname, 'microapps-app-release', 'server', 'server.js'))) {
       // This is for built apps packaged with the CDK construct
-      code = lambda.Code.fromAsset(path.join(__dirname, 'microapps-app-release'));
+      code = lambda.Code.fromAsset(path.join(__dirname, 'microapps-app-release', 'server'));
     } else {
       // This is the path for local / developer builds
       code = lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'app', '.next'));
@@ -89,7 +89,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     this._lambdaFunction = new lambda.Function(this, 'app-lambda', {
       code,
       runtime: lambda.Runtime.NODEJS_16_X,
-      handler: 'index.handler',
+      handler: 'run.sh',
       functionName,
       environment: {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
@@ -97,11 +97,25 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
         NODE_CONFIG_ENV: nodeEnv,
         DATABASE_TABLE_NAME: table.tableName,
         AWS_XRAY_CONTEXT_MISSING: 'IGNORE_ERROR',
+        AWS_LWA_ENABLE_COMPRESSION: 'true',
+        AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap',
+        RUST_LOG: 'info',
+        PORT: '3000',
+        READINESS_CHECK_PATH: '/release',
       },
       logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1769,
       timeout: Duration.seconds(15),
       description: process.env.npm_package_version || '',
+      architecture: lambda.Architecture.ARM_64,
+      layers: [
+        lambda.LayerVersion.fromLayerVersionArn(
+          this,
+          'lwa-layer',
+          // 13 is 0.6.2 w/gzip support
+          `arn:aws:lambda:${Aws.REGION}:753240598075:layer:LambdaAdapterLayerArm64:13`,
+        ),
+      ],
     });
     if (removalPolicy !== undefined) {
       this._lambdaFunction.applyRemovalPolicy(removalPolicy);

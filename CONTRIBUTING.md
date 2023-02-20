@@ -4,11 +4,24 @@
 
 - [Overview](#overview)
 - [Developer Notes](#developer-notes)
+  - [Trying out `esbuild` on `server.js`](#trying-out-esbuild-on-serverjs)
   - [Debugging the Next.js App](#debugging-the-nextjs-app)
   - [nextjs-redux-wrapper](#nextjs-redux-wrapper)
   - [Adding Storybook to Existing NPM React / Next Project](#adding-storybook-to-existing-npm-react--next-project)
 - [Errors During `npm run build` Locally](#errors-during-npm-run-build-locally)
 # Developer Notes
+
+## Trying out `esbuild` on `server.js`
+
+```
+esbuild server.js --bundle --outfile=smol.js --platform=node --external:next/dist/pages/_error --external:critters --external:next/dist/pages/_app --external:next/dist/pages/_document --minify --target=node16
+```
+
+Builds, but fails at runtime with:
+
+```
+Cannot read properties of undefined (reading 'publicRuntimeConfig')
+```
 
 ## Debugging the Next.js App
 

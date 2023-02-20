@@ -65,7 +65,7 @@ jobs:
           path: |
             node_modules
             packages/**/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', '**/package-lock.json') }}
+          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', 'patches/*') }}
 
       - name: Optionally Install Node Modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -128,7 +128,7 @@ jobs:
           path: |
             node_modules
             packages/**/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', '**/package-lock.json') }}
+          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', 'patches/*') }}
 
       - name: Optionally Install Node Modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -208,7 +208,7 @@ jobs:
           path: |
             node_modules
             packages/**/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', '**/package-lock.json') }}
+          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', 'patches/*') }}
 
       - name: Optionally Install Node Modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -278,7 +278,7 @@ jobs:
             -n ${{ needs.version.outputs.packageVersion }} \
             -d ${DEPLOYER_LAMBDA_NAME} \
             -l microapps-app-${APP_NAME}-${ENV}${{ needs.version.outputs.prSuffix }} \
-            -s packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}/.static_files \
+            -s packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}/static_files \
             --overwrite --noCache
 
       - name: App URL
