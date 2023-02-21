@@ -109,6 +109,11 @@ jobs:
           mv package.json package.json_hide
           rm -rf node_modules
 
+      - name: Install CDK Construct Deps
+        working-directory: packages/cdk-construct/
+        run: |
+          npm ci
+
       - name: Build with JSII
         working-directory: packages/cdk-construct/
         run: |
