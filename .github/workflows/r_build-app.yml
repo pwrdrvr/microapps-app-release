@@ -132,6 +132,16 @@ jobs:
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/.next/*
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/*
 
+      - name: Build the NPM tarball for Examination
+        working-directory: packages/cdk-construct/
+        run: |
+          npm pack
+      - name: Upload NPM tarball
+        uses: actions/upload-artifact@v3
+        with:
+          name: cdk_npm_package
+          path: packages/cdk-construct/pwrdrvr-microapps-app-${{ env.APP_NAME }}-cdk-${{ inputs.packageVersion }}.tgz
+
       # Upload Artifact
       - name: Zip Package
         working-directory: packages/cdk-construct/lib/
