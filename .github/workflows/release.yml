@@ -50,19 +50,6 @@ jobs:
         with:
           node-version: 16
 
-      - name: Cache Node Modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            packages/**/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', 'patches/*') }}
-
-      - name: Optionally Install Node Modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci
-
       - name: Set git identity
         run: |-
           git config user.name "Automation"
@@ -85,10 +72,10 @@ jobs:
       # Error: node_modules/flatpickr/dist/types/instance.d.ts(82,56): error TS2304: Cannot find name 'HTMLElementTagNameMap'.
       # Error: node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts(46,80): error TS2304: Cannot find name 'File'.
       # Error: node_modules/@types/overlayscrollbars/index.d.ts(348,19): error TS2304: Cannot find name 'NodeListOf'.
-      - name: Modify cdk-construct tsconfig.json
-        run: |
-          mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
-          jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
+      # - name: Modify cdk-construct tsconfig.json
+      #   run: |
+      #     mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
+      #     jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
 
       - name: Check for new commits
         id: git_remote
@@ -116,10 +103,11 @@ jobs:
       # JSII does not work well with monorepos
       # - name: Move root NPM modules out of the way
       #   run: mv node_modules node_modules_hide
-      # - name: Move root package-lock.json out of the way
-      #   run: |
-      #     mv package-lock.json package-lock.json_hide
-      #     mv package.json package.json_hide
+      - name: Move root package-lock.json out of the way
+        run: |
+          mv package-lock.json package-lock.json_hide
+          mv package.json package.json_hide
+          rm -rf node_modules
 
       - name: Build with JSII
         working-directory: packages/cdk-construct/
