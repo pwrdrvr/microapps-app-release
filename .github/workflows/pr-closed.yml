@@ -20,6 +20,7 @@ env:
 
 jobs:
   cleanup-pr:
+    if: github.actor != 'dependabot[bot]'
     concurrency:
       group: pr-closed-${{ github.workflow }}-${{ github.event.pull_request.number }}
       cancel-in-progress: false

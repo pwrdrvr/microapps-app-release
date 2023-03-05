@@ -98,6 +98,7 @@ jobs:
           path: packages/app/storybook-static.zip
 
   deploy-storybook:
+    if: github.actor != 'dependabot[bot]'
     needs:
       - version
       - build-storybook
@@ -178,6 +179,7 @@ jobs:
           target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.version.outputs.packageVersion }}
 
   deploy-ghpublic:
+    if: github.actor != 'dependabot[bot]'
     needs:
       - version
       - build
