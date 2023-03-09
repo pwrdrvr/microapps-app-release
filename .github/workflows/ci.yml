@@ -155,18 +155,21 @@ jobs:
       - name: Preflight Check Version - Story Book
         run: |
           npx microapps-publish preflight \
-            -a ${APP_NAME}-storybook \
-            -n ${{ needs.version.outputs.packageVersion }} \
-            -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+            --app-name ${APP_NAME}-storybook \
+            --new-version ${{ needs.version.outputs.packageVersion }} \
+            --deployer-lambda-name ${DEPLOYER_LAMBDA_NAME} \
+            --overwrite
 
       - name: Publish MicroApps - Story Book
         run: |
           npx microapps-publish publish-static \
-            -a ${APP_NAME}-storybook \
-            -n ${{ needs.version.outputs.packageVersion }} \
-            -d ${DEPLOYER_LAMBDA_NAME} \
-            -s packages/app/storybook-static \
-            -i index.html --overwrite --noCache
+            --app-name ${APP_NAME}-storybook \
+            --new-version ${{ needs.version.outputs.packageVersion }} \
+            --deployer-lambda-name ${DEPLOYER_LAMBDA_NAME} \
+            --static-assets-path packages/app/storybook-static \
+            --default-file index.html \
+            --overwrite \
+            --no-cache
 
       - name: App URL
         uses: Sibz/github-status-action@v1
@@ -256,13 +259,16 @@ jobs:
 
       - name: Preflight Check Version - App
         run: |
-          npx microapps-publish preflight -a ${APP_NAME} \
-            -n ${{ needs.version.outputs.packageVersion }} -d ${DEPLOYER_LAMBDA_NAME} --overwrite
+          npx microapps-publish preflight \
+            --app-name ${APP_NAME} \
+            --new-version ${{ needs.version.outputs.packageVersion }} \
+            --deployer-lambda-name ${DEPLOYER_LAMBDA_NAME} \
+            --overwrite
 
       - name: Set Hotswap Flag
         run: |
           if [ -n "${PR_NUMBER}" ]; then
-            echo "HOTSWAP_FLAG=--hotswap" >> $GITHUB_ENV
+            echo "HOTSWAP_FLAG=--hotswap-fallback" >> $GITHUB_ENV
           else
             echo "HOTSWAP_FLAG=" >> $GITHUB_ENV
           fi
@@ -274,14 +280,15 @@ jobs:
 
       - name: Publish to MicroApps - App
         run: |
-          npx microapps-publish publish -a ${APP_NAME} \
-            -t lambda-url \
+          npx microapps-publish publish \
+            --app-name ${APP_NAME} \
+            --type lambda-url \
             --startup-type direct \
-            -n ${{ needs.version.outputs.packageVersion }} \
-            -d ${DEPLOYER_LAMBDA_NAME} \
-            -l microapps-app-${APP_NAME}-${ENV}${{ needs.version.outputs.prSuffix }} \
-            -s packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}/static_files \
-            --overwrite --noCache
+            --new-version ${{ needs.version.outputs.packageVersion }} \
+            --deployer-lambda-name ${DEPLOYER_LAMBDA_NAME} \
+            --app-lambda-name microapps-app-${APP_NAME}-${ENV}${{ needs.version.outputs.prSuffix }} \
+            --static-assets-path packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}/static_files \
+            --overwrite
 
       - name: App URL
         uses: Sibz/github-status-action@v1

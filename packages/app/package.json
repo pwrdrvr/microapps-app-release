@@ -30,10 +30,10 @@
     ]
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.19.0",
-    "@aws-sdk/lib-dynamodb": "^3.19.0",
+    "@aws-sdk/client-dynamodb": "3.287.0",
+    "@aws-sdk/lib-dynamodb": "3.287.0",
     "@carbon/themes": "^10.30.0",
-    "@pwrdrvr/microapps-datalib": "0.4.0-alpha.2",
+    "@pwrdrvr/microapps-datalib": "0.4.0-alpha.5",
     "@reduxjs/toolkit": "^1.5.1",
     "carbon-components": "^10.31.0",
     "carbon-components-react": "^7.31.0",
