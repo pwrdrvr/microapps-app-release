@@ -67,3 +67,4 @@ const app = new MicroAppsAppRelease(this, 'app', {
   removalPolicy: shared.isPR ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
 });
 ```
+
