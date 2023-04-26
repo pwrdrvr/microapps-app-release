@@ -30,11 +30,11 @@ module.exports = {
   // to have /release/0.0.0/ as the prefix so they route cleanly
   // to an isolated folder on the S3 bucket and to a specific
   // lambda URL without having to do any path manipulation
-  assetPrefix: isProd ? BASE_PREFIX_APP_WITH_VERSION : undefined,
+  assetPrefix: BASE_PREFIX_APP_WITH_VERSION,
 
   publicRuntimeConfig: {
     // Will be available on both server and client
-    apiPrefix: isProd ? BASE_PREFIX_APP_WITH_VERSION : BASE_PREFIX_APP,
+    apiPrefix: BASE_PREFIX_APP_WITH_VERSION,
     basePath: BASE_PREFIX_APP,
   },
 
@@ -50,23 +50,43 @@ module.exports = {
   // in the path, which is perfect because that's where the assets
   // will be on the S3 bucket.
   async rewrites() {
-    return [
-      {
-        /** Static Assets and getServerSideProps (_next/data/) */
-        source: `${BASE_VERSION_ONLY}/_next/:path*`,
-        destination: `/_next/:path*`,
-      },
-      {
-        /** Images */
-        source: `${BASE_VERSION_ONLY}/images/:query*`,
-        destination: `/_next/image/:query*`,
-      },
-      /** Api Calls */
-      {
-        source: `${BASE_VERSION_ONLY}/api/:path*`,
-        destination: `/api/:path*`,
-      },
-    ];
+    if (isProd) {
+      return [];
+    }
+
+    // Local Development Rewrites
+    return {
+      beforeFiles: [
+        {
+          // Static Assets
+          // Next.js evaluates the `source` path after removing `basePath`
+          // A request for `/release/0.0.0/_next/static/...` will be rewritten
+          // to `/0.0.0/_next/static/...` before the `source` is looked up for a match.
+          // This is why we need to use `BASE_VERSION_ONLY` here instead of `BASE_PREFIX_APP_WITH_VERSION`
+          // The destination similarly does not need to repeat the `basePath` because
+          // Next.js is already adding it to any resulting URL.
+          source: `${BASE_VERSION_ONLY}/_next/static/:path*`,
+          destination: `/_next/static/:path*`,
+        },
+        {
+          // Other statics including favicon
+          source: `${BASE_VERSION_ONLY}/static/:path*`,
+          destination: `/static/:path*`,
+        },
+        {
+          // Images
+          source: `${BASE_VERSION_ONLY}/images/:query*`,
+          destination: `/_next/image/:query*`,
+        },
+      ],
+      afterFiles: [
+        // Api Calls
+        {
+          source: `${BASE_VERSION_ONLY}/api/:path*`,
+          destination: `/api/:path*`,
+        },
+      ],
+    };
   },
   webpack: (config, { dev, isServer }) => {
     if (isServer && config.name === 'server' && !dev) {
