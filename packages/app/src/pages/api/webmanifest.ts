@@ -1,12 +1,10 @@
 import getConfig from 'next/config';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const isProd = process.env.NODE_ENV === 'production';
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const config = getConfig();
   const { publicRuntimeConfig } = config;
-  const { apiPrefix, basePath } = publicRuntimeConfig;
+  const { apiPrefix } = publicRuntimeConfig;
 
   // res.set(
   //   'Cache-Control',
@@ -18,12 +16,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     short_name: 'MicroApps',
     icons: [
       {
-        src: `${isProd ? apiPrefix : basePath}/android-chrome-192x192.png`,
+        src: `${apiPrefix}/static/android-chrome-192x192.png`,
         sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: `${isProd ? apiPrefix : basePath}/android-chrome-512x512.png`,
+        src: `${apiPrefix}/static/android-chrome-512x512.png`,
         sizes: '512x512',
         type: 'image/png',
       },

@@ -16,23 +16,23 @@ export default class MyDocument extends Document {
         <Head>
           <title>MicroApps Release</title>
           {/* From: https://favicon.io/favicon-generator/ */}
-          <link rel="icon" href={`${isProd ? apiPrefix : basePath}/favicon.ico`} />
+          <link rel="icon" href={`${apiPrefix}/static/favicon.ico`} />
           <link
             rel="apple-touch-icon"
             sizes="180x180"
-            href={`${isProd ? apiPrefix : basePath}/apple-touch-icon.png`}
+            href={`${apiPrefix}/static/apple-touch-icon.png`}
           />
           <link
             rel="icon"
             type="image/png"
             sizes="32x32"
-            href={`${isProd ? apiPrefix : basePath}/favicon-32x32.png`}
+            href={`${apiPrefix}/static/favicon-32x32.png`}
           />
           <link
             rel="icon"
             type="image/png"
             sizes="16x16"
-            href={`${isProd ? apiPrefix : basePath}/favicon-16x16.png`}
+            href={`${apiPrefix}/static/favicon-16x16.png`}
           />
           <link
             rel="manifest"

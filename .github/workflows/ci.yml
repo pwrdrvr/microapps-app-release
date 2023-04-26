@@ -304,5 +304,5 @@ jobs:
         run: |
           echo Testing App HTML Loading
           curl -H"accept: text/html" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
-          echo Testing App Method Invocation
+          echo "\nTesting App Method Invocation"
           curl -H"accept: application/json" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}/api/refresh/${{ env.APP_NAME }}
