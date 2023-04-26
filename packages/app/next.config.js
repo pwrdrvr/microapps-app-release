@@ -50,8 +50,19 @@ module.exports = {
   // in the path, which is perfect because that's where the assets
   // will be on the S3 bucket.
   async rewrites() {
+    // Rewrites needed in both Prod and Dev
+    const afterFilesAlways = [
+      // Api Calls
+      {
+        source: `${BASE_VERSION_ONLY}/api/:path*`,
+        destination: `/api/:path*`,
+      },
+    ];
+
     if (isProd) {
-      return [];
+      return {
+        afterFiles: [...afterFilesAlways],
+      };
     }
 
     // Local Development Rewrites
@@ -79,13 +90,7 @@ module.exports = {
           destination: `/_next/image/:query*`,
         },
       ],
-      afterFiles: [
-        // Api Calls
-        {
-          source: `${BASE_VERSION_ONLY}/api/:path*`,
-          destination: `/api/:path*`,
-        },
-      ],
+      afterFiles: [...afterFilesAlways],
     };
   },
   webpack: (config, { dev, isServer }) => {
