@@ -30,7 +30,7 @@
     ]
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "3.287.0",
+    "@aws-sdk/client-dynamodb": "3.351.0",
     "@aws-sdk/lib-dynamodb": "3.287.0",
     "@carbon/themes": "^10.30.0",
     "@pwrdrvr/microapps-datalib": "0.4.0-alpha.5",
