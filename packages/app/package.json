@@ -48,7 +48,7 @@
     "react-overlays": "^5.0.0",
     "react-redux": "^7.2.3",
     "redux-thunk": "^2.3.0",
-    "semver": "^6.3.0",
+    "semver": "^6.3.1",
     "styled-components": "^5.2.3"
   },
   "devDependencies": {
