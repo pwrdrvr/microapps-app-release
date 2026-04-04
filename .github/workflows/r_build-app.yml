@@ -39,6 +39,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Test App
+        run: npm run -w ${APP_PACKAGE_NAME} test
+
       - name: Dump info from version reusable workflow
         run: |
           echo "packageVersion: ${{ inputs.packageVersion }}"
@@ -81,6 +84,33 @@ jobs:
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/.next/*
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/*
 
+      - name: Trim Server Artifact
+        run: |
+          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/node_modules/@img
+          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/node_modules/sharp
+          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/node_modules/caniuse-lite
+          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/typescript
+          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/next/dist/compiled/amphtml-validator
+          rm -f ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/next/dist/server/capsize-font-metrics.json
+          rm -f ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/next/dist/compiled/@next/font/dist/google/font-data.json
+          find ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server -type f \( -name '*.map' -o -name '*.ts' -o -name '*.md' -o -name '*.markdown' \) -delete
+          du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
+
+      - name: Measure Build Artifact Sizes
+        working-directory: packages/cdk-construct/lib/
+        run: |
+          rm -f combined-app.zip server-only.zip
+          zip -qr combined-app.zip microapps-app-${APP_NAME}
+          zip -qr server-only.zip microapps-app-${APP_NAME}/server
+          echo "Combined app zip bytes: $(stat -c %s combined-app.zip)"
+          echo "Server-only zip bytes: $(stat -c %s server-only.zip)"
+          {
+            echo "### Release App Artifact Sizes"
+            echo ""
+            echo "- Combined app zip bytes: $(stat -c %s combined-app.zip)"
+            echo "- Server-only zip bytes: $(stat -c %s server-only.zip)"
+          } >> $GITHUB_STEP_SUMMARY
+
       - name: Build the NPM tarball for Examination
         working-directory: packages/cdk-construct/
         run: pnpm pack
@@ -100,3 +130,9 @@ jobs:
         with:
           name: app_zip
           path: packages/cdk-construct/lib/nextjs.zip
+
+      - name: Upload Server-only Zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: server_only_zip
+          path: packages/cdk-construct/lib/server-only.zip

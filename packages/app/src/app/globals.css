@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --background: 5 9 8;
+  --foreground: 233 246 239;
+  --panel: 10 18 15;
+  --panel-alt: 14 24 20;
+  --border: 57 82 68;
+  --muted: 129 156 142;
+  --accent: 124 242 154;
+  --accent-soft: 33 70 49;
+  --success: 124 242 154;
+  --warning: 245 212 103;
+  --danger: 251 113 133;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(42, 87, 59, 0.4), transparent 42%),
+    linear-gradient(180deg, rgba(8, 17, 14, 0.95), rgba(5, 9, 8, 1));
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans), sans-serif;
+  background-image:
+    radial-gradient(circle at top right, rgba(124, 242, 154, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(6, 14, 11, 0.98), rgba(5, 9, 8, 1));
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(124, 242, 154, 0.035) 1px, transparent 1px);
+  background-size: 100% 5px;
+  opacity: 0.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(124, 242, 154, 0.28);
+  color: rgb(var(--foreground));
+}
+
+@layer components {
+  .panel-surface {
+    @apply rounded-2xl border border-border/80 bg-panel/90 shadow-panel backdrop-blur;
+  }
+
+  .panel-label {
+    @apply font-mono text-[0.68rem] uppercase tracking-[0.3em] text-muted;
+  }
+
+  .metric-value {
+    @apply font-mono text-lg font-semibold text-foreground;
+  }
+
+  .data-chip {
+    @apply inline-flex items-center rounded-full border border-border/80 bg-panelAlt/80 px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted;
+  }
+}
