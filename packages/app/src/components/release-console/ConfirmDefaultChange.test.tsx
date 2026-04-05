@@ -12,6 +12,8 @@ describe('ConfirmDefaultChange', () => {
   beforeEach(() => {
     refresh.mockReset();
     vi.stubGlobal('fetch', vi.fn());
+    document.head.innerHTML =
+      '<script src="/release/0.0.0-pr.106/_next/static/chunks/page.js"></script>';
   });
 
   afterEach(() => {
@@ -51,7 +53,7 @@ describe('ConfirmDefaultChange', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirm Default' }));
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith('/release/0.0.0/api/default-version', {
+      expect(fetchMock).toHaveBeenCalledWith('/release/0.0.0-pr.106/api/default-version', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -111,6 +113,9 @@ describe('ConfirmDefaultChange', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Confirm Default' })).toHaveProperty('disabled', true);
+    expect(screen.getByRole('button', { name: 'Confirm Default' })).toHaveProperty(
+      'disabled',
+      true,
+    );
   });
 });

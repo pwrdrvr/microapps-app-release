@@ -24,6 +24,16 @@ describe('release console links', () => {
   });
 
   test('builds the versioned default-version API URL', () => {
+    document.head.innerHTML = `
+      <script src="/release/0.0.0-pr.106/_next/static/chunks/page.js"></script>
+    `;
+
+    expect(buildDefaultVersionApiUrl()).toBe('/release/0.0.0-pr.106/api/default-version');
+  });
+
+  test('falls back to the placeholder default-version API URL when no versioned asset is present', () => {
+    document.head.innerHTML = '';
+
     expect(buildDefaultVersionApiUrl()).toBe('/release/0.0.0/api/default-version');
   });
 
