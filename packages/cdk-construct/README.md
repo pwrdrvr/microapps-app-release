@@ -43,6 +43,8 @@ Example CDK Stack that deploys `@pwrdrvr/microapps-app-release`:
 
 The application is intended to be deployed upon the [MicroApps framework](https://github.com/pwrdrvr/microapps-core) and it operates on a DynamoDB Table created by the MicroApps framework. Thus, it is required that there be a deployment of MicroApps that can receive this application. Deploying the MicroApps framework and general application deployment instructions are covered by the MicroApps documentation.
 
+Important: this version of the release console updates routing state through `POST` requests on versioned `/api/` paths. If you are deploying on a custom MicroApps CloudFront configuration, make sure those versioned `/api/` routes are forwarded to the app origin with `POST` allowed. Otherwise dotted versions such as `0.0.0-pr.106` can be picked up by the static-file behavior and CloudFront will reject the request before it reaches the app. If you are using MicroApps `1.2.0` or newer, API route behaviors are enabled by default and no custom override should be needed.
+
 The application is packaged for deployment via AWS CDK and consists of a single Lambda function that reads/writes the MicroApps DynamoDB Table.
 
 The CDK construct is published for JavaScript and TypeScript via npm, with API docs available on [@pwrdrvr/microapps-app-release-cdk - Construct Hub](https://constructs.dev/packages/@pwrdrvr/microapps-app-release-cdk).
