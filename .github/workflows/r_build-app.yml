@@ -40,7 +40,7 @@ jobs:
         run: pnpm lint
 
       - name: Test App
-        run: npm run -w ${APP_PACKAGE_NAME} test
+        run: pnpm --filter "${APP_PACKAGE_NAME}" test
 
       - name: Dump info from version reusable workflow
         run: |
