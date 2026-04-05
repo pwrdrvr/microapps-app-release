@@ -17,11 +17,12 @@ const sans = Space_Grotesk({
 
 const appBasePath = '/release';
 const appAssetPrefix = `${appBasePath}/0.0.0`;
+const manifestPath = `${appAssetPrefix}/static/manifest.webmanifest`;
 
 export const metadata: Metadata = {
   title: 'MicroApps Release',
   description: 'Browse MicroApps versions and safely switch the default release.',
-  manifest: `${appBasePath}/manifest.webmanifest`,
+  manifest: manifestPath,
   icons: {
     icon: [
       { url: `${appAssetPrefix}/static/favicon.ico` },
