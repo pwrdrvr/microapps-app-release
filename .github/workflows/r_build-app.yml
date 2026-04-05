@@ -132,7 +132,7 @@ jobs:
           path: packages/cdk-construct/lib/nextjs.zip
 
       - name: Upload Server-only Zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: server_only_zip
           path: packages/cdk-construct/lib/server-only.zip
