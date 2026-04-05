@@ -50,6 +50,10 @@ function listTopLevelPackages(nodeModulesDir) {
   const packageNames = [];
 
   for (const entry of fs.readdirSync(nodeModulesDir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) {
+      continue;
+    }
+
     if (!entry.name.startsWith('@')) {
       packageNames.push(entry.name);
       continue;
