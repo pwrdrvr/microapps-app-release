@@ -94,13 +94,14 @@ export function AppListClient({
 
               <a
                 href={buildAppOpenUrl(app.appName)}
-                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-border/90 bg-panelAlt/75 px-2.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-muted hover:border-accent/40 hover:text-foreground"
+                className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-panelAlt/55 px-2.5 text-muted hover:border-accent/35 hover:text-foreground"
                 target="_blank"
                 rel="noreferrer"
                 aria-label={`Open ${app.displayName}`}
+                title={`Open ${app.displayName}`}
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                <span>Open</span>
+                <span className="sr-only">Open</span>
               </a>
             </div>
           );
