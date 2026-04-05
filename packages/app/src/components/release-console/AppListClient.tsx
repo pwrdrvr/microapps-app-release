@@ -67,7 +67,7 @@ export function AppListClient({
             <div
               key={app.appName}
               className={cn(
-                'flex items-stretch gap-2 rounded-2xl border p-2 transition',
+                'flex items-center gap-2 rounded-2xl border p-1.5 transition',
                 isSelected
                   ? 'border-accent/60 bg-accent/10 text-foreground'
                   : 'border-border bg-panelAlt/55 text-muted hover:border-accent/40 hover:text-foreground',
@@ -94,13 +94,13 @@ export function AppListClient({
 
               <a
                 href={buildAppOpenUrl(app.appName)}
-                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-panelAlt/80 px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted hover:border-accent/40 hover:text-foreground"
+                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-border/90 bg-panelAlt/75 px-2.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-muted hover:border-accent/40 hover:text-foreground"
                 target="_blank"
                 rel="noreferrer"
                 aria-label={`Open ${app.displayName}`}
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                Open
+                <span>Open</span>
               </a>
             </div>
           );
