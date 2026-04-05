@@ -66,7 +66,11 @@ export function ReleaseConsoleShell({ data }: { data: ReleaseConsoleData }) {
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
             <RulePanel rules={data.rules} />
-            <AppMetadataPanel versions={data.versions} defaultVersion={defaultVersionRecord} />
+            <AppMetadataPanel
+              appName={data.selectedAppName}
+              versions={data.versions}
+              defaultVersion={defaultVersionRecord}
+            />
           </div>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { ReleaseConsoleVersion } from '@/lib/release-console/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { buildLambdaConsoleUrl, buildVersionPreviewUrl } from '@/lib/release-console/links';
 import { ConfirmDefaultChange } from './ConfirmDefaultChange';
 
 function statusVariant(status: ReleaseConsoleVersion['status']) {
@@ -40,14 +41,14 @@ export function VersionTable({
           <div className="data-chip">{versions.length} versions</div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="max-h-[min(68vh,44rem)] overflow-auto">
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="border-b border-border/70 text-left">
                 {['Version', 'Status', 'Route', 'Startup', 'URL', 'Default'].map((heading) => (
                   <th
                     key={heading}
-                    className="px-5 py-3 font-mono text-[0.68rem] uppercase tracking-[0.24em] text-muted"
+                    className="sticky top-0 z-10 bg-panel/95 px-5 py-3 font-mono text-[0.68rem] uppercase tracking-[0.24em] text-muted backdrop-blur"
                   >
                     {heading}
                   </th>
@@ -55,50 +56,83 @@ export function VersionTable({
               </tr>
             </thead>
             <tbody>
-              {versions.map((version) => (
-                <tr key={version.semVer} className="border-b border-border/40 last:border-b-0">
-                  <td className="px-5 py-4 align-top">
-                    <div className="font-mono text-sm text-foreground">{version.semVer}</div>
-                    {version.defaultFile ? (
-                      <div className="mt-1 font-mono text-[0.72rem] uppercase tracking-[0.18em] text-muted">
-                        default file {version.defaultFile}
+              {versions.map((version) => {
+                const previewUrl = buildVersionPreviewUrl(appName, version.semVer);
+                const lambdaConsoleUrl = buildLambdaConsoleUrl(version.lambdaArn);
+
+                return (
+                  <tr key={version.semVer} className="border-b border-border/40 last:border-b-0">
+                    <td className="px-5 py-4 align-top">
+                      <div className="font-mono text-sm text-foreground">{version.semVer}</div>
+                      {version.defaultFile ? (
+                        <div className="mt-1 font-mono text-[0.72rem] uppercase tracking-[0.18em] text-muted">
+                          default file {version.defaultFile}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-5 py-4 align-top">
+                      <Badge variant={statusVariant(version.status)}>{version.status}</Badge>
+                    </td>
+                    <td className="px-5 py-4 align-top">
+                      <span className="font-mono text-sm text-foreground">{version.type}</span>
+                    </td>
+                    <td className="px-5 py-4 align-top">
+                      <span className="font-mono text-sm text-foreground">
+                        {version.startupType}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 align-top">
+                      {version.url ? (
+                        <a
+                          href={version.url}
+                          className="break-all font-mono text-xs text-accent hover:underline"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {version.url}
+                        </a>
+                      ) : (
+                        <span className="font-mono text-sm text-muted">n/a</span>
+                      )}
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <a
+                          href={previewUrl}
+                          className="inline-flex items-center rounded-full border border-accent/35 bg-accent/10 px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent hover:bg-accent/16"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Preview
+                        </a>
+
+                        {lambdaConsoleUrl ? (
+                          <a
+                            href={lambdaConsoleUrl}
+                            className="inline-flex items-center rounded-full border border-border bg-panelAlt/80 px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted hover:border-accent/40 hover:text-foreground"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Lambda Console
+                          </a>
+                        ) : null}
                       </div>
-                    ) : null}
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    <Badge variant={statusVariant(version.status)}>{version.status}</Badge>
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    <span className="font-mono text-sm text-foreground">{version.type}</span>
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    <span className="font-mono text-sm text-foreground">{version.startupType}</span>
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    {version.url ? (
-                      <a
-                        href={version.url}
-                        className="break-all font-mono text-xs text-accent hover:underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {version.url}
-                      </a>
-                    ) : (
-                      <span className="font-mono text-sm text-muted">n/a</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    {version.isDefault ? (
-                      <Badge variant="accent">Current</Badge>
-                    ) : (
-                      <Button size="sm" variant="secondary" onClick={() => setNextVersion(version)}>
-                        Make Default
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-5 py-4 align-top">
+                      {version.isDefault ? (
+                        <Badge variant="accent">Current</Badge>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => setNextVersion(version)}
+                        >
+                          Make Default
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
