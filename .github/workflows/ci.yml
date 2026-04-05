@@ -234,4 +234,4 @@ jobs:
           echo "\nTesting App Method Invocation"
           curl -H"accept: application/json" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}/api/refresh/${{ env.APP_NAME }}
           echo "\nTesting App Manifest Loading"
-          curl -H"accept: application/manifest+json" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/0.0.0/static/manifest.webmanifest
+          curl -H"accept: application/manifest+json" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}/static/manifest.webmanifest
