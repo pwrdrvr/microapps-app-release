@@ -63,7 +63,7 @@ jobs:
         run: zip -r storybook-static.zip storybook-static
 
       - name: Upload Zip
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: storybook_zip
           path: packages/app/storybook-static.zip

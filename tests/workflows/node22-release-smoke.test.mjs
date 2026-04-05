@@ -34,6 +34,7 @@ test('workflow baselines stay on node 22 and avoid npm-era release plumbing', ()
     assert.doesNotMatch(workflow, /npm ci/);
     assert.doesNotMatch(workflow, /::set-output/);
     assert.doesNotMatch(workflow, /configure-aws-credentials@v1-node16/);
+    assert.doesNotMatch(workflow, /actions\/upload-artifact@v4/);
   }
 
   for (const relativePath of installBearingWorkflowFiles) {
