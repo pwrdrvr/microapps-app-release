@@ -29,91 +29,39 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Cache Node Modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            packages/**/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', 'patches/*') }}
-
-      - name: Optionally Install Node Modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci
-
-      # - name: Cache App Build Node Modules
-      #   id: cache-node-modules-app
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       packages/app/node_modules
-      #     key: node-modules-app-${{ hashFiles('package.json', 'packages/app/package-lock.json', 'packages/app/patches/*') }}
-
-      # Fixes errors due to JSII tsconfig.json not ignoring libs
-      # node_modules/flatpickr/dist/types/instance.d.ts(37,21): error TS2304: Cannot find name 'Node'.
-      # Error: node_modules/flatpickr/dist/types/instance.d.ts(82,56): error TS2304: Cannot find name 'HTMLElementTagNameMap'.
-      # Error: node_modules/@types/carbon-components-react/lib/components/FileUploader/FileUploaderDropContainer.d.ts(46,80): error TS2304: Cannot find name 'File'.
-      # Error: node_modules/@types/overlayscrollbars/index.d.ts(348,19): error TS2304: Cannot find name 'NodeListOf'.
-      - name: Modify cdk-construct tsconfig.json
-        run: |
-          mv ./packages/cdk-construct/tsconfig.json ./packages/cdk-construct/tsconfig.jsii.json
-          jq ".compilerOptions += { \"skipLibCheck\": true }" ./packages/cdk-construct/tsconfig.jsii.json > ./packages/cdk-construct/tsconfig.json
+      - uses: ./.github/actions/configure-nodejs
 
       - name: Build All TypeScript
-        run: npm run build
+        run: pnpm build
 
       - name: Lint
-        run: npm run lint
+        run: pnpm lint
 
       - name: Dump info from version reusable workflow
         run: |
           echo "packageVersion: ${{ inputs.packageVersion }}"
           echo "prSuffix: ${{ inputs.prSuffix }}"
-      
-      - name: Apply NPM Version to Everything
-        run: |
-          npm version ${{ inputs.packageVersion }} \
-            --no-git-tag-version --allow-same-version
-          npm version ${{ inputs.packageVersion }} \
-            --no-git-tag-version --allow-same-version --workspaces
+
+      - name: Apply package version to the workspace
+        run: node scripts/set-workspace-version.mjs "${{ inputs.packageVersion }}"
 
       - name: Apply Next.js Version
-        run: |
-          npx -w ${APP_PACKAGE_NAME} microapps-publish nextjs-version -n ${{ inputs.packageVersion }}
-
-      # outputTracing can't follow modules in npm workspaces
-      # npm will not install modules in a workspace folder if there
-      # is a package.json in the parent folder, so move it out of the way
-      - name: Install Runtime Deps for outputTracing
-        # if: steps.cache-node-modules-app.outputs.cache-hit != 'true'
         working-directory: packages/app/
-        run: |
-          mv ../../package.json ../../package.json.hide
-          du -sh node_modules
-          npm ci
-          du -sh node_modules
-          mv ../../package.json.hide ../../package.json
+        run: pnpm exec microapps-publish nextjs-version -n "${{ inputs.packageVersion }}"
 
       - name: Restore Next.js Build Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}/packages/app/.next/cache
-          # Generate a new cache whenever packages or patches change.
-          key: nextjs-${{ runner.os }}-${{ hashFiles('packages/app/package-lock.json', 'packages/app/patches/*', 'packages/app/next.config.js') }} }}
+          key: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'package.json', 'packages/app/package.json', 'packages/app/patches/*', 'packages/app/next.config.js') }}
 
       - name: Build Next.js App
         working-directory: packages/app/
         run: |
-          npm run build
+          pnpm build
           du -sh .next/*
           du -sh .next/standalone/*
           du -sh .next/standalone/.next/*
@@ -121,11 +69,12 @@ jobs:
       - name: Combine Build Outputs
         run: |
           mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/_next/static
-          mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/.next
+          node scripts/materialize-next-standalone.mjs \
+            --standalone-dir ./packages/app/.next/standalone \
+            --app-node-modules ./packages/app/node_modules \
+            --output-dir ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
           cp -R ./packages/app/.next/static/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/_next/static/
           cp -R ./packages/app/public/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/
-          cp -R ./packages/app/.next/standalone/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/
-          cp -R ./packages/app/.next/standalone/.next/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/.next/
           cp -R ./packages/app/run.sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/*
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/*
@@ -134,20 +83,20 @@ jobs:
 
       - name: Build the NPM tarball for Examination
         working-directory: packages/cdk-construct/
-        run: |
-          npm pack
+        run: pnpm pack
+
       - name: Upload NPM tarball
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: cdk_npm_package
           path: packages/cdk-construct/pwrdrvr-microapps-app-${{ env.APP_NAME }}-cdk-${{ inputs.packageVersion }}.tgz
 
-      # Upload Artifact
       - name: Zip Package
         working-directory: packages/cdk-construct/lib/
         run: zip -r nextjs.zip microapps-app-${APP_NAME}
+
       - name: Upload Zip
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: app_zip
           path: packages/cdk-construct/lib/nextjs.zip

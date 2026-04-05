@@ -4,17 +4,27 @@
 
 - [Overview](#overview)
 - [Developer Notes](#developer-notes)
+  - [Repo Setup](#repo-setup)
   - [Trying out `esbuild` on `server.js`](#trying-out-esbuild-on-serverjs)
   - [Debugging the Next.js App](#debugging-the-nextjs-app)
   - [nextjs-redux-wrapper](#nextjs-redux-wrapper)
   - [Adding Storybook to Existing NPM React / Next Project](#adding-storybook-to-existing-npm-react--next-project)
-- [Errors During `npm run build` Locally](#errors-during-npm-run-build-locally)
+- [Errors During `pnpm build` Locally](#errors-during-pnpm-build-locally)
 # Developer Notes
+
+## Repo Setup
+
+This repo now uses `pnpm` for workspace development.
+
+```sh
+corepack enable pnpm
+pnpm install
+```
 
 ## Trying out `esbuild` on `server.js`
 
 ```
-esbuild server.js --bundle --outfile=smol.js --platform=node --external:next/dist/pages/_error --external:critters --external:next/dist/pages/_app --external:next/dist/pages/_document --minify --target=node16
+esbuild server.js --bundle --outfile=smol.js --platform=node --external:next/dist/pages/_error --external:critters --external:next/dist/pages/_app --external:next/dist/pages/_document --minify --target=node22
 ```
 
 Builds, but fails at runtime with:
@@ -29,21 +39,21 @@ Either run commands from the `packages/app` directory OR run from the root and u
 
 - From Project Root
 
-  - Start App: `npm run -w @pwrdrvr/microapps-app-release dev`
-  - Build: `npm run -w @pwrdrvr/microapps-app-release build`
-  - Debug: `npm run -w @pwrdrvr/microapps-app-release debug`
+  - Start App: `pnpm --filter @pwrdrvr/microapps-app-release dev`
+  - Build: `pnpm --filter @pwrdrvr/microapps-app-release build`
+  - Debug: `pnpm --filter @pwrdrvr/microapps-app-release debug`
 
 - From `packages/app/` Directory
 
-  - Start App: `npm run dev`
-  - Build: `npm run build`
-  - Debug: `npm run debug`
+  - Start App: `pnpm dev`
+  - Build: `pnpm build`
+  - Debug: `pnpm debug`
 
 - Open Local App in Browser
 
   - http://localhost:3000/release/0.0.0
 
-- VS Code: Launch `Attach to npm run debug` config
+- VS Code: Launch `Attach to pnpm debug` config
 - Breakpoints in .ts files should get hit
 
 Issues: if the breakpoints don't get hit, make sure that `.env.development` has `NODE_ENV=development` and not `NODE_ENV=production` (which causes source maps to not be built).
@@ -68,9 +78,15 @@ https://github.com/kirill-konshin/next-redux-wrapper/pull/295/files#diff-b335630
 `npx sb init -N`
 `npx sb upgrade --prerelease -N`
 
-# Errors During `npm run build` Locally
+# Projen Notes
 
-`packages/cdk-construct/tsconfig.json` is missing `"skipLibCheck": true` in the `compilerOptions` section. This causes the errors below.  This is handled during the GitHub Actions workflows by patching in the setting before running `npm run build`.  This is not as simple as passing the `--skipLibCheck` flag to the `tsc` command because `tsc` does not allow that flag when `--build` is passed:
+`packages/cdk-construct/.projenrc.js` is now the source of truth for the construct package metadata and version floor. If the generated package files drift after a dependency change, rerun:
+
+```sh
+pnpm --filter @pwrdrvr/microapps-app-release-cdk run projen
+```
+
+Historical jsii / TypeScript failures around `skipLibCheck` looked like this:
 
 [tsc does not allow flags when --build is passed](https://github.com/microsoft/TypeScript/issues/25613)
 

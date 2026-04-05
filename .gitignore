@@ -14,4 +14,6 @@ storybook-static/
 .serverless_nextjs/
 .next*/
 .serverless/
-yarn.lock
+.local/
+.pnpm-debug.log*
+__pycache__/

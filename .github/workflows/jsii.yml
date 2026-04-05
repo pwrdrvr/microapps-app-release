@@ -1,68 +1,28 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 # Workflow syntax reference:
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
 name: JSII Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
-env:
-  # This is used by the SharedProps to detect a PR build
-  PR_NUMBER: ${{ github.event.pull_request.number }}
-  APP_NAME: release
-  APP_PACKAGE_NAME: '@pwrdrvr/microapps-app-release'
-  ENV: dev
+    branches: [main]
 
 jobs:
   jsii:
-    if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'BUILD-JSII'))
+    if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'BUILD-JSII'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      #
-      # Build Construct with JSII
-      #
-
-      # JSII does not work well with monorepos
-      # - name: Move root NPM modules out of the way
-      #   run: mv node_modules node_modules_hide
-      - name: Move root package-lock.json out of the way
-        run: |
-          mv package-lock.json package-lock.json_hide
-          mv package.json package.json_hide
-
-      - name: Install CDK Construct Deps
-        working-directory: packages/cdk-construct/
-        run: |
-          npm ci
+      - uses: ./.github/actions/configure-nodejs
 
       - name: Build with JSII
-        working-directory: packages/cdk-construct/
-        run: |
-          npm run build:jsii-all
-
-      # - name: Move root NPM modules back
-      #   run: mv node_modules_hide node_modules
-      - name: Move root package-lock.json back
-        run: |
-          mv package-lock.json_hide package-lock.json
-          mv package.json_hide package.json
+        run: pnpm --filter @pwrdrvr/microapps-app-release-cdk run build:jsii-all
 
       - name: Confirm No Doc Changes
         working-directory: packages/cdk-construct/
-        run: |
-          git diff --ignore-space-at-eol --exit-code
+        run: git diff --ignore-space-at-eol --exit-code
 
     container:
       # 2023-01-04 release broke the build

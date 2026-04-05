@@ -9,7 +9,6 @@ on:
 
   workflow_dispatch:
 
-
 env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   NODE_ENV: prod
@@ -31,28 +30,17 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Install microapps-publish
-        run: npm i -g @pwrdrvr/microapps-publish
+      - uses: ./.github/actions/configure-nodejs
 
       - name: Extract Current NPM Version
         run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-
-      - name: Compute NPM Version
-        id: packageVersion
-        run: |
-          echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
-          echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
+          PACKAGE_VERSION_ORIG="$(node -p -e "require('./package.json').version")"
+          echo "PACKAGE_VERSION=${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}" >> "$GITHUB_ENV"
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
@@ -60,8 +48,8 @@ jobs:
 
       - name: Delete App from MicroApps
         run: |
-          npx microapps-publish delete -a ${APP_NAME} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
-          npx microapps-publish delete -a ${APP_NAME_STORYBOOK} -n ${PACKAGE_VERSION} -d ${DEPLOYER_LAMBDA_NAME}
+          pnpm exec microapps-publish delete -a "${APP_NAME}" -n "${PACKAGE_VERSION}" -d "${DEPLOYER_LAMBDA_NAME}"
+          pnpm exec microapps-publish delete -a "${APP_NAME_STORYBOOK}" -n "${PACKAGE_VERSION}" -d "${DEPLOYER_LAMBDA_NAME}"
 
       - name: Destroy CDK Stack
         run: |
