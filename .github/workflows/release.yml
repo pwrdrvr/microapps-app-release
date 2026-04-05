@@ -66,7 +66,7 @@ jobs:
         run: echo "latest_commit=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Download Artifact - App
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: app_zip
           path: packages/cdk-construct/lib/
@@ -106,7 +106,7 @@ jobs:
         run: npm install --global npm@11
 
       - name: Download CDK Construct build artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
