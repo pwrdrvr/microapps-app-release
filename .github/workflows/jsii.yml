@@ -13,6 +13,9 @@ jobs:
   jsii:
     if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'BUILD-JSII'))
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     steps:
       - uses: actions/checkout@v5
 
@@ -24,3 +27,104 @@ jobs:
       - name: Confirm No Doc Changes
         working-directory: packages/cdk-construct/
         run: git diff --ignore-space-at-eol --exit-code
+
+      - name: Compute Tarball Baseline Cache Key
+        id: tarball_baseline_key
+        run: |
+          echo "key=$(node scripts/package-manager/check-tarball-population.mjs --print-baseline-cache-key)" >> $GITHUB_OUTPUT
+
+      - name: Restore Published Tarball Baselines
+        uses: actions/cache@v5
+        with:
+          path: ${{ runner.temp }}/tarball-population-baselines
+          key: tarball-population-baselines-${{ runner.os }}-${{ steps.tarball_baseline_key.outputs.key }}
+
+      - name: Run Tarball Population Check
+        id: tarball_population
+        env:
+          TARBALL_POPULATION_BASELINE_DIR: ${{ runner.temp }}/tarball-population-baselines
+          TARBALL_POPULATION_JSON: ${{ runner.temp }}/tarball-population.json
+          TARBALL_POPULATION_MARKDOWN: ${{ runner.temp }}/tarball-population.md
+        run: |
+          node scripts/package-manager/check-tarball-population.mjs
+          echo "report_json=${TARBALL_POPULATION_JSON}" >> $GITHUB_OUTPUT
+          echo "report_markdown=${TARBALL_POPULATION_MARKDOWN}" >> $GITHUB_OUTPUT
+          node -e 'const fs = require("fs"); const report = JSON.parse(fs.readFileSync(process.env.TARBALL_POPULATION_JSON, "utf8")); fs.appendFileSync(process.env.GITHUB_OUTPUT, "overall_status=" + report.overallStatus + "\n");'
+
+      - name: Append Job Summary
+        if: always() && steps.tarball_population.outputs.report_markdown != ''
+        run: cat "${{ steps.tarball_population.outputs.report_markdown }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Tarball Population Report
+        if: always() && steps.tarball_population.outputs.report_json != '' && steps.tarball_population.outputs.report_markdown != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: tarball-population-report
+          path: |
+            ${{ steps.tarball_population.outputs.report_json }}
+            ${{ steps.tarball_population.outputs.report_markdown }}
+
+      - name: Publish Tarball Population Report Check
+        if: github.event_name == 'pull_request' && steps.tarball_population.outputs.report_markdown != ''
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync(process.env.REPORT_MARKDOWN, 'utf8');
+            const headSha = context.payload.pull_request.head.sha;
+            const name = 'Tarball Population Report';
+            const conclusionByStatus = {
+              green: 'success',
+              yellow: 'success',
+              red: 'failure',
+            };
+            const summaryTitleByStatus = {
+              green: 'Tarball population matches the currently published npm package.',
+              yellow: 'Only metadata-only tarball drift was detected.',
+              red: 'Runtime tarball drift was detected.',
+            };
+
+            const existingChecks = await github.paginate(github.rest.checks.listForRef, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: headSha,
+              check_name: name,
+              per_page: 100,
+            });
+
+            for (const check of existingChecks) {
+              await github.rest.checks.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_run_id: check.id,
+                status: 'completed',
+                completed_at: new Date().toISOString(),
+                conclusion: 'neutral',
+                output: {
+                  title: 'Superseded by a newer tarball population report.',
+                  summary: 'Closing older report checks so only the latest result stays visible.',
+                },
+              });
+            }
+
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name,
+              head_sha: headSha,
+              status: 'completed',
+              conclusion: conclusionByStatus[process.env.OVERALL_STATUS] ?? 'neutral',
+              output: {
+                title: summaryTitleByStatus[process.env.OVERALL_STATUS] ?? 'Tarball population report',
+                summary: body,
+              },
+            });
+        env:
+          OVERALL_STATUS: ${{ steps.tarball_population.outputs.overall_status }}
+          REPORT_MARKDOWN: ${{ steps.tarball_population.outputs.report_markdown }}
+
+      - name: Fail on Runtime Tarball Drift
+        if: steps.tarball_population.outputs.overall_status == 'red'
+        run: |
+          echo "Runtime tarball population drift detected."
+          exit 1
