@@ -50,7 +50,9 @@ jobs:
       - name: Extract current package version
         if: github.event_name != 'release'
         id: currentVersion
-        run: echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Compute package version
         id: packageVersion
