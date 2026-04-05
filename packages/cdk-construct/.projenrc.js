@@ -7,7 +7,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   authorOrganization: true,
   description:
     'Release app for the MicroApps framework, by PwrDrvr LLC. Provides the ability to control which version of an app is launched.',
-  cdkVersion: '2.168.0',
+  cdkVersion: '2.248.0',
   cdkVersionPinning: false,
   copyrightOwner: 'PwrDrvr LLC',
   copyrightPeriod: '2020',
@@ -18,8 +18,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
   npmAccess: javascript.NpmAccess.PUBLIC,
   packageManager: javascript.NodePackageManager.PNPM,
   pnpmVersion: '10',
+  addPackageManagerToDevEngines: false,
   minNodeVersion: '22.0.0',
-  jsiiVersion: '^5.4',
+  jsiiVersion: '^5.9.36',
   projenrcTs: false,
   repositoryUrl: 'https://github.com/pwrdrvr/microapps-app-release',
   homepage: 'https://github.com/pwrdrvr/microapps-app-release',
@@ -32,21 +33,12 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@types/jest@^26.0.24',
     'eslint-import-resolver-typescript@^2.7.1',
     'eslint-plugin-import@^2.32.0',
+    'jsii-diff@^1.127.0',
+    'jsii-docgen@^10.11.15',
+    'jsii-pacmak@^1.127.0',
+    'jsii-rosetta@^5.9.38',
   ],
   peerDeps: [],
-  publishToMaven: {
-    mavenArtifactId: 'releaseappcdk',
-    javaPackage: 'com.pwrdrvr.microapps.releaseappcdk',
-    mavenGroupId: 'com.pwrdrvr.microapps',
-  },
-  publishToNuget: {
-    dotNetNamespace: 'PwrDrvr.MicroApps.ReleaseAppCDK',
-    packageId: 'PwrDrvr.MicroApps.ReleaseAppCDK',
-  },
-  publishToPypi: {
-    distName: 'pwrdrvr.microapps.releaseappcdk',
-    module: 'pwrdrvr.microapps.releaseappcdk',
-  },
 });
 
 // The published construct bundles the built Next.js app and static assets.
@@ -66,12 +58,12 @@ project.package.addField('files', [
 project.package.addField('stability', 'stable');
 project.package.addField('//', 'Edit .projenrc.js as the source of truth for future construct metadata changes.');
 
-// Preserve the repo's existing jsii entry points while the surrounding workflows migrate.
+// Keep repo-level JSII entry points explicit while the surrounding workflows consume the JS-only package flow.
 project.addScripts({
   'build:jsii': 'npx projen compile',
   'build:jsii-docgen': 'npx projen docgen',
-  'build:jsii-pacmak': 'npx projen package-all',
-  'build:jsii-all': 'pnpm run build:jsii && pnpm run build:jsii-docgen && pnpm run build:jsii-pacmak',
+  'build:jsii-package': 'npx projen package:js',
+  'build:jsii-release': 'pnpm run build:jsii && pnpm run build:jsii-docgen && pnpm run build:jsii-package',
   'cdk': 'cdk',
 });
 

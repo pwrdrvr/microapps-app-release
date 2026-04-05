@@ -86,6 +86,8 @@ https://github.com/kirill-konshin/next-redux-wrapper/pull/295/files#diff-b335630
 pnpm --filter @pwrdrvr/microapps-app-release-cdk run projen
 ```
 
+The construct package is published to npm only. Python, .NET, and Java jsii artifacts are no longer part of this repo's supported release surface.
+
 Historical jsii / TypeScript failures around `skipLibCheck` looked like this:
 
 [tsc does not allow flags when --build is passed](https://github.com/microsoft/TypeScript/issues/25613)

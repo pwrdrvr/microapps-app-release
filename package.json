@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "build:jsii-all": "pnpm --filter @pwrdrvr/microapps-app-release-cdk build:jsii-all",
+    "build:jsii-release": "pnpm --filter @pwrdrvr/microapps-app-release-cdk build:jsii-release",
     "build:next": "pnpm --filter @pwrdrvr/microapps-app-release build",
     "clean": "pnpm clean:dist && pnpm clean:tsbuildinfo",
     "clean:deep": "pnpm clean:dist && pnpm clean:next && pnpm clean:modules && pnpm clean:tsbuildinfo",
@@ -62,7 +62,7 @@
     "@pwrdrvr/microapps-publish": "0.4.0-alpha.5",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "aws-cdk": "^2.1000.0",
+    "aws-cdk": "^2.1117.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.25.3",

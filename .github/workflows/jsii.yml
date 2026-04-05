@@ -19,12 +19,8 @@ jobs:
       - uses: ./.github/actions/configure-nodejs
 
       - name: Build with JSII
-        run: pnpm --filter @pwrdrvr/microapps-app-release-cdk run build:jsii-all
+        run: pnpm --filter @pwrdrvr/microapps-app-release-cdk run build:jsii-release
 
       - name: Confirm No Doc Changes
         working-directory: packages/cdk-construct/
         run: git diff --ignore-space-at-eol --exit-code
-
-    container:
-      # Keep the maintained superchain line so jsii-pacmak gets a modern Python toolchain.
-      image: public.ecr.aws/jsii/superchain:1-bookworm-slim

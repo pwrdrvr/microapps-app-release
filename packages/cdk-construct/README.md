@@ -45,7 +45,7 @@ The application is intended to be deployed upon the [MicroApps framework](https:
 
 The application is packaged for deployment via AWS CDK and consists of a single Lambda function that reads/writes the MicroApps DynamoDB Table.
 
-The CDK Construct is available for TypeScript, DotNet, Java, and Python with docs and install instructions available on [@pwrdrvr/microapps-app-release-cdk - Construct Hub](https://constructs.dev/packages/@pwrdrvr/microapps-app-release-cdk).
+The CDK construct is published for JavaScript and TypeScript via npm, with API docs available on [@pwrdrvr/microapps-app-release-cdk - Construct Hub](https://constructs.dev/packages/@pwrdrvr/microapps-app-release-cdk).
 
 ## Installation of CDK Construct
 

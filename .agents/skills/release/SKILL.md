@@ -25,8 +25,8 @@ Use this skill for `microapps-app-release`, which publishes from GitHub Releases
 ## Repo Notes
 
 - The release workflow to watch is `.github/workflows/release.yml`; its current workflow name is `Release Package`.
-- The root release workflow builds the Next.js app, stages it into `packages/cdk-construct`, and then publishes the `@pwrdrvr/microapps-app-release-cdk` package.
-- `packages/cdk-construct` is the package that carries the published jsii outputs and bundled app artifact.
+- The root release workflow builds the Next.js app, stages it into `packages/cdk-construct`, and then publishes the `@pwrdrvr/microapps-app-release-cdk` npm package.
+- `packages/cdk-construct` is the package that carries the published JavaScript construct artifact and bundled app payload.
 - Store temporary planner and notes artifacts under `.local/release/`. The repo ignores `.local/`.
 
 ## Helper Script

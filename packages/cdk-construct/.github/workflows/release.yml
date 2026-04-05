@@ -21,7 +21,7 @@ jobs:
       CI: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Set git identity
@@ -29,13 +29,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: "10"
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 22.0.0
+          package-manager-cache: false
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
       - name: release
@@ -58,7 +59,7 @@ jobs:
         continue-on-error: true
       - name: Upload artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7
         with:
           name: build-artifact
           path: dist
@@ -68,19 +69,17 @@ jobs:
     needs:
       - release
       - release_npm
-      - release_maven
-      - release_pypi
-      - release_nuget
     runs-on: ubuntu-latest
     permissions:
       contents: write
     if: needs.release.outputs.tag_exists != 'true' && needs.release.outputs.latest_commit == github.sha
     steps:
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22.0.0
+          package-manager-cache: "false"
       - name: Download build artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: build-artifact
           path: dist
@@ -100,11 +99,12 @@ jobs:
       contents: read
     if: needs.release.outputs.tag_exists != 'true' && needs.release.outputs.latest_commit == github.sha
     steps:
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22.0.0
+          package-manager-cache: "false"
       - name: Download build artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: build-artifact
           path: dist
@@ -112,11 +112,11 @@ jobs:
         run: cd dist && setfacl --restore=permissions-backup.acl
         continue-on-error: true
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: "10"
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: .repo
       - name: Install Dependencies
@@ -136,141 +136,3 @@ jobs:
           NPM_CONFIG_PROVENANCE: "true"
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx -p publib@latest publib-npm
-  release_maven:
-    name: Publish to Maven Central
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: needs.release.outputs.tag_exists != 'true' && needs.release.outputs.latest_commit == github.sha
-    steps:
-      - uses: actions/setup-java@v5
-        with:
-          distribution: corretto
-          java-version: "11"
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22.0.0
-      - name: Download build artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: build-artifact
-          path: dist
-      - name: Restore build artifact permissions
-        run: cd dist && setfacl --restore=permissions-backup.acl
-        continue-on-error: true
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: "10"
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          path: .repo
-      - name: Install Dependencies
-        run: cd .repo && pnpm i --frozen-lockfile
-      - name: Extract build artifact
-        run: tar --strip-components=1 -xzvf dist/js/*.tgz -C .repo
-      - name: Move build artifact out of the way
-        run: mv dist dist.old
-      - name: Create java artifact
-        run: cd .repo && npx projen package:java
-      - name: Collect java artifact
-        run: mv .repo/dist dist
-      - name: Release
-        env:
-          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          MAVEN_GPG_PRIVATE_KEY_PASSPHRASE: ${{ secrets.MAVEN_GPG_PRIVATE_KEY_PASSPHRASE }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_STAGING_PROFILE_ID: ${{ secrets.MAVEN_STAGING_PROFILE_ID }}
-        run: npx -p publib@latest publib-maven
-  release_pypi:
-    name: Publish to PyPI
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: needs.release.outputs.tag_exists != 'true' && needs.release.outputs.latest_commit == github.sha
-    steps:
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22.0.0
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-      - name: Download build artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: build-artifact
-          path: dist
-      - name: Restore build artifact permissions
-        run: cd dist && setfacl --restore=permissions-backup.acl
-        continue-on-error: true
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: "10"
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          path: .repo
-      - name: Install Dependencies
-        run: cd .repo && pnpm i --frozen-lockfile
-      - name: Extract build artifact
-        run: tar --strip-components=1 -xzvf dist/js/*.tgz -C .repo
-      - name: Move build artifact out of the way
-        run: mv dist dist.old
-      - name: Create python artifact
-        run: cd .repo && npx projen package:python
-      - name: Collect python artifact
-        run: mv .repo/dist dist
-      - name: Release
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-        run: npx -p publib@latest publib-pypi
-  release_nuget:
-    name: Publish to NuGet Gallery
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: needs.release.outputs.tag_exists != 'true' && needs.release.outputs.latest_commit == github.sha
-    steps:
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22.0.0
-      - uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: 6.x
-      - name: Download build artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: build-artifact
-          path: dist
-      - name: Restore build artifact permissions
-        run: cd dist && setfacl --restore=permissions-backup.acl
-        continue-on-error: true
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: "10"
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          path: .repo
-      - name: Install Dependencies
-        run: cd .repo && pnpm i --frozen-lockfile
-      - name: Extract build artifact
-        run: tar --strip-components=1 -xzvf dist/js/*.tgz -C .repo
-      - name: Move build artifact out of the way
-        run: mv dist dist.old
-      - name: Create dotnet artifact
-        run: cd .repo && npx projen package:dotnet
-      - name: Collect dotnet artifact
-        run: mv .repo/dist dist
-      - name: Release
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: npx -p publib@latest publib-nuget
