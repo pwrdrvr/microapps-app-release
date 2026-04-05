@@ -10,16 +10,15 @@ export function ReleaseConsoleShell({ data }: { data: ReleaseConsoleData }) {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6 lg:px-8">
-      <section className="panel-surface overflow-hidden px-5 py-6">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <section className="panel-surface overflow-hidden px-5 py-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-3xl">
-            <p className="panel-label">MicroApps Release</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
-              Terminal-grade control for default versions
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground">
+              MicroApps Release
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-muted">
-              Browse application inventory, inspect routing state, and change the default version
-              only after an explicit confirmation step.
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
+              Browse apps, inspect routed versions, and change the default release with an explicit
+              confirmation step.
             </p>
           </div>
 
