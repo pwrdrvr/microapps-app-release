@@ -1,5 +1,13 @@
+function buildAppPath(appName: string) {
+  return appName === '[root]' ? '/' : `/${encodeURIComponent(appName)}`;
+}
+
+export function buildAppOpenUrl(appName: string) {
+  return buildAppPath(appName);
+}
+
 export function buildVersionPreviewUrl(appName: string, semVer: string) {
-  const path = appName === '[root]' ? '/' : `/${encodeURIComponent(appName)}`;
+  const path = buildAppPath(appName);
   const params = new URLSearchParams({
     appver: semVer,
   });
