@@ -45,10 +45,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Set git identity
         run: |-
@@ -101,7 +101,7 @@ jobs:
       # gets OOM killed at 2 GB of RAM usage for some reason.
       #
       - name: Download Artifact - App
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app_zip
           path: packages/cdk-construct/lib/
@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload CDK Construct Artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
@@ -164,13 +164,13 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Download CDK Construct build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
