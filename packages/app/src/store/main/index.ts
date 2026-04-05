@@ -8,6 +8,7 @@ import React from 'react';
 import semver from 'semver';
 import { DbManager } from '../../utils/dbManager';
 import getConfig from 'next/config';
+import { Reducer } from 'redux';
 
 const {
   publicRuntimeConfig: { apiPrefix },
@@ -158,7 +159,9 @@ const mainSlice = createSlice({
 
 export const { start, success, failure, sortApps, sortVersions } = mainSlice.actions;
 
-export default mainSlice.reducer;
+const reducer: Reducer<IPageState> = mainSlice.reducer;
+
+export default reducer;
 
 export const fetchAppsThunk = createAsyncThunk('mainPage/fetchApps', async (_, thunkAPI) => {
   try {

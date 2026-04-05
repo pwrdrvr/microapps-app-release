@@ -6,7 +6,6 @@ on:
       APP_PACKAGE_NAME:
         required: true
         type: string
-    # Map the workflow outputs to job outputs
     outputs:
       packageVersion:
         description: "Computed NPM Package Version (e.g. '1.0.0-pr.1')"
@@ -14,9 +13,6 @@ on:
       prSuffix:
         description: "Computed PR Suffix (e.g. '-pr-1' or '')"
         value: ${{ jobs.version.outputs.prSuffix }}
-
-env:
-  APP_PACKAGE_NAME: ${{ inputs.APP_PACKAGE_NAME }}
 
 jobs:
   version:
@@ -27,64 +23,48 @@ jobs:
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.x
 
       - name: Compute PR Suffix
         id: prSuffix
         run: |
           if [ -n "${PR_NUMBER}" ]; then
-            echo "::set-output name=prSuffix::-pr-${PR_NUMBER}"
-            echo "PR_SUFFIX=-pr-"${PR_NUMBER} >> $GITHUB_ENV
+            echo "prSuffix=-pr-${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "PR_SUFFIX=-pr-${PR_NUMBER}" >> "$GITHUB_ENV"
           else
-            echo "::set-output name=prSuffix::"
-            echo "PR_SUFFIX=" >> $GITHUB_ENV
+            echo "prSuffix=" >> "$GITHUB_OUTPUT"
+            echo "PR_SUFFIX=" >> "$GITHUB_ENV"
           fi
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Cache Node Modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            packages/**/node_modules
-          key: node-modules-${{ hashFiles('package.json', 'package-lock.json', 'patches/*') }}
-
-      - name: Optionally Install Node Modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci
-
-      # Use the tagged version as NPM package version for releases.
-      # This will cause versions to be deployed matching the tag on dev/qa/prod
-      # when a release is created from main.
-      - name: Apply Version from Git Tag
+      - name: Extract release version from tag
         if: github.event_name == 'release'
-        run: |
-          npm version from-git --no-git-tag-version --workspaces
-          npm version from-git --no-git-tag-version
+        id: releaseVersion
+        run: node scripts/release-metadata.mjs "${{ github.ref_name }}"
 
-      - name: Extract Current NPM Version
-        run: |
-          echo 'PACKAGE_VERSION_ORIG='$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
-          echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
+      - name: Extract current package version
+        if: github.event_name != 'release'
+        id: currentVersion
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
 
-      - name: Compute NPM Version
+      - name: Compute package version
         id: packageVersion
         run: |
+          BASE_VERSION="${{ steps.releaseVersion.outputs.version || steps.currentVersion.outputs.version }}"
           if [ -n "${PR_NUMBER}" ]; then
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}-pr.${PR_NUMBER}"
+            PACKAGE_VERSION="${BASE_VERSION}-pr.${PR_NUMBER}"
           else
-            echo 'PACKAGE_VERSION='${PACKAGE_VERSION_ORIG} >> $GITHUB_ENV
-            echo "::set-output name=packageVersion::${PACKAGE_VERSION_ORIG}"
+            PACKAGE_VERSION="${BASE_VERSION}"
           fi
+          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> "$GITHUB_ENV"
+          echo "packageVersion=${PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Create version.txt
-        run: echo ${PACKAGE_VERSION} > version.txt
+        run: echo "${PACKAGE_VERSION}" > version.txt
 
       - name: Upload version.txt
         uses: actions/upload-artifact@v4

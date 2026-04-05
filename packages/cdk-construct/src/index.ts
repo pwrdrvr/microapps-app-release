@@ -87,7 +87,7 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     //
     this._lambdaFunction = new lambda.Function(this, 'app-lambda', {
       code,
-      runtime: new lambda.Runtime('nodejs20.x', lambda.RuntimeFamily.NODEJS, {
+      runtime: new lambda.Runtime('nodejs22.x', lambda.RuntimeFamily.NODEJS, {
         supportsInlineCode: true,
       }),
       handler: 'run.sh',

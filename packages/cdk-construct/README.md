@@ -4,6 +4,8 @@
 
 Example / basic Next.js-based Release app for the [MicroApps framework](https://github.com/pwrdrvr/microapps-core).
 
+Repo development uses Node 22 and `pnpm`. See `CONTRIBUTING.md` for local setup and common commands.
+
 # Table of Contents <!-- omit in toc -->
 
 - [Overview](#overview)

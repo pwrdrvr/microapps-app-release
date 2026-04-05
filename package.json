@@ -9,28 +9,35 @@
   "author": "PwrDrvr LLC",
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
+  "packageManager": "pnpm@10.29.3",
+  "engines": {
+    "node": ">= 22.0.0"
+  },
   "workspaces": [
     "packages/*"
   ],
-  "resolutions": {
-    "class-transformer": "0.5.1"
+  "pnpm": {
+    "overrides": {
+      "class-transformer": "0.5.1"
+    }
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "build:jsii-all": "npm run -w @pwrdrvr/microapps-app-release-cdk build:jsii-all",
-    "build:next": "npm run -w @pwrdrvr/microapps-app-release build",
-    "clean": "npm run clean:dist && npm run clean:tsbuildinfo",
-    "clean:deep": "npm run clean:dist && npm run clean:next && npm run clean:modules && npm run clean:tsbuildinfo",
+    "build:jsii-all": "pnpm --filter @pwrdrvr/microapps-app-release-cdk build:jsii-all",
+    "build:next": "pnpm --filter @pwrdrvr/microapps-app-release build",
+    "clean": "pnpm clean:dist && pnpm clean:tsbuildinfo",
+    "clean:deep": "pnpm clean:dist && pnpm clean:next && pnpm clean:modules && pnpm clean:tsbuildinfo",
     "clean:next": "npx rimraf .next",
-    "clean:dist": "npm exec --workspaces -- npx rimraf dist && npx rimraf dist",
-    "clean:modules": "npm exec --workspaces -- npx rimraf node_modules && npx rimraf node_modules",
-    "clean:tsbuildinfo": "npm exec --workspaces -- npx rimraf tsconfig.tsbuildinfo",
+    "clean:dist": "pnpm -r exec rimraf dist && rimraf dist",
+    "clean:modules": "pnpm -r exec rimraf node_modules && rimraf node_modules",
+    "clean:tsbuildinfo": "pnpm -r exec rimraf tsconfig.tsbuildinfo && rimraf tsconfig.tsbuildinfo",
     "cloc": "cloc --exclude-dir=node_modules,.storybook.next,storybook-static,cdk.out --exclude-ext=json .",
-    "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run dev",
+    "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} pnpm --filter @pwrdrvr/microapps-app-release dev",
     "lint": "eslint ./packages/ --ext .ts --ext .tsx",
     "lint-and-fix": "eslint ./packages/ --ext .ts --ext .tsx --fix",
-    "postinstall": "patch-package --patch-dir ./patches/",
-    "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} npm -w @pwrdrvr/microapps-app-release run start",
+    "postinstall": "if [ -d node_modules/next ]; then patch-package --patch-dir ./patches/; else echo 'Skipping root patches'; fi",
+    "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} pnpm --filter @pwrdrvr/microapps-app-release start",
+    "test:repo-tools": "node --test tests/package-manager/*.test.mjs tests/workflows/*.test.mjs scripts/package-manager/*.test.mjs scripts/*.test.mjs",
     "install:node-prune": "curl -sf https://gobinaries.com/tj/node-prune | sh"
   },
   "eslintConfig": {
@@ -55,7 +62,7 @@
     "@pwrdrvr/microapps-publish": "0.4.0-alpha.5",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "aws-cdk": "2.68.0",
+    "aws-cdk": "^2.1000.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.25.3",
