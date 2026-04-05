@@ -33,6 +33,9 @@ jobs:
 
       - uses: pwrdrvr/configure-nodejs@v1
 
+      - name: Refresh pnpm workspace links
+        run: pnpm install --frozen-lockfile
+
       - name: Build All TypeScript
         run: pnpm build
 
