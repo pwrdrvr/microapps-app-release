@@ -10,6 +10,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
     alias: {
       '@': path.resolve(__dirname, './src'),
+      'server-only': path.resolve(__dirname, './tests/server-only.ts'),
       react: path.resolve(appNodeModules, 'react'),
       'react/jsx-runtime': path.resolve(appNodeModules, 'react/jsx-runtime.js'),
       'react/jsx-dev-runtime': path.resolve(appNodeModules, 'react/jsx-dev-runtime.js'),
