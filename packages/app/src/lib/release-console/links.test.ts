@@ -1,0 +1,24 @@
+import { describe, expect, test } from 'vitest';
+import { buildLambdaConsoleUrl, buildVersionPreviewUrl } from './links';
+
+describe('release console links', () => {
+  test('builds a preview URL for standard apps', () => {
+    expect(buildVersionPreviewUrl('release', '0.5.2')).toBe('/release?appver=0.5.2');
+  });
+
+  test('builds a preview URL for the root app', () => {
+    expect(buildVersionPreviewUrl('[root]', '1.2.3')).toBe('/?appver=1.2.3');
+  });
+
+  test('builds an AWS Console URL from a Lambda ARN', () => {
+    expect(
+      buildLambdaConsoleUrl('arn:aws:lambda:us-east-2:123456789012:function:release-prod-pr-106'),
+    ).toBe(
+      'https://us-east-2.console.aws.amazon.com/lambda/home?region=us-east-2#/functions/release-prod-pr-106?tab=monitoring',
+    );
+  });
+
+  test('returns null for a malformed Lambda ARN', () => {
+    expect(buildLambdaConsoleUrl('not-an-arn')).toBeNull();
+  });
+});
