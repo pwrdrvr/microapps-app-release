@@ -43,6 +43,16 @@ test('workflow baselines stay on node 22 and avoid npm-era release plumbing', ()
   }
 });
 
+test('jsii packaging workflows stay on the maintained superchain image', () => {
+  const jsiiWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'jsii.yml'), 'utf8');
+  const releaseWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'release.yml'), 'utf8');
+
+  assert.match(jsiiWorkflow, /public\.ecr\.aws\/jsii\/superchain:1-bookworm-slim/);
+  assert.match(releaseWorkflow, /public\.ecr\.aws\/jsii\/superchain:1-bookworm-slim/);
+  assert.doesNotMatch(jsiiWorkflow, /jsii\/superchain@sha256:/);
+  assert.doesNotMatch(releaseWorkflow, /jsii\/superchain@sha256:/);
+});
+
 test('direct setup-node usage disables package-manager auto-cache', () => {
   const directSetupNodeWorkflowFiles = [
     '.github/workflows/r_version.yml',
