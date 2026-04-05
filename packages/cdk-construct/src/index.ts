@@ -2,7 +2,6 @@ import { existsSync } from 'fs';
 import { Aws, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as logs from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -88,7 +87,9 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
     //
     this._lambdaFunction = new lambda.Function(this, 'app-lambda', {
       code,
-      runtime: lambda.Runtime.NODEJS_16_X,
+      runtime: new lambda.Runtime('nodejs20.x', lambda.RuntimeFamily.NODEJS, {
+        supportsInlineCode: true,
+      }),
       handler: 'run.sh',
       functionName,
       environment: {
@@ -103,7 +104,6 @@ export class MicroAppsAppRelease extends Construct implements IMicroAppsAppRelea
         PORT: '3000',
         READINESS_CHECK_PATH: '/release',
       },
-      logRetention: logs.RetentionDays.ONE_MONTH,
       memorySize: 1769,
       timeout: Duration.seconds(15),
       description: process.env.npm_package_version || '',

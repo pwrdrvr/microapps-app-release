@@ -53,10 +53,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Cache Node Modules
         id: cache-node-modules
@@ -92,7 +92,7 @@ jobs:
         working-directory: packages/app/
         run: zip -r storybook-static.zip storybook-static
       - name: Upload Zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: storybook_zip
           path: packages/app/storybook-static.zip
@@ -117,10 +117,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Cache Node Modules
         id: cache-node-modules
@@ -136,7 +136,7 @@ jobs:
         run: npm ci
 
       - name: Download Artifact - Story Book
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: storybook_zip
           path: packages/app/
@@ -146,7 +146,7 @@ jobs:
         run: unzip storybook-static.zip
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
@@ -201,10 +201,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Cache Node Modules
         id: cache-node-modules
@@ -241,7 +241,7 @@ jobs:
         run: npm run build
 
       - name: Download Artifact - App
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app_zip
           path: packages/cdk-construct/lib/
@@ -251,7 +251,7 @@ jobs:
         run: unzip -o nextjs.zip
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-session-name: microapps-app-${{ env.APP_NAME }}-build
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
