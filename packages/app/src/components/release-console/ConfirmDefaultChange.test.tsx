@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ConfirmDefaultChange } from './ConfirmDefaultChange';
 
@@ -6,6 +6,31 @@ const refresh = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh }),
+}));
+
+vi.mock('@/components/ui/button', () => ({
+  Button: ({
+    children,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & { children?: React.ReactNode }) => (
+    <button {...props}>{children}</button>
+  ),
+}));
+
+vi.mock('@/components/ui/dialog', () => ({
+  Dialog: ({
+    children,
+    open,
+  }: {
+    children?: React.ReactNode;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+  }) => (open ? <div>{children}</div> : null),
+  DialogContent: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+  DialogDescription: ({ children }: { children?: React.ReactNode }) => <p>{children}</p>,
+  DialogFooter: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+  DialogHeader: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+  DialogTitle: ({ children }: { children?: React.ReactNode }) => <h2>{children}</h2>,
 }));
 
 describe('ConfirmDefaultChange', () => {
@@ -17,7 +42,9 @@ describe('ConfirmDefaultChange', () => {
   });
 
   afterEach(() => {
+    cleanup();
     vi.unstubAllGlobals();
+    document.head.innerHTML = '';
   });
 
   test('posts to the versioned release API path and refreshes on success', async () => {
