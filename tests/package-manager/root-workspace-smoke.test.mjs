@@ -50,3 +50,10 @@ test('cdk-stack consumes the local construct package via the workspace protocol'
     'workspace:*',
   );
 });
+
+test('the app keeps the Storybook webpack4 compatibility flag under node 22', () => {
+  const packageJson = readJson(path.join('packages', 'app', 'package.json'));
+
+  assert.match(packageJson.scripts['build:storybook'], /--openssl-legacy-provider/);
+  assert.match(packageJson.scripts.storybook, /--openssl-legacy-provider/);
+});

@@ -43,6 +43,24 @@ test('workflow baselines stay on node 22 and avoid npm-era release plumbing', ()
   }
 });
 
+test('label-gated PR workflows listen for labeled events', () => {
+  const jsiiWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'jsii.yml'), 'utf8');
+  const ciWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'ci.yml'), 'utf8');
+
+  assert.match(jsiiWorkflow, /pull_request:\s*\n\s*branches:\s*\[main\]\s*\n\s*types:\s*\[opened, synchronize, reopened, labeled\]/);
+  assert.match(ciWorkflow, /pull_request:\s*\n\s*branches:\s*\[main\]\s*\n\s*types:\s*\[opened, synchronize, reopened, labeled\]/);
+});
+
+test('jsii packaging workflows stay on the maintained superchain image', () => {
+  const jsiiWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'jsii.yml'), 'utf8');
+  const releaseWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'release.yml'), 'utf8');
+
+  assert.match(jsiiWorkflow, /public\.ecr\.aws\/jsii\/superchain:1-bookworm-slim/);
+  assert.match(releaseWorkflow, /public\.ecr\.aws\/jsii\/superchain:1-bookworm-slim/);
+  assert.doesNotMatch(jsiiWorkflow, /jsii\/superchain@sha256:/);
+  assert.doesNotMatch(releaseWorkflow, /jsii\/superchain@sha256:/);
+});
+
 test('direct setup-node usage disables package-manager auto-cache', () => {
   const directSetupNodeWorkflowFiles = [
     '.github/workflows/r_version.yml',

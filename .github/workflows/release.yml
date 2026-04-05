@@ -86,11 +86,8 @@ jobs:
           path: packages/cdk-construct/dist
 
     container:
-      # 2023-01-04 release broke the build
-      # ModuleNotFoundError: No module named 'pip._vendor.cachecontrol'
-      # AttributeError: module 'lib' has no attribute 'OpenSSL_add_all_algorithms'
-      # image: jsii/superchain:1-buster-slim-node16
-      image: jsii/superchain@sha256:59ec6f7ebea621ab099ceb1eb3a2ac0129a2062f570d78993a39a69b06f93ccb
+      # Keep the maintained superchain line so jsii-pacmak gets a modern Python toolchain.
+      image: public.ecr.aws/jsii/superchain:1-bookworm-slim
 
   release-assets:
     name: Release Assets
@@ -146,8 +143,5 @@ jobs:
           NPM_DIST_TAG: ${{ needs.version.outputs.npmDistTag }}
 
     container:
-      # 2023-01-04 release broke the build
-      # ModuleNotFoundError: No module named 'pip._vendor.cachecontrol'
-      # AttributeError: module 'lib' has no attribute 'OpenSSL_add_all_algorithms'
-      # image: jsii/superchain:1-buster-slim-node16
-      image: jsii/superchain@sha256:59ec6f7ebea621ab099ceb1eb3a2ac0129a2062f570d78993a39a69b06f93ccb
+      # Keep the maintained superchain line so jsii-pacmak gets a modern Python toolchain.
+      image: public.ecr.aws/jsii/superchain:1-bookworm-slim
