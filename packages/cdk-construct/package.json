@@ -72,12 +72,6 @@
   "engines": {
     "node": ">= 22.0.0"
   },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "onFail": "ignore"
-    }
-  },
   "main": "lib/index.js",
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-app-release",

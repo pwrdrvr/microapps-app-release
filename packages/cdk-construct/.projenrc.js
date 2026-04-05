@@ -18,6 +18,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   npmAccess: javascript.NpmAccess.PUBLIC,
   packageManager: javascript.NodePackageManager.PNPM,
   pnpmVersion: '10',
+  addPackageManagerToDevEngines: false,
   minNodeVersion: '22.0.0',
   jsiiVersion: '^5.9.36',
   projenrcTs: false,

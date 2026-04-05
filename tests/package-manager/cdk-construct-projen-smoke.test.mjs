@@ -23,6 +23,8 @@ test('cdk-construct pins the JS-only pnpm, projen, cdk, and node floor', () => {
   assert.doesNotMatch(projenrc, /publishToNuget/);
   assert.doesNotMatch(projenrc, /publishToMaven/);
   assert.equal(packageJson.engines.node, '>= 22.0.0');
+  assert.equal(packageJson.packageManager, undefined);
+  assert.equal(packageJson.devEngines, undefined);
   assert.equal(packageJson.devDependencies.projen, '0.99.34');
   assert.equal(packageJson.devDependencies['aws-cdk-lib'], '2.248.0');
   assert.equal(packageJson.devDependencies.constructs, '10.5.1');
