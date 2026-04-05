@@ -1,9 +1,9 @@
 import { existsSync } from 'fs';
-import { Aws, Duration, RemovalPolicy } from 'aws-cdk-lib';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import { Construct } from 'constructs';
 import * as path from 'path';
+import { Aws, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
 
 /**
  * Properties to initialize an instance of `MicroAppsAppRelease`.

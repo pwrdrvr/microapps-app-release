@@ -72,7 +72,7 @@ project.addScripts({
   'build:jsii-docgen': 'npx projen docgen',
   'build:jsii-pacmak': 'npx projen package-all',
   'build:jsii-all': 'pnpm run build:jsii && pnpm run build:jsii-docgen && pnpm run build:jsii-pacmak',
-  cdk: 'cdk',
+  'cdk': 'cdk',
 });
 
 // The construct tsconfig currently needs skipLibCheck for the legacy app bundle.
