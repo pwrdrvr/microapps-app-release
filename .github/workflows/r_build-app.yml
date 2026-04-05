@@ -67,7 +67,7 @@ jobs:
           pnpm build
           du -sh .next/*
           du -sh .next/standalone/*
-          du -sh .next/standalone/.next/*
+          du -sh .next/standalone/packages/app/.next/*
 
       - name: Combine Build Outputs
         run: |
