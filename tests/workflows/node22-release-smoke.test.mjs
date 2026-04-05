@@ -69,3 +69,12 @@ test('the app packaging workflow materializes pnpm standalone dependencies befor
   assert.match(workflow, /materialize-next-standalone\.mjs/);
   assert.doesNotMatch(workflow, /cp -R \.\/packages\/app\/\.next\/standalone/);
 });
+
+test('the deploy workflow unpacks the app artifact in runner temp before moving it into lib', () => {
+  const workflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'ci.yml'), 'utf8');
+
+  assert.match(workflow, /path:\s*\$\{\{\s*runner\.temp\s*\}\}\/app-artifact/);
+  assert.match(workflow, /unzip -o "\$\{RUNNER_TEMP\}\/app-artifact\/nextjs\.zip" -d "\$\{RUNNER_TEMP\}\/app-unpacked"/);
+  assert.match(workflow, /rm -rf "packages\/cdk-construct\/lib\/\$\{APP_CONSTRUCT_FOLDER_NAME\}"/);
+  assert.match(workflow, /mv "\$\{RUNNER_TEMP\}\/app-unpacked\/\$\{APP_CONSTRUCT_FOLDER_NAME\}" "packages\/cdk-construct\/lib\/\$\{APP_CONSTRUCT_FOLDER_NAME\}"/);
+});

@@ -166,11 +166,15 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: app_zip
-          path: packages/cdk-construct/lib/
+          path: ${{ runner.temp }}/app-artifact
 
-      - name: Unzip Artifact - App
-        working-directory: packages/cdk-construct/lib/
-        run: unzip -o nextjs.zip
+      - name: Materialize App Artifact
+        run: |
+          rm -rf "${RUNNER_TEMP}/app-unpacked"
+          mkdir -p "${RUNNER_TEMP}/app-unpacked"
+          unzip -o "${RUNNER_TEMP}/app-artifact/nextjs.zip" -d "${RUNNER_TEMP}/app-unpacked"
+          rm -rf "packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}"
+          mv "${RUNNER_TEMP}/app-unpacked/${APP_CONSTRUCT_FOLDER_NAME}" "packages/cdk-construct/lib/${APP_CONSTRUCT_FOLDER_NAME}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
