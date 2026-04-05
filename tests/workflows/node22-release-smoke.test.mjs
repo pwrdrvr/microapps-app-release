@@ -66,6 +66,9 @@ test('release workflows propagate prerelease metadata through to npm publishing'
   assert.match(versionWorkflow, /value:\s+\$\{\{\s*jobs\.version\.outputs\.npmDistTag\s*\}\}/);
 
   assert.match(releaseWorkflow, /echo "npmDistTag: \$\{\{\s*needs\.version\.outputs\.npmDistTag\s*\}\}"/);
+  assert.match(releaseWorkflow, /Validate GitHub prerelease flag/);
+  assert.match(releaseWorkflow, /EXPECTED_PRERELEASE:\s+\$\{\{\s*needs\.version\.outputs\.isPrerelease\s*\}\}/);
+  assert.match(releaseWorkflow, /ACTUAL_PRERELEASE:\s+\$\{\{\s*github\.event\.release\.prerelease\s*\}\}/);
   assert.match(releaseWorkflow, /NPM_DIST_TAG:\s+\$\{\{\s*needs\.version\.outputs\.npmDistTag\s*\}\}/);
 });
 
