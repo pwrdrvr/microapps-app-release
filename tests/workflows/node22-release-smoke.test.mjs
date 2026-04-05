@@ -62,3 +62,10 @@ test('the construct runtime baseline is nodejs22.x', () => {
 
   assert.match(source, /nodejs22\.x/);
 });
+
+test('the app packaging workflow materializes pnpm standalone dependencies before zipping', () => {
+  const workflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'r_build-app.yml'), 'utf8');
+
+  assert.match(workflow, /materialize-next-standalone\.mjs/);
+  assert.doesNotMatch(workflow, /cp -R \.\/packages\/app\/\.next\/standalone/);
+});
