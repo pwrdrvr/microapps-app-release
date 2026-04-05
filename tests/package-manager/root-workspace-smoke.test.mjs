@@ -41,3 +41,12 @@ test('root scripts no longer shell through npm workspace helpers', () => {
     );
   }
 });
+
+test('cdk-stack consumes the local construct package via the workspace protocol', () => {
+  const packageJson = readJson(path.join('packages', 'cdk-stack', 'package.json'));
+
+  assert.equal(
+    packageJson.devDependencies['@pwrdrvr/microapps-app-release-cdk'],
+    'workspace:*',
+  );
+});

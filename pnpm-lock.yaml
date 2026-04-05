@@ -259,8 +259,8 @@ importers:
   packages/cdk-stack:
     devDependencies:
       '@pwrdrvr/microapps-app-release-cdk':
-        specifier: '*'
-        version: 0.5.3(aws-cdk-lib@2.168.0(constructs@10.0.5))(constructs@10.0.5)
+        specifier: workspace:*
+        version: link:../cdk-construct
       '@types/jest':
         specifier: ^26.0.10
         version: 26.0.24
@@ -2000,12 +2000,6 @@ packages:
 
   '@popperjs/core@2.11.6':
     resolution: {integrity: sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==}
-
-  '@pwrdrvr/microapps-app-release-cdk@0.5.3':
-    resolution: {integrity: sha512-mscP6oFQW4ZaAt6h839fWGdgnvdTOL8d4TDznSVJQWUtm+mAbdWNhtnsOwmYYa9Eth65dGXIgVqC9+iqIwUixw==}
-    peerDependencies:
-      aws-cdk-lib: ^2.24.0
-      constructs: ^10.0.5
 
   '@pwrdrvr/microapps-datalib@0.4.0-alpha.5':
     resolution: {integrity: sha512-gyklno01EBXipEDY0DpPqnDjbO81j2rFOFrM2mCyHjLvqtRoYkNEAP+MVcOAtUh87fW4zDA73Zj4Ilrha8uzEQ==}
@@ -10698,11 +10692,6 @@ snapshots:
       webpack-hot-middleware: 2.25.3
 
   '@popperjs/core@2.11.6': {}
-
-  '@pwrdrvr/microapps-app-release-cdk@0.5.3(aws-cdk-lib@2.168.0(constructs@10.0.5))(constructs@10.0.5)':
-    dependencies:
-      aws-cdk-lib: 2.168.0(constructs@10.0.5)
-      constructs: 10.0.5
 
   '@pwrdrvr/microapps-datalib@0.4.0-alpha.5(@aws-sdk/client-dynamodb@3.287.0)(@aws-sdk/lib-dynamodb@3.287.0(@aws-sdk/client-dynamodb@3.287.0)(@aws-sdk/smithy-client@3.279.0)(@aws-sdk/types@3.272.0))(class-transformer@0.5.1)(tslib@2.5.0)':
     dependencies:

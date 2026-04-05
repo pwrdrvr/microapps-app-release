@@ -18,7 +18,7 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@pwrdrvr/microapps-app-release-cdk": "*",
+    "@pwrdrvr/microapps-app-release-cdk": "workspace:*",
     "@types/jest": "^26.0.10",
     "@types/node": "^22.0.0",
     "@types/source-map-support": "^0.5.3",
