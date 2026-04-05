@@ -44,6 +44,19 @@ jobs:
         run: |
           echo "packageVersion: ${{ needs.version.outputs.packageVersion }}"
           echo "prSuffix: ${{ needs.version.outputs.prSuffix }}"
+          echo "isPrerelease: ${{ needs.version.outputs.isPrerelease }}"
+          echo "releaseChannel: ${{ needs.version.outputs.releaseChannel }}"
+          echo "npmDistTag: ${{ needs.version.outputs.npmDistTag }}"
+
+      - name: Validate GitHub prerelease flag
+        env:
+          EXPECTED_PRERELEASE: ${{ needs.version.outputs.isPrerelease }}
+          ACTUAL_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ "$EXPECTED_PRERELEASE" != "$ACTUAL_PRERELEASE" ]; then
+            echo "Release tag prerelease state ($EXPECTED_PRERELEASE) does not match GitHub release.prerelease ($ACTUAL_PRERELEASE)." >&2
+            exit 1
+          fi
 
       - name: Apply package version to the workspace
         run: node scripts/set-workspace-version.mjs "${{ needs.version.outputs.packageVersion }}"
@@ -130,6 +143,7 @@ jobs:
         run: npx -p publib@latest publib-npm
         env:
           NPM_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
+          NPM_DIST_TAG: ${{ needs.version.outputs.npmDistTag }}
 
     container:
       # 2023-01-04 release broke the build

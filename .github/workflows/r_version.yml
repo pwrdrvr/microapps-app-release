@@ -13,6 +13,15 @@ on:
       prSuffix:
         description: "Computed PR Suffix (e.g. '-pr-1' or '')"
         value: ${{ jobs.version.outputs.prSuffix }}
+      isPrerelease:
+        description: "Whether the release tag is a prerelease"
+        value: ${{ jobs.version.outputs.isPrerelease }}
+      releaseChannel:
+        description: "Release channel derived from the tag (e.g. 'beta' or 'stable')"
+        value: ${{ jobs.version.outputs.releaseChannel }}
+      npmDistTag:
+        description: "npm dist-tag derived from the release tag (e.g. 'beta' or 'latest')"
+        value: ${{ jobs.version.outputs.npmDistTag }}
 
 jobs:
   version:
@@ -20,6 +29,9 @@ jobs:
     outputs:
       prSuffix: ${{ steps.prSuffix.outputs.prSuffix }}
       packageVersion: ${{ steps.packageVersion.outputs.packageVersion }}
+      isPrerelease: ${{ steps.releaseMetadata.outputs.isPrerelease || 'false' }}
+      releaseChannel: ${{ steps.releaseMetadata.outputs.releaseChannel || 'stable' }}
+      npmDistTag: ${{ steps.releaseMetadata.outputs.npmDistTag || 'latest' }}
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
@@ -42,9 +54,9 @@ jobs:
             echo "PR_SUFFIX=" >> "$GITHUB_ENV"
           fi
 
-      - name: Extract release version from tag
+      - name: Extract release metadata from tag
         if: github.event_name == 'release'
-        id: releaseVersion
+        id: releaseMetadata
         run: node scripts/release-metadata.mjs "${{ github.ref_name }}"
 
       - name: Extract current package version
@@ -57,7 +69,7 @@ jobs:
       - name: Compute package version
         id: packageVersion
         run: |
-          BASE_VERSION="${{ steps.releaseVersion.outputs.version || steps.currentVersion.outputs.version }}"
+          BASE_VERSION="${{ steps.releaseMetadata.outputs.version || steps.currentVersion.outputs.version }}"
           if [ -n "${PR_NUMBER}" ]; then
             PACKAGE_VERSION="${BASE_VERSION}-pr.${PR_NUMBER}"
           else
