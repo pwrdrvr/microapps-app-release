@@ -42,6 +42,18 @@ test('workflow baselines stay on node 22 and avoid npm-era release plumbing', ()
   }
 });
 
+test('direct setup-node usage disables package-manager auto-cache', () => {
+  const directSetupNodeWorkflowFiles = [
+    '.github/workflows/r_version.yml',
+    '.github/workflows/release.yml',
+  ];
+
+  for (const relativePath of directSetupNodeWorkflowFiles) {
+    const workflow = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(workflow, /package-manager-cache:\s*false/);
+  }
+});
+
 test('the construct runtime baseline is nodejs22.x', () => {
   const source = fs.readFileSync(
     path.join(repoRoot, 'packages', 'cdk-construct', 'src', 'index.ts'),

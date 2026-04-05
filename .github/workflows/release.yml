@@ -93,6 +93,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22.x
+          package-manager-cache: false
 
       - name: Download CDK Construct build artifacts
         uses: actions/download-artifact@v5
