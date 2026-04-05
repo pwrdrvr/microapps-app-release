@@ -18,6 +18,16 @@ describe('release console links', () => {
     );
   });
 
+  test('preserves Lambda qualifiers in the AWS Console URL', () => {
+    expect(
+      buildLambdaConsoleUrl(
+        'arn:aws:lambda:us-east-2:123456789012:function:microapps-core-ghpublic-app-release-prod:v0_5_2',
+      ),
+    ).toBe(
+      'https://us-east-2.console.aws.amazon.com/lambda/home?region=us-east-2#/functions/microapps-core-ghpublic-app-release-prod:v0_5_2?tab=monitoring',
+    );
+  });
+
   test('returns null for a malformed Lambda ARN', () => {
     expect(buildLambdaConsoleUrl('not-an-arn')).toBeNull();
   });

@@ -14,8 +14,7 @@ export function buildLambdaConsoleUrl(lambdaArn: string) {
   }
 
   const [, region, functionName] = match;
+  const consoleFunctionName = encodeURIComponent(functionName).replaceAll('%3A', ':');
 
-  return `https://${region}.console.aws.amazon.com/lambda/home?region=${region}#/functions/${encodeURIComponent(
-    functionName,
-  )}?tab=monitoring`;
+  return `https://${region}.console.aws.amazon.com/lambda/home?region=${region}#/functions/${consoleFunctionName}?tab=monitoring`;
 }
