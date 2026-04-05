@@ -6,9 +6,9 @@ const metadata = parseReleaseTag(process.argv[2]);
 
 if (process.env.GITHUB_OUTPUT) {
   appendGitHubOutput('version', metadata.version);
-  appendGitHubOutput('is_prerelease', String(metadata.isPrerelease));
-  appendGitHubOutput('release_channel', metadata.channel ?? 'stable');
-  appendGitHubOutput('npm_dist_tag', metadata.npmDistTag);
+  appendGitHubOutput('isPrerelease', String(metadata.isPrerelease));
+  appendGitHubOutput('releaseChannel', metadata.channel ?? 'stable');
+  appendGitHubOutput('npmDistTag', metadata.npmDistTag);
 }
 
 process.stdout.write(`${JSON.stringify(metadata, null, 2)}\n`);

@@ -55,6 +55,20 @@ test('direct setup-node usage disables package-manager auto-cache', () => {
   }
 });
 
+test('release workflows propagate prerelease metadata through to npm publishing', () => {
+  const versionWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'r_version.yml'), 'utf8');
+  const releaseWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'release.yml'), 'utf8');
+
+  assert.match(versionWorkflow, /isPrerelease:/);
+  assert.match(versionWorkflow, /releaseChannel:/);
+  assert.match(versionWorkflow, /npmDistTag:/);
+  assert.match(versionWorkflow, /id:\s+releaseMetadata/);
+  assert.match(versionWorkflow, /value:\s+\$\{\{\s*jobs\.version\.outputs\.npmDistTag\s*\}\}/);
+
+  assert.match(releaseWorkflow, /echo "npmDistTag: \$\{\{\s*needs\.version\.outputs\.npmDistTag\s*\}\}"/);
+  assert.match(releaseWorkflow, /NPM_DIST_TAG:\s+\$\{\{\s*needs\.version\.outputs\.npmDistTag\s*\}\}/);
+});
+
 test('the construct runtime baseline is nodejs22.x', () => {
   const source = fs.readFileSync(
     path.join(repoRoot, 'packages', 'cdk-construct', 'src', 'index.ts'),

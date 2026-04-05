@@ -44,6 +44,9 @@ jobs:
         run: |
           echo "packageVersion: ${{ needs.version.outputs.packageVersion }}"
           echo "prSuffix: ${{ needs.version.outputs.prSuffix }}"
+          echo "isPrerelease: ${{ needs.version.outputs.isPrerelease }}"
+          echo "releaseChannel: ${{ needs.version.outputs.releaseChannel }}"
+          echo "npmDistTag: ${{ needs.version.outputs.npmDistTag }}"
 
       - name: Apply package version to the workspace
         run: node scripts/set-workspace-version.mjs "${{ needs.version.outputs.packageVersion }}"
@@ -130,6 +133,7 @@ jobs:
         run: npx -p publib@latest publib-npm
         env:
           NPM_TOKEN: ${{ secrets.NPMJSORG_PUBLISH_TOKEN }}
+          NPM_DIST_TAG: ${{ needs.version.outputs.npmDistTag }}
 
     container:
       # 2023-01-04 release broke the build
