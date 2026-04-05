@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ReleaseConsoleVersion } from '@/lib/release-console/types';
 import { Button } from '@/components/ui/button';
+import { buildDefaultVersionApiUrl } from '@/lib/release-console/links';
 import {
   Dialog,
   DialogContent,
@@ -12,8 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
-const appBasePath = '/release';
 
 export function ConfirmDefaultChange({
   open,
@@ -40,7 +39,7 @@ export function ConfirmDefaultChange({
     setError(null);
 
     startTransition(async () => {
-      const response = await fetch(`${appBasePath}/api/default-version`, {
+      const response = await fetch(buildDefaultVersionApiUrl(), {
         method: 'POST',
         headers: {
           'content-type': 'application/json',

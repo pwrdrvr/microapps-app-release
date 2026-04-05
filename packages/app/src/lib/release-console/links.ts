@@ -2,6 +2,9 @@ function buildAppPath(appName: string) {
   return appName === '[root]' ? '/' : `/${encodeURIComponent(appName)}`;
 }
 
+const releaseAppBasePath = '/release';
+const releaseAppVersionPlaceholder = '0.0.0';
+
 export function buildAppOpenUrl(appName: string) {
   return buildAppPath(appName);
 }
@@ -13,6 +16,10 @@ export function buildVersionPreviewUrl(appName: string, semVer: string) {
   });
 
   return `${path}?${params.toString()}`;
+}
+
+export function buildDefaultVersionApiUrl() {
+  return `${releaseAppBasePath}/${releaseAppVersionPlaceholder}/api/default-version`;
 }
 
 export function buildLambdaConsoleUrl(lambdaArn: string) {

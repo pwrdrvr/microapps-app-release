@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'vitest';
-import { buildAppOpenUrl, buildLambdaConsoleUrl, buildVersionPreviewUrl } from './links';
+import {
+  buildAppOpenUrl,
+  buildDefaultVersionApiUrl,
+  buildLambdaConsoleUrl,
+  buildVersionPreviewUrl,
+} from './links';
 
 describe('release console links', () => {
   test('builds an app URL for standard apps', () => {
@@ -16,6 +21,10 @@ describe('release console links', () => {
 
   test('builds a preview URL for the root app', () => {
     expect(buildVersionPreviewUrl('[root]', '1.2.3')).toBe('/?appver=1.2.3');
+  });
+
+  test('builds the versioned default-version API URL', () => {
+    expect(buildDefaultVersionApiUrl()).toBe('/release/0.0.0/api/default-version');
   });
 
   test('builds an AWS Console URL from a Lambda ARN', () => {
