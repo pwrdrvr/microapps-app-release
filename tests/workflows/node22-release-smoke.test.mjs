@@ -43,6 +43,14 @@ test('workflow baselines stay on node 22 and avoid npm-era release plumbing', ()
   }
 });
 
+test('label-gated PR workflows listen for labeled events', () => {
+  const jsiiWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'jsii.yml'), 'utf8');
+  const ciWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'ci.yml'), 'utf8');
+
+  assert.match(jsiiWorkflow, /pull_request:\s*\n\s*branches:\s*\[main\]\s*\n\s*types:\s*\[opened, synchronize, reopened, labeled\]/);
+  assert.match(ciWorkflow, /pull_request:\s*\n\s*branches:\s*\[main\]\s*\n\s*types:\s*\[opened, synchronize, reopened, labeled\]/);
+});
+
 test('jsii packaging workflows stay on the maintained superchain image', () => {
   const jsiiWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'jsii.yml'), 'utf8');
   const releaseWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'release.yml'), 'utf8');
