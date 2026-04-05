@@ -17,10 +17,7 @@
     "eslint": "npx projen eslint",
     "package": "npx projen package",
     "package-all": "npx projen package-all",
-    "package:dotnet": "npx projen package:dotnet",
-    "package:java": "npx projen package:java",
     "package:js": "npx projen package:js",
-    "package:python": "npx projen package:python",
     "post-compile": "npx projen post-compile",
     "post-upgrade": "npx projen post-upgrade",
     "pre-compile": "npx projen pre-compile",
@@ -32,8 +29,8 @@
     "projen": "npx projen",
     "build:jsii": "npx projen compile",
     "build:jsii-docgen": "npx projen docgen",
-    "build:jsii-pacmak": "npx projen package-all",
-    "build:jsii-all": "pnpm run build:jsii && pnpm run build:jsii-docgen && pnpm run build:jsii-pacmak",
+    "build:jsii-package": "npx projen package:js",
+    "build:jsii-release": "pnpm run build:jsii && pnpm run build:jsii-docgen && pnpm run build:jsii-package",
     "cdk": "cdk"
   },
   "author": {
@@ -48,23 +45,23 @@
     "@types/yargs": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
-    "aws-cdk-lib": "2.168.0",
+    "aws-cdk-lib": "2.248.0",
     "commit-and-tag-version": "^12",
-    "constructs": "10.0.5",
+    "constructs": "10.5.1",
     "eslint": "^9",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.26.0",
-    "jsii": "^5.4",
+    "jsii": "^5.9.36",
     "jsii-diff": "^1.118.0",
-    "jsii-docgen": "^10.5.0",
+    "jsii-docgen": "^10.11.15",
     "jsii-pacmak": "^1.118.0",
-    "jsii-rosetta": "^5.4",
-    "projen": "0.98.10",
+    "jsii-rosetta": "^5.9.36",
+    "projen": "0.99.34",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.168.0",
-    "constructs": "^10.0.5"
+    "aws-cdk-lib": "^2.248.0",
+    "constructs": "^10.5.1"
   },
   "pnpm": {},
   "keywords": [
@@ -74,6 +71,12 @@
   ],
   "engines": {
     "node": ">= 22.0.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "onFail": "ignore"
+    }
   },
   "main": "lib/index.js",
   "license": "MIT",
@@ -86,23 +89,7 @@
   "stability": "stable",
   "jsii": {
     "outdir": "dist",
-    "targets": {
-      "java": {
-        "package": "com.pwrdrvr.microapps.releaseappcdk",
-        "maven": {
-          "groupId": "com.pwrdrvr.microapps",
-          "artifactId": "releaseappcdk"
-        }
-      },
-      "python": {
-        "distName": "pwrdrvr.microapps.releaseappcdk",
-        "module": "pwrdrvr.microapps.releaseappcdk"
-      },
-      "dotnet": {
-        "namespace": "PwrDrvr.MicroApps.ReleaseAppCDK",
-        "packageId": "PwrDrvr.MicroApps.ReleaseAppCDK"
-      }
-    },
+    "targets": {},
     "tsc": {
       "outDir": "lib",
       "rootDir": "src"
