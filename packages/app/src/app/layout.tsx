@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
+import packageJson from '../../package.json';
 import './globals.css';
 
 const mono = IBM_Plex_Mono({
@@ -16,7 +17,7 @@ const sans = Space_Grotesk({
 });
 
 const appBasePath = '/release';
-const appAssetPrefix = `${appBasePath}/0.0.0`;
+const appAssetPrefix = `${appBasePath}/${packageJson.version}`;
 const manifestPath = `${appAssetPrefix}/static/manifest.webmanifest`;
 
 export const metadata: Metadata = {
