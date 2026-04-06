@@ -13,7 +13,6 @@ env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   NODE_ENV: prod
   APP_NAME: release
-  APP_NAME_STORYBOOK: release-storybook
   DEPLOYER_LAMBDA_NAME: microapps-core-ghpublic-deployer-prod
   AWS_REGION: us-east-2
 
@@ -49,7 +48,6 @@ jobs:
       - name: Delete App from MicroApps
         run: |
           pnpm exec microapps-publish delete -a "${APP_NAME}" -n "${PACKAGE_VERSION}" -d "${DEPLOYER_LAMBDA_NAME}"
-          pnpm exec microapps-publish delete -a "${APP_NAME_STORYBOOK}" -n "${PACKAGE_VERSION}" -d "${DEPLOYER_LAMBDA_NAME}"
 
       - name: Destroy CDK Stack
         run: |

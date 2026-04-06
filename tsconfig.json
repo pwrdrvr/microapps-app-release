@@ -2,9 +2,6 @@
   "files": [],
   "references": [
     {
-      "path": "packages/app/"
-    },
-    {
       "path": "packages/cdk-construct/"
     },
     {

@@ -36,106 +36,6 @@ jobs:
       packageVersion: ${{ needs.version.outputs.packageVersion }}
       prSuffix: ${{ needs.version.outputs.prSuffix }}
 
-  build-storybook:
-    needs:
-      - version
-    if: github.event_name != 'pull_request' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'BUILD-STORYBOOK'))
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: ./.github/actions/configure-nodejs
-
-      - name: Dump info from version reusable workflow
-        run: |
-          echo "packageVersion: ${{ needs.version.outputs.packageVersion }}"
-          echo "prSuffix: ${{ needs.version.outputs.prSuffix }}"
-
-      - name: Apply package version to the workspace
-        run: node scripts/set-workspace-version.mjs "${{ needs.version.outputs.packageVersion }}"
-
-      - name: Build Storybook
-        run: pnpm --filter "${APP_PACKAGE_NAME}" run build:storybook
-
-      - name: Zip Package
-        working-directory: packages/app/
-        run: zip -r storybook-static.zip storybook-static
-
-      - name: Upload Zip
-        uses: actions/upload-artifact@v5
-        with:
-          name: storybook_zip
-          path: packages/app/storybook-static.zip
-
-  deploy-storybook:
-    if: github.actor != 'dependabot[bot]'
-    needs:
-      - version
-      - build-storybook
-    concurrency:
-      group: deploy-storybook-${{ github.workflow }}-${{ (github.event_name == 'pull_request' && github.event.pull_request.number) || github.head_ref }}
-      cancel-in-progress: false
-    permissions:
-      contents: read
-      id-token: write
-      statuses: write
-    runs-on: ubuntu-latest
-    environment:
-      name: ghpublic
-      url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.version.outputs.packageVersion }}
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: ./.github/actions/configure-nodejs
-
-      - name: Download Artifact - Story Book
-        uses: actions/download-artifact@v5
-        with:
-          name: storybook_zip
-          path: packages/app/
-
-      - name: Unzip Artifact - Story Book
-        working-directory: packages/app/
-        run: unzip storybook-static.zip
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-session-name: microapps-app-${{ env.APP_NAME }}-build
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/builder-writeRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Preflight Check Version - Story Book
-        run: |
-          pnpm exec microapps-publish preflight \
-            --app-name ${APP_NAME}-storybook \
-            --new-version ${{ needs.version.outputs.packageVersion }} \
-            --deployer-lambda-name ${DEPLOYER_LAMBDA_NAME} \
-            --overwrite
-
-      - name: Publish MicroApps - Story Book
-        run: |
-          pnpm exec microapps-publish publish-static \
-            --app-name ${APP_NAME}-storybook \
-            --new-version ${{ needs.version.outputs.packageVersion }} \
-            --deployer-lambda-name ${DEPLOYER_LAMBDA_NAME} \
-            --static-assets-path packages/app/storybook-static \
-            --default-file index.html \
-            --overwrite \
-            --no-cache
-
-      - name: App URL
-        uses: Sibz/github-status-action@v1
-        with:
-          authToken: ${{ secrets.GITHUB_TOKEN }}
-          context: 'Storybook URL'
-          description: 'Passed'
-          state: 'success'
-          sha: ${{ github.event.pull_request.head.sha || github.sha }}
-          target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.version.outputs.packageVersion }}
-
   deploy-ghpublic:
     if: github.actor != 'dependabot[bot]'
     needs:
@@ -164,7 +64,7 @@ jobs:
         run: pnpm build
 
       - name: Download Artifact - App
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: app_zip
           path: ${{ runner.temp }}/app-artifact
@@ -218,18 +118,34 @@ jobs:
             --overwrite
 
       - name: App URL
-        uses: Sibz/github-status-action@v1
-        with:
-          authToken: ${{ secrets.GITHUB_TOKEN }}
-          context: 'App URL'
-          description: 'Passed'
-          state: 'success'
-          sha: ${{ github.event.pull_request.head.sha || github.sha }}
-          target_url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api \
+            repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
+            -X POST \
+            -f state=success \
+            -f context='App URL' \
+            -f description='Passed' \
+            -f target_url="https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}"
 
       - name: Test App
         run: |
           echo Testing App HTML Loading
           curl -H"accept: text/html" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
-          echo "\nTesting App Method Invocation"
-          curl -H"accept: application/json" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}/api/refresh/${{ env.APP_NAME }}
+          echo "\nTesting App API Routing"
+          api_status="$(
+            curl \
+              -sS \
+              -o /tmp/default-version-response.json \
+              -w '%{http_code}' \
+              -X POST \
+              -H'accept: application/json' \
+              -H'content-type: application/json' \
+              --data '{}' \
+              https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}/api/default-version
+          )"
+          cat /tmp/default-version-response.json
+          test "$api_status" = "400"
+          echo "\nTesting App Manifest Loading"
+          curl -H"accept: application/manifest+json" --fail https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}/${{ needs.version.outputs.packageVersion }}/static/manifest.webmanifest

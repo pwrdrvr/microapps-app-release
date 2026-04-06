@@ -2,4 +2,6 @@
 
 echo "Running the app..."
 
-exec node server.js
+cd "$(dirname "$0")"
+
+exec node packages/app/server.js

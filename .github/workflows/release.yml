@@ -66,7 +66,7 @@ jobs:
         run: echo "latest_commit=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Download Artifact - App
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: app_zip
           path: packages/cdk-construct/lib/
@@ -80,7 +80,7 @@ jobs:
 
       - name: Upload CDK Construct Artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
@@ -102,7 +102,7 @@ jobs:
           package-manager-cache: false
 
       - name: Download CDK Construct build artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: cdk-construct-dist
           path: packages/cdk-construct/dist
