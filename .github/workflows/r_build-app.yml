@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: ./.github/actions/configure-nodejs
+      - uses: pwrdrvr/configure-nodejs@v1
 
       - name: Build All TypeScript
         run: pnpm build

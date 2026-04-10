@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: ./.github/actions/configure-nodejs
+      - uses: pwrdrvr/configure-nodejs@v1
 
       - name: Build with JSII
         run: pnpm --filter @pwrdrvr/microapps-app-release-cdk run build:jsii-release

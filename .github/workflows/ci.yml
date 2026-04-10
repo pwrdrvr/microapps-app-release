@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: ./.github/actions/configure-nodejs
+      - uses: pwrdrvr/configure-nodejs@v1
 
       - name: Dump info from version reusable workflow
         run: |
@@ -88,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: ./.github/actions/configure-nodejs
+      - uses: pwrdrvr/configure-nodejs@v1
 
       - name: Download Artifact - Story Book
         uses: actions/download-artifact@v5
@@ -155,7 +155,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: ./.github/actions/configure-nodejs
+      - uses: pwrdrvr/configure-nodejs@v1
 
       - name: Apply package version to the workspace
         run: node scripts/set-workspace-version.mjs "${{ needs.version.outputs.packageVersion }}"
