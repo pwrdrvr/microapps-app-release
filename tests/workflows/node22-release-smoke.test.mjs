@@ -39,7 +39,7 @@ test('workflow baselines stay on node 22 and avoid npm-era release plumbing', ()
 
   for (const relativePath of installBearingWorkflowFiles) {
     const workflow = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
-    assert.match(workflow, /uses:\s+\.\/\.github\/actions\/configure-nodejs/);
+    assert.match(workflow, /uses:\s+pwrdrvr\/configure-nodejs@v1/);
   }
 });
 
