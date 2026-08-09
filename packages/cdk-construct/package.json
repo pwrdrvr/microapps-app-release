@@ -52,7 +52,7 @@
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.26.0",
     "jsii": "^5.9.36",
-    "jsii-diff": "^1.118.0",
+    "jsii-diff": "^1.131.0",
     "jsii-docgen": "^10.11.15",
     "jsii-pacmak": "^1.118.0",
     "jsii-rosetta": "^5.9.36",
