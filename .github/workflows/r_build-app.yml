@@ -86,20 +86,25 @@ jobs:
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/.next/*
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/*
 
-      - name: Trim Server Artifact
+      # Build-only files are kept out of the trace by SERVER_TRACE_EXCLUDES in
+      # packages/app/next.config.js. Fail if any of the big ones come back.
+      - name: Check Server Artifact For Build-only Files
         run: |
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/node_modules/@img
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/node_modules/sharp
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/node_modules/caniuse-lite
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/@img
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/sharp
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/caniuse-lite
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/typescript
-          rm -rf ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/next/dist/compiled/amphtml-validator
-          rm -f ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/next/dist/server/capsize-font-metrics.json
-          rm -f ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/node_modules/next/dist/compiled/@next/font/dist/google/font-data.json
-          find ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server -type f \( -name '*.map' -o -name '*.ts' -o -name '*.md' -o -name '*.markdown' \) -delete
-          du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
+          SERVER=./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
+          unexpected=$(find "$SERVER" \( \
+            -path '*/node_modules/typescript' -o \
+            -path '*/node_modules/sharp' -o \
+            -path '*/node_modules/@img' -o \
+            -path '*/node_modules/caniuse-lite' -o \
+            -path '*/next/dist/compiled/babel/bundle.js' -o \
+            -path '*/next/dist/compiled/next-server/*turbo*' -o \
+            -name '*.map' \) -print | head -20)
+          if [ -n "$unexpected" ]; then
+            echo "::error::Build-only files were traced into the server artifact. Update SERVER_TRACE_EXCLUDES in packages/app/next.config.js."
+            echo "$unexpected"
+            exit 1
+          fi
+          du -sh "$SERVER"
 
       - name: Measure Build Artifact Sizes
         working-directory: packages/cdk-construct/lib/
@@ -107,13 +112,19 @@ jobs:
           rm -f combined-app.zip server-only.zip
           zip -qr combined-app.zip microapps-app-${APP_NAME}
           zip -qr server-only.zip microapps-app-${APP_NAME}/server
+          SERVER_ONLY_BYTES=$(stat -c %s server-only.zip)
+          # Current prod Lambda package is 2,874,282 bytes; flag growth past ~10%.
+          SERVER_ONLY_REVIEW_BYTES=3161710
           echo "Combined app zip bytes: $(stat -c %s combined-app.zip)"
-          echo "Server-only zip bytes: $(stat -c %s server-only.zip)"
+          echo "Server-only zip bytes: ${SERVER_ONLY_BYTES}"
+          if [ "${SERVER_ONLY_BYTES}" -gt "${SERVER_ONLY_REVIEW_BYTES}" ]; then
+            echo "::warning::server-only.zip is ${SERVER_ONLY_BYTES} bytes, over the ${SERVER_ONLY_REVIEW_BYTES} byte review threshold."
+          fi
           {
             echo "### Release App Artifact Sizes"
             echo ""
             echo "- Combined app zip bytes: $(stat -c %s combined-app.zip)"
-            echo "- Server-only zip bytes: $(stat -c %s server-only.zip)"
+            echo "- Server-only zip bytes: ${SERVER_ONLY_BYTES} (review threshold ${SERVER_ONLY_REVIEW_BYTES})"
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Build the NPM tarball for Examination
