@@ -85,7 +85,7 @@ describe('ConfirmDefaultChange', () => {
         headers: {
           'content-type': 'application/json',
         },
-        body: JSON.stringify({ appName: 'release', semVer: '0.5.3' }),
+        body: JSON.stringify({ appName: 'release', semVer: '0.5.3', expectedDefault: '0.5.2' }),
       });
     });
 
@@ -127,6 +127,47 @@ describe('ConfirmDefaultChange', () => {
 
     expect(await screen.findByText('Rules write failed.')).toBeTruthy();
     expect(refresh).not.toHaveBeenCalled();
+  });
+
+  test('refreshes the page state when the default moved underneath the dialog', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: false,
+      status: 409,
+      json: async () => ({
+        error: 'The release default changed to 0.5.4 (expected 0.5.2). Nothing was written.',
+        actualDefault: '0.5.4',
+      }),
+    } as Response);
+
+    render(
+      <ConfirmDefaultChange
+        open
+        onOpenChange={vi.fn()}
+        appName="release"
+        currentDefaultVersion="0.5.2"
+        nextVersion={{
+          appName: 'release',
+          semVer: '0.5.3',
+          type: 'lambda-url',
+          startupType: 'direct',
+          status: 'routed',
+          defaultFile: '',
+          integrationId: '',
+          url: 'https://example.com',
+          lambdaArn: 'arn:aws:lambda:us-east-2:123:function:release',
+          isDefault: false,
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm Default' }));
+
+    expect(
+      await screen.findByText(
+        'The release default changed to 0.5.4 (expected 0.5.2). Nothing was written.',
+      ),
+    ).toBeTruthy();
+    expect(refresh).toHaveBeenCalled();
   });
 
   test('does not allow confirmation when no version is selected', () => {

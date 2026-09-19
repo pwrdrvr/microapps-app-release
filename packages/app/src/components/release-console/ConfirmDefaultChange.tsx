@@ -44,12 +44,20 @@ export function ConfirmDefaultChange({
         headers: {
           'content-type': 'application/json',
         },
-        body: JSON.stringify({ appName, semVer: nextVersion.semVer }),
+        body: JSON.stringify({
+          appName,
+          semVer: nextVersion.semVer,
+          expectedDefault: currentDefaultVersion,
+        }),
       });
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as { error?: string } | null;
         setError(payload?.error ?? 'Unable to update the default version.');
+        if (response.status === 409) {
+          // Someone else moved the default; pull the new state in behind the dialog.
+          router.refresh();
+        }
         return;
       }
 
