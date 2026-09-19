@@ -29,13 +29,15 @@ function readReleaseAssetVersionFromDocument(doc: Document) {
   return match?.[1] ?? releaseAppVersionPlaceholder;
 }
 
-export function buildDefaultVersionApiUrl() {
-  const releaseVersion =
-    typeof document === 'undefined'
-      ? releaseAppVersionPlaceholder
-      : readReleaseAssetVersionFromDocument(document);
+/** The release console version serving this page, read from its asset URLs. */
+export function readConsoleVersion() {
+  return typeof document === 'undefined'
+    ? releaseAppVersionPlaceholder
+    : readReleaseAssetVersionFromDocument(document);
+}
 
-  return `${releaseAppBasePath}/${releaseVersion}/api/default-version`;
+export function buildDefaultVersionApiUrl() {
+  return `${releaseAppBasePath}/${readConsoleVersion()}/api/default-version`;
 }
 
 export function buildLambdaConsoleUrl(lambdaArn: string) {

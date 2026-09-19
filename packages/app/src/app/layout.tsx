@@ -1,24 +1,29 @@
 import type { ReactNode } from 'react';
-import type { Metadata } from 'next';
-import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
 import packageJson from '../../package.json';
 import './globals.css';
+import './release-console.css';
 
-const mono = IBM_Plex_Mono({
+// PwrDrvr Design System type: Geist for UI, Geist Mono for versions and data.
+const sans = Geist({
   subsets: ['latin'],
-  variable: '--font-mono',
-  weight: ['400', '500', '600'],
+  variable: '--font-geist-sans',
 });
 
-const sans = Space_Grotesk({
+const mono = Geist_Mono({
   subsets: ['latin'],
-  variable: '--font-sans',
-  weight: ['400', '500', '700'],
+  variable: '--font-geist-mono',
 });
 
 const appBasePath = '/release';
 const appAssetPrefix = `${appBasePath}/${packageJson.version}`;
 const manifestPath = `${appAssetPrefix}/static/manifest.webmanifest`;
+
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  colorScheme: 'dark',
+};
 
 export const metadata: Metadata = {
   title: 'MicroApps Release',
@@ -36,8 +41,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${sans.variable} ${mono.variable}`}>{children}</body>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

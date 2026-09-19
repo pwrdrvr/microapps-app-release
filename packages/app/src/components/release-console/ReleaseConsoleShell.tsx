@@ -1,78 +1,55 @@
 import type { ReleaseConsoleData } from '@/lib/release-console/types';
-import { AppListClient } from './AppListClient';
-import { AppMetadataPanel } from './AppMetadataPanel';
-import { RulePanel } from './RulePanel';
-import { VersionTable } from './VersionTable';
+import { AppPicker } from './AppPicker';
+import { AppRail } from './AppRail';
+import { AppReleasePanel } from './AppReleasePanel';
+import { ConsoleFooter, ConsoleVersionChip } from './ConsoleChrome';
 
 export function ReleaseConsoleShell({ data }: { data: ReleaseConsoleData }) {
-  const defaultVersionRecord =
-    data.versions.find((version) => version.semVer === data.defaultVersion) ?? null;
-
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6 lg:px-8">
-      <section className="panel-surface overflow-hidden px-5 py-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl font-semibold tracking-tight text-foreground">
-              MicroApps Release
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-              Browse apps, inspect routed versions, and change the default release with an explicit
-              confirmation step.
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-border/80 bg-panelAlt/70 px-4 py-3">
-              <p className="panel-label">Selected App</p>
-              <p className="metric-value mt-2">{data.selectedAppDisplayName ?? 'n/a'}</p>
-            </div>
-            <div className="rounded-2xl border border-border/80 bg-panelAlt/70 px-4 py-3">
-              <p className="panel-label">Default Version</p>
-              <p className="metric-value mt-2">{data.defaultVersion ?? 'unset'}</p>
-            </div>
-            <div className="rounded-2xl border border-border/80 bg-panelAlt/70 px-4 py-3">
-              <p className="panel-label">Tracked Versions</p>
-              <p className="metric-value mt-2">{data.versions.length}</p>
-            </div>
-          </div>
+    <div className="rc rc-app">
+      <header className="rc-top">
+        <div className="rc-brand">
+          <span className="rc-mark" aria-hidden />
+          <span className="rc-title">MicroApps Release</span>
         </div>
+        <ConsoleVersionChip />
+      </header>
 
-        {data.loadError ? (
-          <div className="mt-6 rounded-2xl border border-warning/50 bg-warning/10 px-4 py-3 text-sm text-warning">
-            {data.loadError}
-          </div>
-        ) : null}
-      </section>
+      <div className="rc-body">
+        <aside className="rc-side">
+          <AppRail apps={data.apps} selectedAppName={data.selectedAppName} focusShortcut />
+        </aside>
 
-      <section className="grid flex-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-        <div className="min-h-[32rem] xl:sticky xl:top-6 xl:self-start">
-          <AppListClient apps={data.apps} selectedAppName={data.selectedAppName} />
-        </div>
+        <main className="rc-main">
+          <AppPicker
+            apps={data.apps}
+            selectedAppName={data.selectedAppName}
+            selectedAppDisplayName={data.selectedAppDisplayName}
+          />
 
-        <div className="grid gap-6">
+          {data.loadError ? (
+            <div className="rc-note danger rc-alert" role="alert">
+              {data.loadError}
+            </div>
+          ) : null}
+
           {data.selectedAppName ? (
-            <VersionTable
+            <AppReleasePanel
+              // A fresh panel per app, so an open dialog or banner never carries across apps.
+              key={data.selectedAppName}
               appName={data.selectedAppName}
+              displayName={data.selectedAppDisplayName ?? data.selectedAppName}
               versions={data.versions}
-              currentDefaultVersion={data.defaultVersion}
+              rules={data.rules}
+              defaultVersion={data.defaultVersion}
             />
-          ) : (
-            <div className="panel-surface px-5 py-10 text-sm text-muted">
-              No application records were found in DynamoDB.
-            </div>
+          ) : data.loadError ? null : (
+            <div className="rc-note rc-alert">No application records were found in DynamoDB.</div>
           )}
+        </main>
+      </div>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <RulePanel rules={data.rules} />
-            <AppMetadataPanel
-              appName={data.selectedAppName}
-              versions={data.versions}
-              defaultVersion={defaultVersionRecord}
-            />
-          </div>
-        </div>
-      </section>
-    </main>
+      <ConsoleFooter source={data.source} healthy={data.loadError === null} />
+    </div>
   );
 }

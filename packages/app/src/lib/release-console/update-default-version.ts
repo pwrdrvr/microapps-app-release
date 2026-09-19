@@ -2,14 +2,8 @@ import 'server-only';
 
 import { GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { DbManager } from '@/lib/dbManager';
+import { isPromotable } from './status';
 import type { RulesRecord, VersionRecord } from './types';
-
-// The deployer marks a version `routed` once its routes are live; `deployed` is the
-// terminal state. Earlier statuses cannot serve traffic yet.
-export const PROMOTABLE_STATUSES: ReadonlySet<VersionRecord['Status']> = new Set([
-  'routed',
-  'deployed',
-]);
 
 export class DefaultVersionError extends Error {
   public constructor(
@@ -78,7 +72,7 @@ export async function updateDefaultVersion({
     throw new DefaultVersionError(`${appName} has no version ${semVer}.`, 404);
   }
 
-  if (!PROMOTABLE_STATUSES.has(version.Status)) {
+  if (!isPromotable(version.Status)) {
     throw new DefaultVersionError(
       `${appName} ${semVer} is ${version.Status} and cannot serve traffic yet.`,
       422,

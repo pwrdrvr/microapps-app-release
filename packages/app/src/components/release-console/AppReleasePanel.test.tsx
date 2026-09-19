@@ -1,0 +1,104 @@
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { ReleaseConsoleRule } from '@/lib/release-console/types';
+import { AppReleasePanel } from './AppReleasePanel';
+import { releaseVersions } from './test-data';
+
+const refresh = vi.fn();
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh }),
+}));
+
+const rules: ReleaseConsoleRule[] = [
+  { key: 'default', attributeName: '', attributeValue: '', semVer: '0.5.2', isDefault: true },
+  {
+    key: 'beta',
+    attributeName: 'organization',
+    attributeValue: 'beta-org',
+    semVer: '0.4.7',
+    isDefault: false,
+  },
+];
+
+function panel(defaultVersion: string) {
+  return (
+    <AppReleasePanel
+      appName="release"
+      displayName="release"
+      versions={releaseVersions(defaultVersion)}
+      rules={rules}
+      defaultVersion={defaultVersion}
+    />
+  );
+}
+
+function okResponse() {
+  return { ok: true, status: 200, json: async () => ({ ok: true, changed: true }) } as Response;
+}
+
+describe('AppReleasePanel', () => {
+  beforeEach(() => {
+    refresh.mockReset();
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
+  test('shows the live default, its route, and attribute rules', () => {
+    render(panel('0.5.2'));
+
+    expect(screen.getByRole('heading', { name: 'release' })).toBeTruthy();
+    expect(
+      Array.from(document.querySelectorAll('.rc-rule')).map((rule) => rule.textContent),
+    ).toEqual(['rule default → 0.5.2', 'rule beta → 0.4.7 (organization=beta-org)']);
+  });
+
+  test('confirms a change, then offers a one-click revert', async () => {
+    vi.mocked(fetch).mockResolvedValue(okResponse());
+    const { rerender } = render(panel('0.5.2'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Roll back 0.4.7' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll back to 0.4.7' }));
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
+
+    // The refresh brings the new default back from the server.
+    rerender(panel('0.4.7'));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('status').textContent).toContain(
+      'release now serves 0.4.7 — was 0.5.2',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Revert to 0.5.2' }));
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(2));
+    expect(JSON.parse(vi.mocked(fetch).mock.calls[1][1]?.body as string)).toEqual({
+      appName: 'release',
+      semVer: '0.5.2',
+      expectedDefault: '0.4.7',
+    });
+
+    rerender(panel('0.5.2'));
+    expect(screen.getByRole('status').textContent).toContain(
+      'release now serves 0.5.2 — was 0.4.7',
+    );
+  });
+
+  test('drops the banner once the default has moved somewhere else', async () => {
+    vi.mocked(fetch).mockResolvedValue(okResponse());
+    const { rerender } = render(panel('0.5.2'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Roll back 0.4.7' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll back to 0.4.7' }));
+    await waitFor(() => expect(refresh).toHaveBeenCalled());
+    rerender(panel('0.4.7'));
+    expect(screen.getByRole('status')).toBeTruthy();
+
+    rerender(panel('0.5.3'));
+
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+});

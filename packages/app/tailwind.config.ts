@@ -1,40 +1,26 @@
 import type { Config } from 'tailwindcss';
 
+// Component styles live in src/app/release-console.css; Tailwind supplies the reset and
+// the odd utility, themed from the same design-system tokens.
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
-        background: 'rgb(var(--background) / <alpha-value>)',
-        foreground: 'rgb(var(--foreground) / <alpha-value>)',
-        panel: 'rgb(var(--panel) / <alpha-value>)',
-        panelAlt: 'rgb(var(--panel-alt) / <alpha-value>)',
-        border: 'rgb(var(--border) / <alpha-value>)',
-        muted: 'rgb(var(--muted) / <alpha-value>)',
-        accent: 'rgb(var(--accent) / <alpha-value>)',
-        accentSoft: 'rgb(var(--accent-soft) / <alpha-value>)',
-        success: 'rgb(var(--success) / <alpha-value>)',
-        warning: 'rgb(var(--warning) / <alpha-value>)',
-        danger: 'rgb(var(--danger) / <alpha-value>)',
+        background: 'var(--bg-app)',
+        panel: 'var(--bg-panel)',
+        foreground: 'var(--text-primary)',
+        muted: 'var(--text-muted)',
+        border: 'var(--border-subtle)',
+        accent: 'var(--accent)',
+        success: 'var(--success)',
+        warning: 'var(--warn)',
+        danger: 'var(--danger)',
+        info: 'var(--info)',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', 'sans-serif'],
-        mono: ['var(--font-mono)', 'monospace'],
-      },
-      boxShadow: {
-        panel: '0 18px 50px -24px rgba(0, 0, 0, 0.85)',
-      },
-      backgroundImage: {
-        grid: 'linear-gradient(rgba(124, 242, 154, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 242, 154, 0.08) 1px, transparent 1px)',
-      },
-      keyframes: {
-        pulseLine: {
-          '0%, 100%': { opacity: '0.35' },
-          '50%': { opacity: '1' },
-        },
-      },
-      animation: {
-        pulseLine: 'pulseLine 2.8s ease-in-out infinite',
+        sans: ['var(--font-sans)'],
+        mono: ['var(--font-mono)'],
       },
     },
   },

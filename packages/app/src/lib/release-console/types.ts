@@ -43,10 +43,28 @@ export interface VersionsAndRulesRecord {
   Rules: RulesRecord | null;
 }
 
+export interface AppSummaryRecord {
+  /** `RuleSet.default.SemVer`, or null when the app has no default rule. */
+  liveVersion: string | null;
+  versions: Pick<VersionRecord, 'SemVer' | 'Status'>[];
+}
+
 export interface ReleaseConsoleApp {
   appName: string;
   displayName: string;
+  /** Null when the app has no default rule or its summary could not be loaded. */
+  liveVersion: string | null;
+  /** Newest promotable release above the live default, if there is one. */
+  newerRelease: string | null;
 }
+
+/**
+ * Where a version sits relative to the live default:
+ * - `newer` / `older`: a release above or below it (`distance` counts the releases crossed);
+ * - `prerelease`: a PR or other prerelease build, never ranked against releases;
+ * - `unranked`: there is no comparable live default to rank against.
+ */
+export type ReleaseVersionRelation = 'live' | 'newer' | 'older' | 'prerelease' | 'unranked';
 
 export interface ReleaseConsoleVersion {
   appName: string;
@@ -59,6 +77,13 @@ export interface ReleaseConsoleVersion {
   url: string;
   lambdaArn: string;
   isDefault: boolean;
+  isPrerelease: boolean;
+  /** Only `routed` and `deployed` versions can be made the default. */
+  promotable: boolean;
+  relation: ReleaseVersionRelation;
+  distance: number;
+  /** Releases strictly between this version and the live default, newest first. */
+  between: string[];
 }
 
 export interface ReleaseConsoleRule {
@@ -77,4 +102,11 @@ export interface ReleaseConsoleData {
   rules: ReleaseConsoleRule[];
   defaultVersion: string | null;
   loadError: string | null;
+  source: ReleaseConsoleSource;
+}
+
+export interface ReleaseConsoleSource {
+  tableName: string;
+  region: string | null;
+  loadedAt: string;
 }
