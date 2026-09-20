@@ -81,6 +81,16 @@ function workspaceGlobs(yaml = readFileSync(join(repoRoot, 'pnpm-workspace.yaml'
 
 /** Directories matching one glob, relative to `root`. */
 function expandGlob(glob, root = repoRoot) {
+  // Callers strip `!` before getting here. Enforced rather than assumed,
+  // because the failure is silent: `!packages/legacy/*` ends in `/*`, so it
+  // would take the wildcard branch, look for a directory literally named
+  // `!packages/legacy`, find none and return [] — an exclusion that quietly
+  // stops excluding. An invariant that lives only at the call site survives
+  // exactly until someone refactors the call site.
+  if (glob.startsWith('!')) {
+    throw new Error(`expandGlob received the unstripped exclusion ${glob}`);
+  }
+
   // Only the shapes pnpm workspaces actually use: a literal path, `dir/*`, and
   // `dir/**`. Anything else should fail loudly rather than silently match
   // nothing, which would look like "all packages are covered".
@@ -229,6 +239,13 @@ test('a glob shape the expander cannot evaluate throws instead of matching nothi
   // Silently returning [] would read as "this glob covers no packages", which
   // is indistinguishable from full coverage. Fail loudly and be taught.
   assert.throws(() => expandGlob('packages/*/src/*'), /cannot expand/);
+  assert.throws(() => expandGlob('pack*ges/*'), /cannot expand/);
+  assert.throws(() => expandGlob('pack*ges/**'), /cannot expand/);
+
+  // An unstripped exclusion is the silent case: it ends in `/*`, so it would
+  // take the wildcard branch and expand to nothing rather than being rejected.
+  assert.throws(() => expandGlob('!packages/legacy/*'), /unstripped exclusion/);
+  assert.throws(() => expandGlob('!packages/legacy'), /unstripped exclusion/);
 });
 
 test('the coverage enumeration follows pnpm-workspace.yaml, not a hardcoded dir', () => {
