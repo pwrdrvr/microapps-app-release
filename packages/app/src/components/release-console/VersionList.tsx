@@ -178,12 +178,15 @@ function VersionRow({
 }
 
 export function VersionList({
+  tableRef,
   appName,
   versions,
   flashLive,
   targetSemVer,
   onAction,
 }: {
+  /** The split handle measures this to know what space the two lists share. */
+  tableRef?: React.Ref<HTMLDivElement>;
   appName: string;
   versions: ReleaseConsoleVersion[];
   flashLive: boolean;
@@ -237,7 +240,7 @@ export function VersionList({
         ) : null}
       </div>
 
-      <div className="rc-table" role="table" aria-label={`${appName} versions`}>
+      <div className="rc-table" ref={tableRef} role="table" aria-label={`${appName} versions`}>
         <div role="row" className="rc-tr rc-th">
           <span role="columnheader">Version</span>
           <span role="columnheader" className="rc-col-status">

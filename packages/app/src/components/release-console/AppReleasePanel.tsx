@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ReleaseConsoleRule, ReleaseConsoleVersion } from '@/lib/release-console/types';
 import { postDefaultVersion } from '@/lib/release-console/default-version-client';
@@ -13,6 +13,7 @@ import {
   type DefaultChangeRequest,
 } from './ConfirmDefaultChange';
 import { RulesPanel } from './RulesPanel';
+import { SplitHandle, useRulesHeight } from './SplitHandle';
 import { VersionList } from './VersionList';
 
 function formatClock(date: Date) {
@@ -112,6 +113,9 @@ export function AppReleasePanel({
 }) {
   const [request, setRequest] = useState<DefaultChangeRequest | null>(null);
   const [applied, setApplied] = useState<AppliedDefaultChange | null>(null);
+  const [rulesHeight, setRulesHeight] = useRulesHeight();
+  const versionsRef = useRef<HTMLDivElement>(null);
+  const rulesRef = useRef<HTMLElement>(null);
 
   const live = versions.find((version) => version.relation === 'live') ?? null;
   // Only claim a change while the data still shows it; if the default has moved on
@@ -193,6 +197,7 @@ export function AppReleasePanel({
       ) : null}
 
       <VersionList
+        tableRef={versionsRef}
         appName={appName}
         versions={versions}
         flashLive={visibleChange !== null}
@@ -200,7 +205,16 @@ export function AppReleasePanel({
         onAction={(target) => setRequest({ target, expectedDefault: defaultVersion })}
       />
 
+      <SplitHandle
+        height={rulesHeight}
+        onResize={setRulesHeight}
+        listRef={versionsRef}
+        panelRef={rulesRef}
+      />
+
       <RulesPanel
+        ref={rulesRef}
+        height={rulesHeight}
         rules={rules}
         versions={versions}
         onPickVersion={(target) => setRequest({ target, expectedDefault: defaultVersion })}

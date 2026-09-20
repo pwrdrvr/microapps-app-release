@@ -985,7 +985,45 @@
 
 /* ---------- rules ---------- */
 .rc-rules {
+  display: flex;
   flex: none;
+  flex-direction: column;
+  min-height: 0;
+}
+/* Once the operator has set a height, the table takes whatever the bar leaves. */
+.rc-rules.is-sized .rc-rules-table {
+  max-height: none;
+  flex: 1 1 auto;
+}
+.rc-split {
+  position: relative;
+  flex: none;
+  height: 12px;
+  margin: -14px 24px 2px;
+  cursor: row-resize;
+  touch-action: none;
+}
+.rc-split::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 3px;
+  transform: translate(-50%, -50%);
+  border-radius: 2px;
+  background: var(--border-subtle);
+  transition: background 120ms ease;
+}
+.rc-split:hover::before,
+.rc-split:focus-visible::before,
+.rc-split.is-drag::before {
+  background: var(--accent);
+}
+.rc-split:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-radius: 4px;
 }
 .rc-rules .rc-bar {
   padding: 4px 24px 10px;
@@ -1178,6 +1216,14 @@
   .rc-tr.rc-th,
   .rc-rule-tr.rc-th {
     display: none;
+  }
+  /* The phone layout scrolls the whole page, so there is no split to divide.
+     The height is an inline style, so overriding it takes !important. */
+  .rc-split {
+    display: none;
+  }
+  .rc-rules.is-sized {
+    height: auto !important;
   }
   .rc-rules .rc-bar {
     padding: 18px 16px 10px;

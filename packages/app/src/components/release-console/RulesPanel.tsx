@@ -17,10 +17,15 @@ function matchLabel(rule: ReleaseConsoleRule) {
 }
 
 export function RulesPanel({
+  ref,
+  height,
   rules,
   versions,
   onPickVersion,
 }: {
+  ref?: React.Ref<HTMLElement>;
+  /** Set by the split handle; null leaves the panel at its content height. */
+  height?: number | null;
   rules: ReleaseConsoleRule[];
   versions: ReleaseConsoleVersion[];
   onPickVersion: (version: ReleaseConsoleVersion) => void;
@@ -29,7 +34,12 @@ export function RulesPanel({
   const promotable = versions.filter((version) => version.promotable);
 
   return (
-    <section className="rc-rules" aria-labelledby="rc-rules-heading">
+    <section
+      className={cn('rc-rules', height != null && 'is-sized')}
+      ref={ref}
+      style={height == null ? undefined : { height }}
+      aria-labelledby="rc-rules-heading"
+    >
       <div className="rc-bar">
         <div className="rc-bar-l">
           <span className="rc-eyebrow" id="rc-rules-heading">
