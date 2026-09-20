@@ -973,6 +973,97 @@
   display: none;
 }
 
+/* ---------- rules ---------- */
+.rc-rules {
+  flex: none;
+}
+.rc-rules .rc-bar {
+  padding: 4px 24px 10px;
+}
+.rc-rules-table {
+  flex: none;
+  max-height: 220px;
+  margin-bottom: 16px;
+}
+.rc-rule-tr {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(150px, 1.4fr) 140px 120px 128px;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rc-rule-tr:last-child {
+  border-bottom: 0;
+}
+.rc-rule-tr.is-live {
+  background: var(--bg-row-active);
+}
+.rc-rule-tr.is-live::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
+}
+.rc-rule-key {
+  overflow: hidden;
+  font: 600 12.5px/1.2 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-rule-match {
+  overflow: hidden;
+  font: 500 12px/1.3 var(--font-mono);
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-rule-live {
+  color: var(--accent-bright);
+}
+.rc-rule-live .rc-dot {
+  background: var(--accent);
+}
+.rc-rule-off {
+  font: 500 11.5px/1 var(--font-mono);
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: help;
+}
+.rc-ver.is-dangling {
+  color: var(--warn-text);
+}
+.rc-rule-warn {
+  font: 600 10px/1 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--warn-text);
+}
+.rc-rule-act {
+  display: flex;
+  justify-content: flex-end;
+}
+.rc-rule-pick select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--bg-panel-elevated);
+  color: var(--text-primary);
+  font: 600 12px/1 var(--font-mono);
+  cursor: pointer;
+}
+.rc-rule-pick select:hover {
+  border-color: var(--accent-border);
+  background: var(--bg-panel-hover);
+}
+
 /* ---------- narrow desktop ---------- */
 @media (max-width: 1180px) {
   .rc-body {
@@ -983,6 +1074,9 @@
   }
   .rc-col-route {
     display: none;
+  }
+  .rc-rule-tr {
+    grid-template-columns: minmax(110px, 1fr) minmax(130px, 1fr) 120px 110px 128px;
   }
 }
 
@@ -1071,8 +1165,39 @@
     margin: 0 16px;
     overflow: visible;
   }
-  .rc-tr.rc-th {
+  .rc-tr.rc-th,
+  .rc-rule-tr.rc-th {
     display: none;
+  }
+  .rc-rules .rc-bar {
+    padding: 18px 16px 10px;
+  }
+  .rc-rules-table {
+    max-height: none;
+    margin-bottom: 24px;
+  }
+  .rc-rule-tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    min-height: 56px;
+    padding: 12px 12px 12px 14px;
+  }
+  .rc-rule-match {
+    flex: 1 1 100%;
+    order: 3;
+  }
+  /* A lone em dash on its own wrapped line reads as a stray mark, not as "unset". */
+  .rc-rule-match.is-empty {
+    display: none;
+  }
+  .rc-rule-act {
+    flex: 1 1 auto;
+  }
+  .rc-rule-pick select {
+    height: 44px;
+    font-size: 13px;
   }
   .rc-tr {
     display: flex;

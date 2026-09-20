@@ -12,28 +12,11 @@ import {
   type AppliedDefaultChange,
   type DefaultChangeRequest,
 } from './ConfirmDefaultChange';
+import { RulesPanel } from './RulesPanel';
 import { VersionList } from './VersionList';
 
 function formatClock(date: Date) {
   return date.toLocaleTimeString([], { hour12: false });
-}
-
-function AttributeRules({ rules }: { rules: ReleaseConsoleRule[] }) {
-  const attributeRules = rules.filter((rule) => rule.key !== 'default');
-  if (attributeRules.length === 0) {
-    return <span>no attribute rules</span>;
-  }
-
-  return (
-    <>
-      {attributeRules.map((rule) => (
-        <span key={rule.key} className="rc-rule">
-          rule <b>{rule.key}</b> → {rule.semVer}
-          {rule.attributeName ? ` (${rule.attributeName}=${rule.attributeValue})` : ''}
-        </span>
-      ))}
-    </>
-  );
 }
 
 function ChangeBanner({
@@ -139,12 +122,6 @@ export function AppReleasePanel({
             <a href={buildAppOpenUrl(appName)} target="_blank" rel="noreferrer">
               {appPath(appName)} ↗
             </a>
-            <span className="rc-sep">/</span>
-            <span className="rc-rule">
-              rule <b>default</b> → {defaultVersion ?? 'unset'}
-            </span>
-            <span className="rc-sep">/</span>
-            <AttributeRules rules={rules} />
           </div>
         </div>
 
@@ -215,6 +192,12 @@ export function AppReleasePanel({
         flashLive={visibleChange !== null}
         targetSemVer={request?.target.semVer ?? null}
         onAction={(target) => setRequest({ target, expectedDefault: defaultVersion })}
+      />
+
+      <RulesPanel
+        rules={rules}
+        versions={versions}
+        onPickVersion={(target) => setRequest({ target, expectedDefault: defaultVersion })}
       />
 
       {request ? (

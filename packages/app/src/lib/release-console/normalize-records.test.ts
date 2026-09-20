@@ -247,11 +247,40 @@ describe('normalize-records', () => {
       ).map((rule) => ({
         key: rule.key,
         isDefault: rule.isDefault,
+        servesLiveVersion: rule.servesLiveVersion,
+        isDangling: rule.isDangling,
       })),
     ).toEqual([
-      { key: 'default', isDefault: true },
-      { key: 'beta', isDefault: false },
-      { key: 'organization', isDefault: true },
+      // Only the `default` key is the default rule; the others merely point at versions.
+      { key: 'default', isDefault: true, servesLiveVersion: true, isDangling: true },
+      { key: 'beta', isDefault: false, servesLiveVersion: false, isDangling: true },
+      { key: 'organization', isDefault: false, servesLiveVersion: true, isDangling: true },
+    ]);
+  });
+
+  test('flags a rule whose version has no record', () => {
+    const rules = normalizeRules(
+      {
+        Versions: [
+          {
+            AppName: 'release',
+            SemVer: '0.5.2',
+            Type: 'lambda-url',
+            StartupType: 'direct',
+            Status: 'routed',
+          },
+        ],
+        Rules: {
+          AppName: 'release',
+          RuleSet: { default: { SemVer: '0.5.2' }, beta: { SemVer: '9.9.9' } },
+        },
+      },
+      '0.5.2',
+    );
+
+    expect(rules.map((rule) => [rule.key, rule.isDangling])).toEqual([
+      ['default', false],
+      ['beta', true],
     ]);
   });
 

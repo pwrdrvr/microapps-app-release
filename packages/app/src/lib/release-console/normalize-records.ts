@@ -176,6 +176,7 @@ export function normalizeRules(
   defaultVersion?: string | null,
 ): ReleaseConsoleRule[] {
   const rules = versionsAndRules?.Rules?.RuleSet ?? {};
+  const deployedVersions = new Set((versionsAndRules?.Versions ?? []).map((v) => v.SemVer));
 
   return Object.entries(rules)
     .map(([key, rule]) => ({
@@ -183,7 +184,9 @@ export function normalizeRules(
       attributeName: rule.AttributeName ?? '',
       attributeValue: rule.AttributeValue ?? '',
       semVer: rule.SemVer,
-      isDefault: key === 'default' || rule.SemVer === defaultVersion,
+      isDefault: key === 'default',
+      servesLiveVersion: rule.SemVer === defaultVersion,
+      isDangling: !deployedVersions.has(rule.SemVer),
     }))
     .sort((left, right) => {
       if (left.key === 'default') {

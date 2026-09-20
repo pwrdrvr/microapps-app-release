@@ -91,7 +91,12 @@ export interface ReleaseConsoleRule {
   attributeName: string;
   attributeValue: string;
   semVer: string;
+  /** The `default` rule: the only one the MicroApps router evaluates today. */
   isDefault: boolean;
+  /** This rule points at the version currently serving as the default. */
+  servesLiveVersion: boolean;
+  /** No version record exists for this rule's SemVer. */
+  isDangling: boolean;
 }
 
 export interface ReleaseConsoleData {

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ReleaseConsoleRule } from '@/lib/release-console/types';
 import { AppReleasePanel } from './AppReleasePanel';
@@ -11,13 +11,23 @@ vi.mock('next/navigation', () => ({
 }));
 
 const rules: ReleaseConsoleRule[] = [
-  { key: 'default', attributeName: '', attributeValue: '', semVer: '0.5.2', isDefault: true },
+  {
+    key: 'default',
+    attributeName: '',
+    attributeValue: '',
+    semVer: '0.5.2',
+    isDefault: true,
+    servesLiveVersion: true,
+    isDangling: false,
+  },
   {
     key: 'beta',
     attributeName: 'organization',
     attributeValue: 'beta-org',
     semVer: '0.4.7',
     isDefault: false,
+    servesLiveVersion: false,
+    isDangling: false,
   },
 ];
 
@@ -48,13 +58,14 @@ describe('AppReleasePanel', () => {
     vi.unstubAllGlobals();
   });
 
-  test('shows the live default, its route, and attribute rules', () => {
+  test('shows the live default and every rule in its own grid', () => {
     render(panel('0.5.2'));
 
     expect(screen.getByRole('heading', { name: 'release' })).toBeTruthy();
-    expect(
-      Array.from(document.querySelectorAll('.rc-rule')).map((rule) => rule.textContent),
-    ).toEqual(['rule default → 0.5.2', 'rule beta → 0.4.7 (organization=beta-org)']);
+    const rulesGrid = screen.getByRole('table', { name: 'Routing rules' });
+    expect(within(rulesGrid).getByRole('rowheader', { name: 'default' })).toBeTruthy();
+    expect(within(rulesGrid).getByRole('rowheader', { name: 'beta' })).toBeTruthy();
+    expect(within(rulesGrid).getByText('organization=beta-org')).toBeTruthy();
   });
 
   test('confirms a change, then offers a one-click revert', async () => {
