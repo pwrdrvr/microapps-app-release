@@ -27,6 +27,16 @@ const outputMarkdown =
   process.env.TARBALL_POPULATION_MARKDOWN ?? path.join(rootDir, 'tarball-population.md');
 const baselineDir = process.env.TARBALL_POPULATION_BASELINE_DIR ?? null;
 
+// The jsii job builds the construct only; the app payload under this prefix is
+// assembled by r_build-app.yml and published by release.yml, so it is never present
+// in the tarball this check packs. Comparing those paths here would always report
+// the whole app as removed. Payload packaging is covered by the deploy workflows.
+const APP_PAYLOAD_PREFIX = 'lib/microapps-app-release/';
+
+function isAppPayloadPath(filePath) {
+  return filePath.startsWith(APP_PAYLOAD_PREFIX);
+}
+
 const pkg = {
   id: 'microapps-app-release-cdk',
   npmSpec: '@pwrdrvr/microapps-app-release-cdk',
@@ -89,10 +99,18 @@ function comparePackage(currentPkg) {
   const publishedBaseline = preparePublishedBaseline(currentPkg, publishedVersion);
   const localTarballPath = prepareLocalTarball(currentPkg);
   const localFiles = listTarballFiles(localTarballPath);
-  const publishedSet = new Set(publishedBaseline.files);
-  const localSet = new Set(localFiles);
-  const addedPaths = localFiles.filter((filePath) => !publishedSet.has(filePath));
-  const removedPaths = publishedBaseline.files.filter((filePath) => !localSet.has(filePath));
+  const comparedPublishedFiles = publishedBaseline.files.filter(
+    (filePath) => !isAppPayloadPath(filePath),
+  );
+  const comparedLocalFiles = localFiles.filter((filePath) => !isAppPayloadPath(filePath));
+  const skippedPayloadPaths =
+    publishedBaseline.files.length -
+    comparedPublishedFiles.length +
+    (localFiles.length - comparedLocalFiles.length);
+  const publishedSet = new Set(comparedPublishedFiles);
+  const localSet = new Set(comparedLocalFiles);
+  const addedPaths = comparedLocalFiles.filter((filePath) => !publishedSet.has(filePath));
+  const removedPaths = comparedPublishedFiles.filter((filePath) => !localSet.has(filePath));
   const publishedSymlinkCount = publishedBaseline.symlinkCount;
   const localSymlinkCount = countTarballSymlinks(localTarballPath);
   const changedPaths = [...addedPaths, ...removedPaths];
@@ -110,8 +128,9 @@ function comparePackage(currentPkg) {
     publishedVersion,
     publishedTarballPath: publishedBaseline.tarballPath,
     localTarballPath,
-    publishedFileCount: publishedBaseline.files.length,
-    localFileCount: localFiles.length,
+    publishedFileCount: comparedPublishedFiles.length,
+    localFileCount: comparedLocalFiles.length,
+    skippedPayloadPaths,
     publishedSymlinkCount,
     localSymlinkCount,
     addedPaths,
@@ -293,6 +312,11 @@ function renderMarkdown(report) {
   }
 
   lines.push('');
+  lines.push(
+    `Paths under \`${APP_PAYLOAD_PREFIX}\` are excluded: the app payload is built by the app` +
+      ' build workflow, not by this job.',
+  );
+  lines.push('');
 
   for (const currentPkg of report.packages) {
     if (currentPkg.status === 'green') {
@@ -352,6 +376,7 @@ function renderConsoleSummary(report) {
       }) ${currentPkg.reason}`,
     );
   }
+  lines.push(`Excluded ${report.packages.reduce((total, currentPkg) => total + (currentPkg.skippedPayloadPaths ?? 0), 0)} app payload paths under ${APP_PAYLOAD_PREFIX}`);
   lines.push(`JSON report: ${outputJson}`);
   lines.push(`Markdown report: ${outputMarkdown}`);
   return lines.join('\n');
