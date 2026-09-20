@@ -43,18 +43,91 @@ const REGISTRY_SPECS = [
 
 const FIRST_PARTY_FIELDS = ['dependencies', 'optionalDependencies', 'peerDependencies'];
 
+/**
+ * The `packages:` globs declared in pnpm-workspace.yaml, `!` exclusions last.
+ *
+ * Read from the file rather than hardcoded, because this test's whole job is to
+ * notice drift — and a helper that always looks in `packages/` would go quietly
+ * blind the day the workspace gains an `apps/*` or a nested glob, which is
+ * exactly when the coverage it provides matters most. Hand-parsed for the same
+ * reason the other scripts here are: no YAML library is a root dependency.
+ */
+function workspaceGlobs() {
+  const yaml = readFileSync(join(repoRoot, 'pnpm-workspace.yaml'), 'utf8');
+  const globs = [];
+  let inPackages = false;
+
+  for (const raw of yaml.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    if (/^packages:\s*$/.test(line)) {
+      inPackages = true;
+      continue;
+    }
+    if (!inPackages) continue;
+
+    const item = /^\s+-\s+(.*)$/.exec(line);
+    if (item) {
+      const value = item[1].replace(/\s+#.*$/, '').trim().replace(/^['"]|['"]$/g, '');
+      if (value !== '') globs.push(value);
+      continue;
+    }
+    // A blank line or comment may sit inside the list; anything else ends it.
+    if (line.trim() === '' || line.trimStart().startsWith('#')) continue;
+    break;
+  }
+
+  return globs;
+}
+
+/** Directories matching one glob, relative to the repo root. */
+function expandGlob(glob) {
+  // Only the shapes pnpm workspaces actually use: a literal path, `dir/*`, and
+  // `dir/**`. Anything else should fail loudly rather than silently match
+  // nothing, which would look like "all packages are covered".
+  const recursive = glob.endsWith('/**');
+  const immediate = glob.endsWith('/*');
+  if (!recursive && !immediate) return existsSync(join(repoRoot, glob)) ? [glob] : [];
+
+  const base = glob.slice(0, recursive ? -3 : -2);
+  if (/[*?[\]]/.test(base)) {
+    throw new Error(`workspace glob ${glob} has a wildcard this test cannot expand`);
+  }
+
+  const found = [];
+  const walk = (dir) => {
+    if (!existsSync(join(repoRoot, dir))) return;
+    for (const entry of readdirSync(join(repoRoot, dir), { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name === 'node_modules') continue;
+      const child = `${dir}/${entry.name}`;
+      found.push(child);
+      if (recursive) walk(child);
+    }
+  };
+  walk(base);
+  return found;
+}
+
 function workspacePackageNames() {
   const names = [JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')).name];
-  for (const entry of readdirSync(join(repoRoot, 'packages'), { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
+  const excluded = [];
+  const included = [];
+
+  for (const glob of workspaceGlobs()) {
+    if (glob.startsWith('!')) excluded.push(...expandGlob(glob.slice(1)));
+    else included.push(...expandGlob(glob));
+  }
+
+  for (const dir of included) {
+    if (excluded.includes(dir)) continue;
     // A directory without a package.json is not a workspace package. pnpm's own
-    // `packages/*` glob skips those, so this must too — otherwise a stray build
-    // or scratch directory fails the coverage test with an ENOENT rather than a
-    // policy result.
-    const manifest = join(repoRoot, 'packages', entry.name, 'package.json');
+    // globs skip those, so this must too — otherwise a stray build or scratch
+    // directory fails the coverage test with an ENOENT rather than a policy
+    // result.
+    const manifest = join(repoRoot, dir, 'package.json');
     if (!existsSync(manifest)) continue;
     names.push(JSON.parse(readFileSync(manifest, 'utf8')).name);
   }
+
   return names;
 }
 
@@ -92,6 +165,20 @@ test('git devDependencies are blocked in first-party packages', () => {
       );
     }
   }
+});
+
+test('the coverage enumeration follows pnpm-workspace.yaml, not a hardcoded dir', () => {
+  // Without this, the test below silently narrows to whatever directory was
+  // hardcoded the day it was written. The globs are the contract; a workspace
+  // that grows an `apps/*` must not quietly drop out of first-party coverage.
+  const globs = workspaceGlobs();
+  assert.ok(globs.length > 0, 'pnpm-workspace.yaml must declare packages: globs');
+  assert.deepEqual(globs, ['packages/*'], 'globs changed — confirm every one is still enumerated');
+
+  // Every glob resolves to at least one real manifest, so a typo cannot read as
+  // "nothing to check, all covered".
+  const names = workspacePackageNames();
+  assert.equal(names.length, 4, `expected root + 3 packages, got ${names.join(', ')}`);
 });
 
 test('every workspace package is recognised as first party', () => {
