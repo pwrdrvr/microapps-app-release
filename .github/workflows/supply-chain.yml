@@ -29,7 +29,7 @@ jobs:
     name: Lockfile and install hooks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Deliberately actions/setup-node and not pwrdrvr/configure-nodejs: that
       # action's job is to install dependencies, and these checks run before
@@ -71,7 +71,7 @@ jobs:
       # Only so the action can post its summary when it fails.
       pull-requests: write
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Scoped to what the PR adds, not to the existing tree. The tree has a
       # large known-CVE backlog (202 advisories at the time this was added,
@@ -93,7 +93,7 @@ jobs:
     # it blocking today would turn every PR red on debt none of them introduced.
     continue-on-error: true
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
