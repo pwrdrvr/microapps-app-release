@@ -9,7 +9,7 @@
   "author": "PwrDrvr LLC",
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc",
   "engines": {
     "node": ">= 22.0.0"
   },
@@ -31,13 +31,15 @@
     "clean:dist": "pnpm -r exec rimraf dist && rimraf dist",
     "clean:modules": "pnpm -r exec rimraf node_modules && rimraf node_modules",
     "clean:tsbuildinfo": "pnpm -r exec rimraf tsconfig.tsbuildinfo && rimraf tsconfig.tsbuildinfo",
+    "deps:maturity": "node scripts/check-dependency-maturity.mjs",
+    "deps:sources": "node scripts/check-lockfile-sources.mjs",
     "cloc": "cloc --exclude-dir=node_modules,.storybook.next,storybook-static,cdk.out --exclude-ext=json .",
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} pnpm --filter @pwrdrvr/microapps-app-release dev",
     "lint": "pnpm exec eslint ./packages/app ./packages/cdk-stack --ext .ts --ext .tsx && pnpm --filter @pwrdrvr/microapps-app-release-cdk run eslint",
     "lint-and-fix": "pnpm exec eslint ./packages/app ./packages/cdk-stack --ext .ts --ext .tsx --fix && pnpm --filter @pwrdrvr/microapps-app-release-cdk run eslint -- --fix",
     "postinstall": "if [ -d node_modules/next ]; then patch-package --patch-dir ./patches/; else echo 'Skipping root patches'; fi",
     "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} pnpm --filter @pwrdrvr/microapps-app-release start",
-    "test:repo-tools": "node --test tests/package-manager/*.test.mjs tests/workflows/*.test.mjs scripts/*.test.mjs",
+    "test:repo-tools": "node --test tests/package-manager/*.test.mjs tests/supply-chain/*.test.mjs tests/workflows/*.test.mjs scripts/*.test.mjs",
     "install:node-prune": "curl -sf https://gobinaries.com/tj/node-prune | sh"
   },
   "eslintConfig": {

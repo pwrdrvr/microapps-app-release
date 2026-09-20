@@ -14,7 +14,25 @@ function readJson(relativePath) {
 test('root package metadata pins pnpm and node 22', () => {
   const packageJson = readJson('package.json');
 
-  assert.equal(packageJson.packageManager, 'pnpm@10.29.3');
+  // Corepack verifies this hash against the tarball it DOWNLOADS and refuses to
+  // run pnpm on a mismatch, so a compromised registry response cannot swap the
+  // package manager out from under a build.
+  //
+  // Scope, measured rather than assumed: the check happens at install time, not
+  // at every invocation. A COREPACK_HOME that already holds 10.29.3 runs it
+  // without re-verifying — a tampered hash still prints 10.29.3 there. So this
+  // protects CI, where the runner's corepack cache is always cold, and a
+  // developer's first fetch of a given version; it does not re-validate a pnpm
+  // already sitting in someone's cache. Verify any change to this line against
+  // a cold `COREPACK_HOME=$(mktemp -d)`, or the test will appear to pass on a
+  // machine that simply had the version already.
+  //
+  // Regenerate with `npm view pnpm@<version> dist.integrity` and hex-encode the
+  // base64 digest.
+  assert.equal(
+    packageJson.packageManager,
+    'pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc',
+  );
   assert.deepEqual(packageJson.engines, { node: '>= 22.0.0' });
   assert.equal(packageJson.pnpm?.overrides?.['class-transformer'], '0.5.1');
 });

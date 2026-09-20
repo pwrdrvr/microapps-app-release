@@ -1,2 +1,73 @@
 packages:
   - "packages/*"
+
+# ── Supply-chain cooldown ───────────────────────────────────────────────────
+#
+# Refuse to resolve any npm release younger than seven days (10080 minutes), so
+# a compromised publish has a week to be spotted and unpublished before it can
+# reach a contributor's machine or a GitHub Actions runner. Matches PwrAgnt,
+# PwrSnap and PwrGit.
+#
+# This setting only takes effect while pnpm RESOLVES. `pnpm install
+# --frozen-lockfile` — which is what `pwrdrvr/configure-nodejs` runs in every CI
+# job — prints "Lockfile is up to date, resolution step is skipped" and installs
+# whatever the lockfile says, so on its own this line would never fire in CI.
+# `pnpm deps:maturity` (scripts/check-dependency-maturity.mjs) re-applies the
+# same window to the versions already pinned in pnpm-lock.yaml, which is what
+# actually enforces it on a Dependabot PR. Keep the two together: setting this
+# without running that script is a policy nothing checks.
+minimumReleaseAge: 10080
+
+# Releases allowed past the gate. `name` exempts a package outright; the
+# `name@version` form exempts one reviewed release and nothing else — prefer it,
+# and say why. `pnpm deps:maturity` reports entries that are no longer needed.
+minimumReleaseAgeExclude: []
+
+# ── Dependency build scripts ────────────────────────────────────────────────
+#
+# pnpm 10 refuses to run dependencies' install/postinstall scripts unless they
+# are listed here. Lifecycle scripts are the main way a compromised package
+# executes code on the machine that installs it, so the empty allowlist below is
+# the policy: nothing in node_modules gets to run code at install time.
+#
+# This repo's own `postinstall` hooks (patch-package, in the root and in
+# packages/app) are workspace scripts, not dependency scripts, and are unaffected.
+onlyBuiltDependencies: []
+
+# The scripts pnpm is currently blocking, declared so the set is reviewed rather
+# than rediscovered. Every one of these is already unbuilt on main and in CI —
+# this records that state, it does not change it. A NEW dependency that wants to
+# run a build script will not be on this list, so it fails the install instead of
+# slipping in.
+#
+# Also a portability fix: `strict-dep-builds=true` in a developer's own pnpm
+# config (it is set in ~/Library/Preferences/pnpm/rc on at least one machine)
+# turns pnpm's "Ignored build scripts" warning into a fatal error, so `pnpm
+# install` currently fails there while passing in CI. Declaring the set makes
+# both behave the same way.
+ignoredBuiltDependencies:
+  # postinstall: `carbon-telemetry collect --install` — reports the install to
+  # a third-party endpoint. Nothing in the build needs it.
+  - "@carbon/icons-react"
+  - carbon-components
+  - carbon-components-react
+  # postinstall: prints a funding message.
+  - core-js
+  - core-js-pure
+  # postinstall: `node ./postinstall.js`, a version/funding notice.
+  - styled-components
+  # install: `node install.js` — native build, macOS-only and optional. Absent,
+  # chokidar falls back to polling; no build or test depends on it.
+  - fsevents
+  # postinstall: `napi-postinstall unrs-resolver 1.11.1 check` — verifies a
+  # native binding. `pnpm lint` passes without it on main and in CI.
+  - unrs-resolver
+
+# Belt and braces with .npmrc: a contributor's personal ~/.pnpm/global_pnpmfile.cjs
+# must not apply here, so that pnpm-lock.yaml's pnpmfileChecksum covers exactly
+# the committed .pnpmfile.cjs and --frozen-lockfile behaves identically on every
+# machine. (Verified: the all-four-fields scan in the common personal hook fails
+# this repo's install outright on time-require@github:jonschlinkert/time-require,
+# a transitive devDependency of picomatch/micromatch/enquirer that pnpm never
+# installs. The committed hook is written not to have that false positive.)
+globalPnpmfile: ''

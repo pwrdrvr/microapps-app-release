@@ -1,0 +1,75 @@
+version: 2
+
+updates:
+  # pnpm workspace. Dependabot uses the `npm` ecosystem value for pnpm, and
+  # picks up every workspace package.json from the root lockfile.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    versioning-strategy: "increase-if-necessary"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+    # Do not propose a release until it has cleared the same seven-day window
+    # `minimumReleaseAge` enforces in pnpm-workspace.yaml. Without this,
+    # Dependabot opens a PR the day a version lands and CI's frozen-lockfile
+    # install never re-checks its age — so `pnpm deps:maturity` fails the PR and
+    # the bump sits there until the window passes anyway. Keeping the two
+    # numbers equal is what makes the cooldown a non-event rather than a
+    # recurring blocked PR.
+    #
+    # One value on purpose: `default-days` covers every semver type, and what
+    # matters is that it equals `minimumReleaseAge`. Per-type entries would be
+    # redundant for minor and patch and dead for major, which is ignored below.
+    cooldown:
+      default-days: 7
+
+    # This repo pins deliberately old majors — next 12, eslint 7, typescript
+    # 4.9, react 17 — and PR #106 is rebuilding the app on top of them. Major
+    # bumps here are migrations, not dependency updates, and an unattended queue
+    # of five of them would bury the minor and patch PRs that this cooldown
+    # exists to make safe. Majors get planned; Dependabot handles the rest.
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    cooldown:
+      default-days: 7
+
+    # NOTE — this deliberately diverges from PwrAgnt and PwrGit, which both
+    # suppress `version-update:semver-patch` and `semver-minor` here on the
+    # grounds that a `@v1`-style tag absorbs those upstream anyway, so the PRs
+    # are noise.
+    #
+    # That reasoning is what makes the noise: it is true only because the refs
+    # are mutable, and a mutable ref is the exposure. Every action in
+    # .github/workflows/ other than supply-chain.yml is on a moving major tag
+    # (`actions/checkout@v5`, `pwrdrvr/configure-nodejs@v1`,
+    # `aws-actions/configure-aws-credentials@v6`,
+    # `Sibz/github-status-action@v1`), several of them in jobs that hold
+    # `id-token: write` and assume an AWS role. If one of those tags were
+    # repointed, this repo would run the new code on the next push with no diff
+    # anywhere and no PR to review — and suppressing minor/patch updates means
+    # Dependabot would not even be tracking what version is current.
+    #
+    # So: no ignore block. Until those refs are pinned to commit SHAs, letting
+    # Dependabot surface every action release is the only visibility there is
+    # into what CI is actually running.

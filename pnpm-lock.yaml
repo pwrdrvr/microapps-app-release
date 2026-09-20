@@ -1,5 +1,7 @@
 lockfileVersion: '9.0'
 
+pnpmfileChecksum: sha256-IFFd2rnXfEb8csqR6hcibD0OTh0/1h6oFyxNEq/EZpw=
+
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
