@@ -52,7 +52,7 @@ jobs:
         run: pnpm exec microapps-publish nextjs-version -n "${{ inputs.packageVersion }}"
 
       - name: Restore Next.js Build Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/packages/app/.next/cache
