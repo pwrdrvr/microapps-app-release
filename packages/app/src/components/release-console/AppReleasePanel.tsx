@@ -71,6 +71,12 @@ function ChangeBanner({
             — was <code>{change.from}</code>
           </>
         ) : null}
+        {/* Without this, an edge router still inside its 60s rule cache looks like a failed
+            write, and the natural reaction is to change the default again. */}
+        <span className="rc-banner-note">
+          Edge routers cache rules for up to 60s, so <code>{appPath(appName)}</code> can serve the
+          old version until then.
+        </span>
       </div>
       <span className="rc-banner-time">{formatClock(change.at)}</span>
       {revertTo ? (

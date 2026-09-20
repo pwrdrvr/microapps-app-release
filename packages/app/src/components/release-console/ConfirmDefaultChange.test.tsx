@@ -73,6 +73,15 @@ describe('ConfirmDefaultChange', () => {
     expect(confirmButton().textContent).toBe('Promote 0.5.3');
   });
 
+  test('warns that the edge rule cache delays the change', () => {
+    renderDialog('0.5.3');
+
+    // Routers cache the rule set for 60s, so a change that has not landed yet is
+    // expected rather than a failed write.
+    expect(screen.getByText('live in')).toBeTruthy();
+    expect(screen.getByText('up to 60s · edge rule cache')).toBeTruthy();
+  });
+
   test('calls out a startup change against the live route', () => {
     renderDialog('0.2.4');
 

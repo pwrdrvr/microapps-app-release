@@ -210,6 +210,12 @@ export function ConfirmDefaultChange({
               <span className="rc-k">writes</span>
               <span className="rc-dim">RuleSet.default only</span>
             </div>
+            <div className="rc-diff-row">
+              <span className="rc-k">live in</span>
+              {/* Each edge container caches the rule set for 60s, so a router that read the
+                  old default keeps serving it until its own entry expires. */}
+              <span className="rc-dim">up to 60s · edge rule cache</span>
+            </div>
           </div>
 
           {isConflict ? null : (

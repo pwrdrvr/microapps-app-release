@@ -83,6 +83,9 @@ describe('AppReleasePanel', () => {
     expect(screen.getByRole('status').textContent).toContain(
       'release now serves 0.4.7 — was 0.5.2',
     );
+    // An edge router still inside its 60s rule cache serves the old version; without
+    // this the banner reads as a write that silently did nothing.
+    expect(screen.getByRole('status').textContent).toContain('cache rules for up to 60s');
 
     fireEvent.click(screen.getByRole('button', { name: 'Revert to 0.5.2' }));
     await waitFor(() => expect(refresh).toHaveBeenCalledTimes(2));
