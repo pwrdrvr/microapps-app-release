@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -47,9 +47,13 @@ function workspacePackageNames() {
   const names = [JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')).name];
   for (const entry of readdirSync(join(repoRoot, 'packages'), { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    names.push(
-      JSON.parse(readFileSync(join(repoRoot, 'packages', entry.name, 'package.json'), 'utf8')).name,
-    );
+    // A directory without a package.json is not a workspace package. pnpm's own
+    // `packages/*` glob skips those, so this must too — otherwise a stray build
+    // or scratch directory fails the coverage test with an ENOENT rather than a
+    // policy result.
+    const manifest = join(repoRoot, 'packages', entry.name, 'package.json');
+    if (!existsSync(manifest)) continue;
+    names.push(JSON.parse(readFileSync(manifest, 'utf8')).name);
   }
   return names;
 }
@@ -129,6 +133,50 @@ test('transitive devDependencies with git specs are left alone', () => {
     manifest.devDependencies['time-require'],
     'github:jonschlinkert/time-require',
     'the manifest should be returned untouched, not rewritten',
+  );
+});
+
+test('git specs are blocked in pnpm.overrides and resolutions on first-party manifests', () => {
+  // An override repoints a TRANSITIVE package, so it never appears in anyone's
+  // dependencies block and is the quietest place to hide a git spec. The field
+  // is live in this repo (class-transformer), not hypothetical.
+  for (const spec of GIT_SPECS) {
+    assert.throws(
+      () => readPackage({ name: '@pwrdrvr/microapps-app-release-workspace', pnpm: { overrides: { lodash: spec } } }),
+      /Blocked git dependency/,
+      `pnpm.overrides: ${spec} should have been blocked`,
+    );
+    assert.throws(
+      () => readPackage({ name: '@pwrdrvr/microapps-app-release-workspace', resolutions: { lodash: spec } }),
+      /Blocked git dependency/,
+      `resolutions: ${spec} should have been blocked`,
+    );
+  }
+});
+
+test('the override error names the field, not just "a git fetch"', () => {
+  assert.throws(
+    () => readPackage({ name: '@pwrdrvr/microapps-app-release-workspace', pnpm: { overrides: { lodash: 'github:a/b' } } }),
+    /declared in @pwrdrvr\/microapps-app-release-workspace\.pnpm\.overrides/,
+  );
+});
+
+test('legitimate override values still resolve', () => {
+  // The forms actually in use: an exact version (this repo pins
+  // class-transformer) and pnpm's `$name` reference to a declared dependency.
+  assert.doesNotThrow(() =>
+    readPackage({
+      name: '@pwrdrvr/microapps-app-release-workspace',
+      pnpm: { overrides: { 'class-transformer': '0.5.1', foo: '$foo', bar: '>=4.0.0', baz: 'npm:qux@1.0.0' } },
+    }),
+  );
+});
+
+test('a transitive package\'s own pnpm.overrides is ignored', () => {
+  // pnpm only honours overrides from the workspace root, so scanning a
+  // registry package's copy would be a false positive with nothing behind it.
+  assert.doesNotThrow(() =>
+    readPackage({ name: 'some-registry-package', pnpm: { overrides: { lodash: 'github:a/b' } } }),
   );
 });
 

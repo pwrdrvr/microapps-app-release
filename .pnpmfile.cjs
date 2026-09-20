@@ -88,14 +88,14 @@ function isFirstParty(pkg) {
   return pkg.name.startsWith(FIRST_PARTY_PACKAGE_PREFIX);
 }
 
-function scanField(pkg, field) {
+function scanField(pkg, field, owner = pkg.name, label = field) {
   const dependencies = pkg[field];
   if (!dependencies) return;
   for (const [name, spec] of Object.entries(dependencies)) {
     if (!isGitSpec(spec)) continue;
     throw new Error(
       `[microapps-app-release pnpmfile] Blocked git dependency ${name}@${spec} ` +
-        `(declared in ${pkg.name ?? '<unknown>'}.${field}). Git specs bypass ` +
+        `(declared in ${owner ?? '<unknown>'}.${label}). Git specs bypass ` +
         `registry tarball integrity checks and run arbitrary lifecycle scripts ` +
         `against arbitrary remotes. Publish a registry tarball or vendor the source.`,
     );
@@ -124,6 +124,19 @@ function readPackage(pkg) {
   // because it runs where the credentials are. So we scan those.
   if (isFirstParty(pkg)) {
     scanField(pkg, 'devDependencies');
+
+    // `pnpm.overrides` (and the yarn-style `resolutions` pnpm also honours) are
+    // not dependency fields, so the loop above never sees them — but pnpm
+    // resolves their values exactly like a spec, and an override is the most
+    // effective place to hide one: it silently repoints a TRANSITIVE package
+    // that no reviewer sees in anybody's dependencies block. This repo already
+    // uses the field (class-transformer), so it is live, not hypothetical.
+    //
+    // Only meaningful on the workspace root — pnpm ignores a transitive
+    // package's own `pnpm.overrides` — which is why this sits behind the
+    // first-party check rather than running for every manifest in the tree.
+    scanField(pkg.pnpm ?? {}, 'overrides', pkg.name, 'pnpm.overrides');
+    scanField(pkg, 'resolutions');
   }
 
   return pkg;

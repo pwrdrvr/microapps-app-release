@@ -52,9 +52,14 @@ const GIT_RESOLUTION_PATTERNS = [
 ];
 
 // The same spec shapes `.pnpmfile.cjs` refuses, applied to the `specifier:`
-// lines pnpm records for first-party manifests.
+// lines pnpm records for first-party manifests. Kept deliberately in step with
+// that file, including the trailing bare `user/repo` branch — dropping it here
+// would leave the shortest and most common git spec covered only by the
+// resolution detector, defeating the point of having two independent layers.
+// The `:` exclusion in that branch is what stops `file:../x` and `link:../x`
+// being read as shortcuts.
 const GIT_SPECIFIER_PATTERN =
-  /^(?:git(?:\+|:)|git@|ssh:\/\/git@|github:|gitlab:|bitbucket:|https?:\/\/(?:www\.)?(?:github|gitlab|bitbucket)\.com\/)/;
+  /^(?:git(?:\+|:)|git@|ssh:\/\/git@|github:|gitlab:|bitbucket:|https?:\/\/(?:www\.)?(?:github|gitlab|bitbucket)\.com\/|[^/@\s:]+\/[^/\s]+(?:#.*)?$)/;
 
 /** Git-sourced resolutions anywhere in the lockfile, as `{ line, label, text }`. */
 export function findGitResolutions(lockfile) {
@@ -139,6 +144,16 @@ export function neutralisesGlobalPnpmfile(npmrc) {
   return /^\s*global-pnpmfile\s*=\s*$/m.test(npmrc);
 }
 
+/** File contents, or undefined when the file is absent. Other errors still throw. */
+function readOptional(path, encoding) {
+  try {
+    return readFileSync(path, encoding);
+  } catch (error) {
+    if (error.code === 'ENOENT') return undefined;
+    throw error;
+  }
+}
+
 function unquote(value) {
   const trimmed = value.trim();
   if (
@@ -152,10 +167,30 @@ function unquote(value) {
 
 function runCli() {
   const lockfile = readFileSync(join(repoRoot, 'pnpm-lock.yaml'), 'utf8');
-  const pnpmfile = readFileSync(join(repoRoot, '.pnpmfile.cjs'));
-  const npmrc = readFileSync(join(repoRoot, '.npmrc'), 'utf8');
 
   const problems = [];
+
+  // Read these two defensively. Their absence IS the finding — a PR that
+  // deletes .pnpmfile.cjs along with the lockfile's pnpmfileChecksum leaves a
+  // state pnpm accepts silently, and that is exactly what this audit exists to
+  // catch. Letting readFileSync throw would report the removal of a security
+  // control as an ENOENT stack trace, which reads like broken tooling.
+  const pnpmfile = readOptional(join(repoRoot, '.pnpmfile.cjs'));
+  const npmrc = readOptional(join(repoRoot, '.npmrc'), 'utf8');
+
+  if (pnpmfile === undefined) {
+    problems.push(
+      '.pnpmfile.cjs is missing. It is the hook that refuses git-sourced ' +
+        'dependencies at resolution time; without it nothing blocks one before ' +
+        'its lifecycle scripts run. Restore it from main.',
+    );
+  }
+  if (npmrc === undefined) {
+    problems.push(
+      '.npmrc is missing. It sets `global-pnpmfile=`, which is what keeps the ' +
+        "lockfile's pnpmfileChecksum portable across machines. Restore it from main.",
+    );
+  }
 
   for (const { line, label, text } of findGitResolutions(lockfile)) {
     problems.push(`pnpm-lock.yaml:${line}: ${label} — ${text}`);
@@ -165,7 +200,7 @@ function runCli() {
     problems.push(`pnpm-lock.yaml:${line}: git specifier ${name}@${specifier} in importer "${importer}"`);
   }
 
-  if (!neutralisesGlobalPnpmfile(npmrc)) {
+  if (npmrc !== undefined && !neutralisesGlobalPnpmfile(npmrc)) {
     problems.push(
       '.npmrc no longer sets `global-pnpmfile=`. Without it the lockfile\'s ' +
         'pnpmfileChecksum depends on each contributor\'s personal hook, and ' +
@@ -174,9 +209,11 @@ function runCli() {
     );
   }
 
-  const expected = pnpmfileChecksum(pnpmfile);
+  const expected = pnpmfile === undefined ? undefined : pnpmfileChecksum(pnpmfile);
   const actual = readLockfileChecksum(lockfile);
-  if (actual === undefined) {
+  if (expected === undefined) {
+    // Already reported above; nothing further to compare against.
+  } else if (actual === undefined) {
     problems.push(
       'pnpm-lock.yaml records no `pnpmfileChecksum`, but .pnpmfile.cjs exists. ' +
         'Every `pnpm install --frozen-lockfile` will fail with ' +

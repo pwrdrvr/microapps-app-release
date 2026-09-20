@@ -111,6 +111,37 @@ test('the codeload host is matched — a `tarball: https://github` pattern would
   assert.equal(findGitResolutions(GITHUB_SHORTCUT_LOCKFILE).length, 1, 'ours must still catch it');
 });
 
+test('a bare user/repo specifier is caught, not just the prefixed forms', () => {
+  // The shortest git spec and the easiest to miss. Regression guard: the
+  // specifier pattern must keep the bare `user/repo` branch that .pnpmfile.cjs
+  // has, or this layer silently covers less than its comment claims.
+  const bare = GITHUB_SHORTCUT_LOCKFILE.replace(
+    'specifier: github:jonschlinkert/time-require',
+    'specifier: jonschlinkert/time-require',
+  );
+
+  assert.deepEqual(
+    findGitSpecifiers(bare).map(({ specifier }) => specifier),
+    ['jonschlinkert/time-require'],
+  );
+});
+
+test('ordinary specifiers are not mistaken for bare user/repo shortcuts', () => {
+  const clean = GITHUB_SHORTCUT_LOCKFILE.replace(
+    'specifier: github:jonschlinkert/time-require',
+    'specifier: file:../local',
+  );
+  assert.deepEqual(findGitSpecifiers(clean), []);
+
+  for (const spec of ['4.9.5', '^2.2.1', 'workspace:*', 'npm:other@1.0.0', 'link:../x', 'catalog:default']) {
+    const fixture = GITHUB_SHORTCUT_LOCKFILE.replace(
+      'specifier: github:jonschlinkert/time-require',
+      `specifier: ${spec}`,
+    );
+    assert.deepEqual(findGitSpecifiers(fixture), [], `${spec} should not be flagged`);
+  }
+});
+
 test('a non-hosted git remote is caught via `type: git` and `repo:`', () => {
   const resolutions = findGitResolutions(NON_HOSTED_GIT_LOCKFILE);
   assert.equal(resolutions.length, 1);
