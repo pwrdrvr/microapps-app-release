@@ -14,7 +14,15 @@ function readJson(relativePath) {
 test('root package metadata pins pnpm and node 22', () => {
   const packageJson = readJson('package.json');
 
-  assert.equal(packageJson.packageManager, 'pnpm@10.29.3');
+  // Corepack verifies this hash against the tarball it downloads and refuses to
+  // run pnpm on a mismatch, so the pinned version cannot be swapped by a
+  // compromised registry response or a tampered cache. Regenerate with:
+  //   npm view pnpm@<version> dist.integrity
+  // and hex-encode the base64 digest.
+  assert.equal(
+    packageJson.packageManager,
+    'pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc',
+  );
   assert.deepEqual(packageJson.engines, { node: '>= 22.0.0' });
   assert.equal(packageJson.pnpm?.overrides?.['class-transformer'], '0.5.1');
 });

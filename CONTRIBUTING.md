@@ -5,6 +5,7 @@
 - [Overview](#overview)
 - [Developer Notes](#developer-notes)
   - [Repo Setup](#repo-setup)
+  - [Dependency Policy](#dependency-policy)
   - [Trying out `esbuild` on `server.js`](#trying-out-esbuild-on-serverjs)
   - [Debugging the Next.js App](#debugging-the-nextjs-app)
   - [nextjs-redux-wrapper](#nextjs-redux-wrapper)
@@ -20,6 +21,56 @@ This repo now uses `pnpm` for workspace development.
 corepack enable pnpm
 pnpm install
 ```
+
+## Dependency Policy
+
+Four controls, all enforced by committed files rather than by anyone's personal
+setup. They exist to protect the machines that run `pnpm install` — contributor
+laptops and the GitHub Actions runner — not to vet what ships to users.
+
+**No git-sourced dependencies, ever.** `.pnpmfile.cjs` refuses any spec pnpm
+would resolve over git: `git+https://`, `git@`, `ssh://git@`, the
+`github:` / `gitlab:` / `bitbucket:` shortcuts, and the bare `user/repo` form.
+A git spec carries no registry integrity hash, can be repointed after review by
+a force-push, and fetching one runs its lifecycle scripts. The block applies to
+`dependencies`, `optionalDependencies` and `peerDependencies` on every package
+in the tree, and additionally to `devDependencies` on this repo's own packages —
+ours install, run scripts, and are importable at build and test time.
+
+It is not applied to transitive `devDependencies`, which pnpm never installs.
+Doing so breaks real trees: `time-require@github:jonschlinkert/time-require` is
+a devDependency of picomatch, micromatch and enquirer, and it never reaches
+`pnpm-lock.yaml`.
+
+If you keep a personal `~/.pnpm/global_pnpmfile.cjs`, `.npmrc` here sets
+`global-pnpmfile=` so it does not apply in this repo. That is deliberate: it
+keeps the lockfile's `pnpmfileChecksum` covering exactly one file, so
+`pnpm install --frozen-lockfile` behaves the same for everyone. You are not
+losing protection — the committed hook does the same job, and being in the
+lockfile makes it tamper-evident.
+
+**Editing `.pnpmfile.cjs` requires regenerating the lockfile.** The checksum is
+part of `pnpm-lock.yaml`; if it does not match, every `--frozen-lockfile`
+install fails with `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH`. Run
+`pnpm install --lockfile-only` and commit the result. `pnpm deps:sources`
+verifies this, along with auditing the lockfile for git resolutions.
+
+**A seven-day cooldown on new releases.** `minimumReleaseAge` in
+`pnpm-workspace.yaml` refuses to resolve anything published less than a week
+ago, so a compromised publish has time to be caught. pnpm only applies it while
+resolving, and CI never resolves, so `pnpm deps:maturity` re-applies the same
+window to the versions the lockfile already pins. To take a release early,
+review it and add a `name@version` entry to `minimumReleaseAgeExclude` with a
+comment saying why; `pnpm deps:maturity` tells you when the entry is prunable.
+
+**No dependency build scripts.** `onlyBuiltDependencies` is empty, so nothing in
+`node_modules` runs code at install time. The packages pnpm is currently
+blocking are listed in `ignoredBuiltDependencies` with a note on what each
+script does. A new dependency that wants to run one will fail the install rather
+than slip through; add it to whichever list is right, with a reason.
+
+This repo's own `postinstall` hooks (patch-package, in the root and in
+`packages/app`) are workspace scripts and are unaffected.
 
 ## Trying out `esbuild` on `server.js`
 

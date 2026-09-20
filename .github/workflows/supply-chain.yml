@@ -1,0 +1,114 @@
+# Supply-chain controls, in their own workflow on purpose.
+#
+# Everything here reads committed files. Nothing in this workflow runs
+# `pnpm install`, and nothing executes code from node_modules — which is the
+# point: these are the checks that decide whether the lockfile is safe to
+# install from, so they must not depend on having installed it first. That also
+# means they stay green and fast while the rest of CI is being reworked.
+#
+# Actions are pinned to commit SHAs rather than to `@v5`-style tags. A tag is
+# mutable: whoever controls the action's repository can repoint it at new code,
+# and every workflow that references it picks that up on the next run without a
+# diff anywhere in this repo. The rest of .github/workflows/ still uses moving
+# major tags — see the PR that added this file for why that was left alone, and
+# for the follow-up.
+name: Supply Chain
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    name: Lockfile and install hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      # Deliberately actions/setup-node and not pwrdrvr/configure-nodejs: that
+      # action's job is to install dependencies, and these checks run before
+      # anything from the lockfile is trusted enough to install. Node's built-in
+      # fetch and test runner are all they need.
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22.x
+          package-manager-cache: false
+
+      # The lockfile is what `pnpm install --frozen-lockfile` executes, so a git
+      # resolution in it is necessary and sufficient for git-sourced code to
+      # reach this runner — whichever hook failed to stop it. Also verifies that
+      # .npmrc still neutralises user-level pnpmfiles and that the lockfile's
+      # pnpmfileChecksum still pins the committed .pnpmfile.cjs, so the hook
+      # cannot be weakened without a visible lockfile diff.
+      - name: Audit lockfile for non-registry sources
+        run: node scripts/check-lockfile-sources.mjs
+
+      # `minimumReleaseAge` in pnpm-workspace.yaml only applies while pnpm
+      # resolves, and CI never resolves. This re-applies the same seven-day
+      # window to the versions the lockfile already pins, which is what makes it
+      # enforceable on a Dependabot PR.
+      - name: Enforce dependency maturity against the lockfile
+        run: node scripts/check-dependency-maturity.mjs
+
+      - name: Unit-test the supply-chain checks
+        # Explicit globs, not the whole `pnpm test:repo-tools` set: the workflow
+        # smoke tests assert on files under .github/workflows/, which PR #106
+        # rewrites, and this job should not be what makes that PR red.
+        run: node --test tests/supply-chain/*.test.mjs scripts/check-*.test.mjs scripts/report-advisories.test.mjs
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Only so the action can post its summary when it fails.
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      # Scoped to what the PR adds, not to the existing tree. The tree has a
+      # large known-CVE backlog (202 advisories at the time this was added,
+      # 13 of them critical) which is a separate piece of work; failing every
+      # PR on it would just get this job disabled. What this catches is a PR
+      # that introduces a new dependency with a known critical advisory, or one
+      # whose license changes — and, whether or not it fails, it prints the
+      # dependency delta, which is the review signal that matters here.
+      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: critical
+          comment-summary-in-pr: on-failure
+
+  audit:
+    name: Advisory report (informational)
+    runs-on: ubuntu-latest
+    # Reporting only. The existing dependency tree has a substantial advisory
+    # backlog, so this is a number to watch and drive down, not a gate. Making
+    # it blocking today would turn every PR red on debt none of them introduced.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22.x
+          package-manager-cache: false
+
+      # `pnpm audit` reads pnpm-lock.yaml and queries the registry's advisory
+      # endpoint; it needs no node_modules, so this job also never executes
+      # dependency code.
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
+      # `pnpm audit` exits non-zero whenever it finds anything, which is always
+      # here; the report is the output we want, not the exit code.
+      - name: Report advisories
+        run: |
+          pnpm audit --json > audit.json || true
+          node scripts/report-advisories.mjs audit.json
