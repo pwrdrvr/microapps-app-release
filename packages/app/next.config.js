@@ -25,7 +25,14 @@ const SERVER_TRACE_EXCLUDES = [
   '**/next/dist/compiled/cssnano-simple/**',
   '**/next/dist/compiled/amphtml-validator/**',
   '**/next/dist/compiled/react-refresh/**',
-  '**/next/dist/lib/typescript/**',
+  // 15.5.25 reaches this directory from the server's own startup path:
+  // server/config.js -> build/next-config-ts/transpile-config.js ->
+  // lib/typescript/required-packages. Excluding the whole directory, as this
+  // did through 15.5.14, makes the packaged server exit on boot with
+  // MODULE_NOT_FOUND and the deployed app answer 502. required-packages is a
+  // ~1 KB leaf with no requires of its own; the rest is the build-time type
+  // checker (diagnosticFormatter and writeConfigurationDefaults are 15 KB each).
+  '**/next/dist/lib/typescript/!(required-packages).js',
   '**/next/dist/server/typescript/**',
   // The prod router requires dev/hot-reloader-types.js; the rest of dev/ pulls in
   // the webpack dev tooling, so exclude it and stop the tracer from following it.
