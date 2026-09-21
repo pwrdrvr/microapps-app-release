@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -52,8 +53,7 @@ const FIRST_PARTY_FIELDS = ['dependencies', 'optionalDependencies', 'peerDepende
  * exactly when the coverage it provides matters most. Hand-parsed for the same
  * reason the other scripts here are: no YAML library is a root dependency.
  */
-function workspaceGlobs() {
-  const yaml = readFileSync(join(repoRoot, 'pnpm-workspace.yaml'), 'utf8');
+function workspaceGlobs(yaml = readFileSync(join(repoRoot, 'pnpm-workspace.yaml'), 'utf8')) {
   const globs = [];
   let inPackages = false;
 
@@ -79,26 +79,46 @@ function workspaceGlobs() {
   return globs;
 }
 
-/** Directories matching one glob, relative to the repo root. */
-function expandGlob(glob) {
-  // Only the shapes pnpm workspaces actually use: a literal path, `dir/*`, and
-  // `dir/**`. Anything else should fail loudly rather than silently match
-  // nothing, which would look like "all packages are covered".
-  const recursive = glob.endsWith('/**');
-  const immediate = glob.endsWith('/*');
-  if (!recursive && !immediate) return existsSync(join(repoRoot, glob)) ? [glob] : [];
+/** Directories matching one glob, relative to `root`. */
+function expandGlob(glob, root = repoRoot) {
+  // Callers strip `!` before getting here. Enforced rather than assumed,
+  // because the failure is silent: `!packages/legacy/*` ends in `/*`, so it
+  // would take the wildcard branch, look for a directory literally named
+  // `!packages/legacy`, find none and return [] — an exclusion that quietly
+  // stops excluding. An invariant that lives only at the call site survives
+  // exactly until someone refactors the call site.
+  if (glob.startsWith('!')) {
+    throw new Error(`expandGlob received the unstripped exclusion ${glob}`);
+  }
 
-  const base = glob.slice(0, recursive ? -3 : -2);
+  // Only the shapes pnpm workspaces actually use: a literal path, `dir/*`,
+  // `dir/**`, and the top-level `*` / `**`. Anything else must fail loudly
+  // rather than silently match nothing, which would look like "all packages
+  // are covered".
+  //
+  // The bare forms are their own case on purpose: `'*'.endsWith('/*')` is
+  // false, so testing only the suffixes drops `packages: ["*"]` — a valid
+  // declaration meaning every top-level directory — into the literal-path
+  // branch, where it expands to nothing without complaint.
+  const recursive = glob === '**' || glob.endsWith('/**');
+  const immediate = glob === '*' || glob.endsWith('/*');
+  if (!recursive && !immediate) return existsSync(join(root, glob)) ? [glob] : [];
+
+  const bare = glob === '*' || glob === '**';
+  const base = bare ? '.' : glob.slice(0, recursive ? -3 : -2);
   if (/[*?[\]]/.test(base)) {
     throw new Error(`workspace glob ${glob} has a wildcard this test cannot expand`);
   }
 
   const found = [];
   const walk = (dir) => {
-    if (!existsSync(join(repoRoot, dir))) return;
-    for (const entry of readdirSync(join(repoRoot, dir), { withFileTypes: true })) {
+    if (!existsSync(join(root, dir))) return;
+    for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
       if (!entry.isDirectory() || entry.name === 'node_modules') continue;
-      const child = `${dir}/${entry.name}`;
+      // `.` is the walk's own starting point, not a path segment — emitting
+      // `./pkg` here would make these strings incomparable with the literal
+      // form an exclusion produces, and the `!` match below is a string compare.
+      const child = dir === '.' ? entry.name : `${dir}/${entry.name}`;
       found.push(child);
       if (recursive) walk(child);
     }
@@ -107,14 +127,25 @@ function expandGlob(glob) {
   return found;
 }
 
-function workspacePackageNames() {
-  const names = [JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')).name];
+// `globs` defaults from whichever `root` was passed, not from the real repo:
+// the two are semantically one declaration, and defaulting them independently
+// would quietly apply this repo's globs to somebody's fixture tree.
+function workspacePackageNames(
+  root = repoRoot,
+  globs = workspaceGlobs(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8')),
+) {
+  const names = [JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).name];
   const excluded = [];
   const included = [];
 
-  for (const glob of workspaceGlobs()) {
-    if (glob.startsWith('!')) excluded.push(...expandGlob(glob.slice(1)));
-    else included.push(...expandGlob(glob));
+  for (const glob of globs) {
+    // `!` marks a directory pnpm removes from the workspace again. Handled
+    // rather than rejected, because dropping the branch would be worse than it
+    // looks: `expandGlob('!foo')` has no wildcard, `existsSync` on a literal
+    // `!foo` is false, and the entry would be SILENTLY discarded instead of
+    // throwing — quietly widening the set of packages we claim to have checked.
+    if (glob.startsWith('!')) excluded.push(...expandGlob(glob.slice(1), root));
+    else included.push(...expandGlob(glob, root));
   }
 
   for (const dir of included) {
@@ -123,7 +154,7 @@ function workspacePackageNames() {
     // globs skip those, so this must too — otherwise a stray build or scratch
     // directory fails the coverage test with an ENOENT rather than a policy
     // result.
-    const manifest = join(repoRoot, dir, 'package.json');
+    const manifest = join(root, dir, 'package.json');
     if (!existsSync(manifest)) continue;
     names.push(JSON.parse(readFileSync(manifest, 'utf8')).name);
   }
@@ -167,6 +198,108 @@ test('git devDependencies are blocked in first-party packages', () => {
   }
 });
 
+test('the glob parser reads quotes, comments and exclusions out of the block', () => {
+  const globs = workspaceGlobs(
+    [
+      'packages:',
+      '  # our code',
+      "  - 'apps/*'",
+      '  - "packages/*"   # quoted',
+      '  - packages/messaging/**',
+      '',
+      '  - "!packages/legacy"',
+      'minimumReleaseAge: 10080',
+      '  - ignored/*',
+    ].join('\n'),
+  );
+
+  assert.deepEqual(globs, ['apps/*', 'packages/*', 'packages/messaging/**', '!packages/legacy']);
+});
+
+test('a flow-style packages list yields no globs, which the non-empty assertion catches', () => {
+  // Deliberately unsupported rather than half-parsed. It reads as zero globs,
+  // and zero globs must never be mistaken for "nothing to check, all covered" —
+  // that is what the length assertion in the next test is for.
+  assert.deepEqual(workspaceGlobs('packages: ["packages/*"]\n'), []);
+});
+
+test('expansion handles nesting and exclusions, and skips node_modules', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'ws-'));
+  // Registered before anything can throw: the failing path is when someone is
+  // iterating on this test, which is exactly when leaked fixture trees pile up.
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+
+  const pkg = (dir, name) => {
+    mkdirSync(join(root, dir), { recursive: true });
+    writeFileSync(join(root, dir, 'package.json'), JSON.stringify({ name, version: '0.0.0' }));
+  };
+
+  pkg('.', 'root-pkg');
+  pkg('packages/a', '@x/a');
+  pkg('packages/b', '@x/b');
+  pkg('packages/legacy', '@x/legacy');
+  pkg('nested/one/deep', '@x/deep');
+  // INSIDE a recursively-walked path, not at the root — a root-level
+  // node_modules is never reached by these globs, so putting it there would
+  // make the assertion below pass whether or not the skip exists.
+  pkg('nested/one/node_modules/evil', 'evil');
+  // An intermediate directory with no manifest — pnpm skips it, so must we.
+  mkdirSync(join(root, 'nested/empty'), { recursive: true });
+
+  const names = workspacePackageNames(root, ['packages/*', 'nested/**', '!packages/legacy']);
+
+  assert.deepEqual(names.sort(), ['@x/a', '@x/b', '@x/deep', 'root-pkg'].sort());
+  assert.ok(!names.includes('@x/legacy'), 'the ! exclusion must remove it');
+  assert.ok(!names.includes('evil'), 'node_modules must never be walked');
+});
+
+test('the top-level * and ** globs expand, rather than reading as a literal path', (t) => {
+  // `'*'.endsWith('/*')` is false, so a suffix-only wildcard test drops these
+  // into the literal branch and returns [] — a valid pnpm declaration meaning
+  // "every top-level directory" that silently covers nothing.
+  const root = mkdtempSync(join(tmpdir(), 'bare-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(join(root, 'alpha/inner'), { recursive: true });
+  mkdirSync(join(root, 'beta'), { recursive: true });
+  mkdirSync(join(root, 'node_modules/evil'), { recursive: true });
+
+  assert.deepEqual(expandGlob('*', root).sort(), ['alpha', 'beta']);
+  assert.deepEqual(expandGlob('**', root).sort(), ['alpha', 'alpha/inner', 'beta']);
+
+  // Emitted without a `./` prefix, so an exclusion written `!alpha` still
+  // matches by string compare in workspacePackageNames.
+  assert.ok(!expandGlob('*', root).some((dir) => dir.startsWith('./')), 'no ./ prefix');
+});
+
+test('the globs default follows the root argument, not this repo', (t) => {
+  // The two parameters are one declaration. Defaulting them independently would
+  // apply this repo's globs to a fixture tree and pass for the wrong reason.
+  const root = mkdtempSync(join(tmpdir(), 'ws2-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(join(root, 'apps/solo'), { recursive: true });
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'fixture-root' }));
+  writeFileSync(join(root, 'apps/solo/package.json'), JSON.stringify({ name: '@f/solo' }));
+  // Deliberately declares `apps/*`, which this repo does not.
+  writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - "apps/*"\n');
+
+  assert.deepEqual(workspacePackageNames(root).sort(), ['@f/solo', 'fixture-root']);
+});
+
+test('a glob shape the expander cannot evaluate throws instead of matching nothing', () => {
+  // Silently returning [] would read as "this glob covers no packages", which
+  // is indistinguishable from full coverage. Fail loudly and be taught.
+  assert.throws(() => expandGlob('packages/*/src/*'), /cannot expand/);
+  assert.throws(() => expandGlob('pack*ges/*'), /cannot expand/);
+  assert.throws(() => expandGlob('pack*ges/**'), /cannot expand/);
+
+  // An unstripped exclusion is the silent case: it ends in `/*`, so it would
+  // take the wildcard branch and expand to nothing rather than being rejected.
+  assert.throws(() => expandGlob('!packages/legacy/*'), /unstripped exclusion/);
+  assert.throws(() => expandGlob('!packages/legacy'), /unstripped exclusion/);
+});
+
 test('the coverage enumeration follows pnpm-workspace.yaml, not a hardcoded dir', () => {
   // Without this, the test below silently narrows to whatever directory was
   // hardcoded the day it was written. The globs are the contract; a workspace
@@ -175,8 +308,20 @@ test('the coverage enumeration follows pnpm-workspace.yaml, not a hardcoded dir'
   assert.ok(globs.length > 0, 'pnpm-workspace.yaml must declare packages: globs');
   assert.deepEqual(globs, ['packages/*'], 'globs changed — confirm every one is still enumerated');
 
-  // Every glob resolves to at least one real manifest, so a typo cannot read as
-  // "nothing to check, all covered".
+  // Per glob, not just in total. A count assertion cannot tell a dead glob from
+  // an absent one: add a typo'd `appz/*`, update the pin above the way a
+  // developer would after it failed, and the total is still 4 — so the glob
+  // that matches nothing is never reported. Checked individually, it is.
+  for (const glob of globs) {
+    if (glob.startsWith('!')) continue;
+    const dirs = expandGlob(glob);
+    const manifests = dirs.filter((dir) => existsSync(join(repoRoot, dir, 'package.json')));
+    assert.ok(
+      manifests.length > 0,
+      `workspace glob ${glob} matches no package.json — a dead glob reads as "nothing to check, all covered"`,
+    );
+  }
+
   const names = workspacePackageNames();
   assert.equal(names.length, 4, `expected root + 3 packages, got ${names.join(', ')}`);
 });
