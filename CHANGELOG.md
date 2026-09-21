@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.6.0 - 2026-09-20
+## v0.6.0 - 2026-09-21
 
 ### Highlights
 
@@ -17,3 +17,5 @@
 
 - Updated the bundled `minimatch` dependency. @dependabot[bot] (#90)
 - Refined release command preparation and repository development configuration.
+- Expanded test coverage for supply-chain glob parsing and expansion. @huntharo (#128)
+- Switched npm publication to short-lived GitHub OIDC credentials, including npm 11 support for trusted publishing. @huntharo (#129, #132)
