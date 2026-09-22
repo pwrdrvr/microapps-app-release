@@ -1,0 +1,21 @@
+{
+  "name": "MicroApps Release",
+  "short_name": "Release",
+  "description": "Browse MicroApps versions and safely switch the default release.",
+  "start_url": "/release",
+  "display": "standalone",
+  "background_color": "#050908",
+  "theme_color": "#7cf29a",
+  "icons": [
+    {
+      "src": "android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

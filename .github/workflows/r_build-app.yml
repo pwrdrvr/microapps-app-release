@@ -33,11 +33,17 @@ jobs:
 
       - uses: pwrdrvr/configure-nodejs@v1
 
+      - name: Refresh pnpm workspace links
+        run: pnpm install --frozen-lockfile
+
       - name: Build All TypeScript
         run: pnpm build
 
       - name: Lint
         run: pnpm lint
+
+      - name: Test App
+        run: pnpm --filter "${APP_PACKAGE_NAME}" test
 
       - name: Dump info from version reusable workflow
         run: |
@@ -64,22 +70,62 @@ jobs:
           pnpm build
           du -sh .next/*
           du -sh .next/standalone/*
-          du -sh .next/standalone/.next/*
+          du -sh .next/standalone/packages/app/.next/*
 
       - name: Combine Build Outputs
         run: |
           mkdir -p ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/_next/static
           node scripts/materialize-next-standalone.mjs \
             --standalone-dir ./packages/app/.next/standalone \
-            --app-node-modules ./packages/app/node_modules \
             --output-dir ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
           cp -R ./packages/app/.next/static/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/_next/static/
           cp -R ./packages/app/public/* ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/
           cp -R ./packages/app/run.sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/*
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/*
-          du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/.next/*
+          du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server/packages/app/.next/*
           du -sh ./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/static_files/*
+
+      # Build-only files are kept out of the trace by SERVER_TRACE_EXCLUDES in
+      # packages/app/next.config.js. Fail if any of the big ones come back.
+      - name: Check Server Artifact For Build-only Files
+        run: |
+          SERVER=./packages/cdk-construct/lib/${{ inputs.APP_CONSTRUCT_FOLDER_NAME }}/server
+          unexpected=$(find "$SERVER" \( \
+            -path '*/node_modules/typescript' -o \
+            -path '*/node_modules/sharp' -o \
+            -path '*/node_modules/@img' -o \
+            -path '*/node_modules/caniuse-lite' -o \
+            -path '*/next/dist/compiled/babel/bundle.js' -o \
+            -path '*/next/dist/compiled/next-server/*turbo*' -o \
+            -name '*.map' \) -print | head -20)
+          if [ -n "$unexpected" ]; then
+            echo "::error::Build-only files were traced into the server artifact. Update SERVER_TRACE_EXCLUDES in packages/app/next.config.js."
+            echo "$unexpected"
+            exit 1
+          fi
+          du -sh "$SERVER"
+
+      - name: Measure Build Artifact Sizes
+        working-directory: packages/cdk-construct/lib/
+        run: |
+          rm -f combined-app.zip server-only.zip
+          zip -qr combined-app.zip microapps-app-${APP_NAME}
+          zip -qr server-only.zip microapps-app-${APP_NAME}/server
+          SERVER_ONLY_BYTES=$(stat -c %s server-only.zip)
+          # Current prod Lambda package is 2,874,282 bytes; flag growth past ~10%.
+          SERVER_ONLY_REVIEW_BYTES=3161710
+          echo "Combined app zip bytes: $(stat -c %s combined-app.zip)"
+          echo "Server-only zip bytes: ${SERVER_ONLY_BYTES}"
+          if [ "${SERVER_ONLY_BYTES}" -gt "${SERVER_ONLY_REVIEW_BYTES}" ]; then
+            echo "::warning::server-only.zip is ${SERVER_ONLY_BYTES} bytes, over the ${SERVER_ONLY_REVIEW_BYTES} byte review threshold."
+          fi
+          {
+            echo "### Release App Artifact Sizes"
+            echo ""
+            echo "- Combined app zip bytes: $(stat -c %s combined-app.zip)"
+            echo "- Server-only zip bytes: ${SERVER_ONLY_BYTES} (review threshold ${SERVER_ONLY_REVIEW_BYTES})"
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: Build the NPM tarball for Examination
         working-directory: packages/cdk-construct/
@@ -100,3 +146,9 @@ jobs:
         with:
           name: app_zip
           path: packages/cdk-construct/lib/nextjs.zip
+
+      - name: Upload Server-only Zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: server_only_zip
+          path: packages/cdk-construct/lib/server-only.zip

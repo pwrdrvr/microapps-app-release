@@ -62,6 +62,21 @@ ignoredBuiltDependencies:
   # postinstall: `napi-postinstall unrs-resolver 1.11.1 check` — verifies a
   # native binding. `pnpm lint` passes without it on main and in CI.
   - unrs-resolver
+  # Both arrived with the Next 15 rebuild, so neither was on this list when it
+  # was written; the install failed until they were reviewed, which is the
+  # behaviour this list is for.
+  #
+  # install: `node install.js` — fetches/links the platform binary. esbuild has
+  # shipped that binary as an optional @esbuild/<platform> dependency since
+  # 0.25, and resolves it at runtime without the script, so vitest transforms
+  # fine unbuilt. Verified on a wiped node_modules: 86 tests and `next build`
+  # both pass.
+  - esbuild
+  # install: `node install/check.js` — a native libvips build used only by
+  # Next's image optimizer. `next.config.js` already excludes sharp from
+  # `outputFileTracingExcludes`, so it is absent from the Lambda package
+  # regardless; building it locally would not change what ships.
+  - sharp
 
 # Belt and braces with .npmrc: a contributor's personal ~/.pnpm/global_pnpmfile.cjs
 # must not apply here, so that pnpm-lock.yaml's pnpmfileChecksum covers exactly

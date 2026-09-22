@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * PwrDrvr Design System tokens (names from colors_and_type.css), with the values
+ * PwrAgent and PwrSnap actually ship. Keep names in step with the design system so a
+ * token refresh is a value swap, not a rename.
+ */
+:root {
+  color-scheme: dark;
+
+  --font-sans: var(--font-geist-sans), 'SF Pro Text', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), 'SF Mono', 'JetBrains Mono', Consolas, monospace;
+
+  /* surfaces */
+  --bg-app: #000000;
+  --bg-sidebar: #050505;
+  --bg-panel: #0a0a0a;
+  --bg-panel-elevated: #101010;
+  --bg-panel-hover: #14110d;
+  --bg-row-active: #120800;
+  --bg-input: #080808;
+  --bg-overlay: rgba(0, 0, 0, 0.78);
+
+  /* borders */
+  --border-subtle: rgba(247, 243, 235, 0.1);
+  --border-default: rgba(247, 243, 235, 0.12);
+  --border-strong: rgba(247, 243, 235, 0.2);
+
+  /* text */
+  --text-primary: #f7f3eb;
+  --text-secondary: #b8b0a5;
+  --text-muted: #8c857a;
+  --text-subtle: rgba(247, 243, 235, 0.42);
+
+  /* accent */
+  --accent: #ff8a1f;
+  --accent-strong: #ffa33d;
+  --accent-bright: #ffb35c;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 42%, transparent);
+  --accent-shadow: color-mix(in srgb, var(--accent) 34%, transparent);
+  --accent-on: #160a00;
+
+  /* semantic */
+  --danger: #b94232;
+  --danger-soft: rgba(185, 66, 50, 0.24);
+  --danger-border: rgba(185, 66, 50, 0.45);
+  --danger-text: #ffb0a1;
+
+  --success: #5fa969;
+  --success-soft: rgba(74, 148, 92, 0.18);
+  --success-border: rgba(95, 169, 105, 0.36);
+  --success-text: #9ce5b3;
+
+  --warn: #d99a3d;
+  --warn-soft: rgba(217, 154, 61, 0.14);
+  --warn-border: rgba(217, 154, 61, 0.32);
+  --warn-text: #e8c890;
+
+  --info: #5689c4;
+  --info-soft: rgba(86, 137, 196, 0.16);
+  --info-border: rgba(86, 137, 196, 0.28);
+  --info-text: #9fc8ff;
+
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.42);
+  /* A color: focus is drawn as a 2px outline, not a box-shadow. */
+  --focus-ring: var(--accent);
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg-app);
+}
+
+body {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-shadow);
+  color: var(--text-primary);
+}

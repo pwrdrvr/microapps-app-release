@@ -1,58 +1,83 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// const path = require('path');
-// next-compose-plugins
-// const withPlugins = require('next-compose-plugins');
-// next-images
-// const withImages = require('next-images')
+const path = require('path');
 
-// const crypto = require('crypto');
 const isProd = process.env.NODE_ENV === 'production';
 
 const BASE_PREFIX_APP = '/release';
 const BASE_VERSION_ONLY = '/0.0.0';
 const BASE_PREFIX_APP_WITH_VERSION = `${BASE_PREFIX_APP}${BASE_VERSION_ONLY}`;
 
+// Build- and dev-only files that Next traces into the standalone server anyway.
+// Excluding them here keeps the Lambda package close to the production size budget.
+const SERVER_TRACE_EXCLUDES = [
+  '**/node_modules/typescript/**',
+  '**/node_modules/caniuse-lite/**',
+  '**/node_modules/postcss/**',
+  '**/node_modules/source-map/**',
+  '**/node_modules/source-map-js/**',
+  '**/node_modules/sharp/**',
+  '**/node_modules/@img/**',
+  '**/next/dist/build/babel/**',
+  // compiled/babel/code-frame.js is required at startup, but it only needs
+  // compiled/babel-code-frame; the 1.3 MB Babel bundle is build-only.
+  '**/next/dist/compiled/babel/bundle.js',
+  '**/next/dist/compiled/babel-packages/**',
+  '**/next/dist/compiled/postcss-preset-env/**',
+  '**/next/dist/compiled/cssnano-simple/**',
+  '**/next/dist/compiled/amphtml-validator/**',
+  '**/next/dist/compiled/react-refresh/**',
+  // 15.5.25 reaches this directory from the server's own startup path:
+  // server/config.js -> build/next-config-ts/transpile-config.js ->
+  // lib/typescript/required-packages. Excluding the whole directory, as this
+  // did through 15.5.14, makes the packaged server exit on boot with
+  // MODULE_NOT_FOUND and the deployed app answer 502. required-packages is a
+  // ~1 KB leaf with no requires of its own; the rest is the build-time type
+  // checker (diagnosticFormatter and writeConfigurationDefaults are 15 KB each).
+  '**/next/dist/lib/typescript/!(required-packages).js',
+  '**/next/dist/server/typescript/**',
+  // The prod router requires dev/hot-reloader-types.js; the rest of dev/ pulls in
+  // the webpack dev tooling, so exclude it and stop the tracer from following it.
+  '**/next/dist/server/dev/!(hot-reloader-types).js',
+  '**/next/dist/server/dev/*/**',
+  '**/next/dist/client/dev/**',
+  // Dev overlay bundle; only the dev rendering indicator requires it.
+  '**/next/dist/compiled/next-devtools/**',
+  '**/next/dist/next-devtools/userspace/**',
+  // This is a webpack build without experimental React, so only the plain
+  // app-page/app-route/pages runtimes are ever required.
+  '**/next/dist/compiled/next-server/*turbo*',
+  '**/next/dist/compiled/next-server/*experimental*',
+  // Edge sandbox is only loaded for middleware and edge routes, and this app has neither.
+  // @edge-runtime/cookies and /ponyfill are used by the Node server and stay.
+  '**/next/dist/compiled/@edge-runtime/primitives/**',
+  '**/next/dist/compiled/edge-runtime/**',
+  '**/next/dist/server/web/sandbox/**',
+  // server.js forces NODE_ENV=production, and Next renders pages with
+  // react-dom/server.edge, falling back to the browser build only for old React.
+  '**/node_modules/react/cjs/*.development.js',
+  '**/node_modules/react-dom/cjs/*.development.js',
+  '**/node_modules/react-dom/cjs/react-dom-server.browser.*',
+];
+
 /**
  * @type {import('next').NextConfig}
  */
 module.exports = {
   output: 'standalone',
-  outputFileTracing: true,
-  experimental: {
-    bundleServerPackages: isProd,
-  },
-
-  // We want the app under the app name like /release
   basePath: BASE_PREFIX_APP,
-
-  // We want the static assets, api calls, and _next/data calls
-  // to have /release/0.0.0/ as the prefix so they route cleanly
-  // to an isolated folder on the S3 bucket and to a specific
-  // lambda URL without having to do any path manipulation
   assetPrefix: BASE_PREFIX_APP_WITH_VERSION,
-
-  publicRuntimeConfig: {
-    // Will be available on both server and client
-    apiPrefix: BASE_PREFIX_APP_WITH_VERSION,
-    basePath: BASE_PREFIX_APP,
+  reactStrictMode: true,
+  outputFileTracingRoot: path.join(__dirname, '..', '..'),
+  outputFileTracingExcludes: {
+    '*': SERVER_TRACE_EXCLUDES,
   },
-
-  // Get the _next/data calls rebased with the version
-  // This requires custom Next.js routing in the Origin Request
-  // Lambda function
+  images: {
+    unoptimized: true,
+  },
   async generateBuildId() {
     return BASE_VERSION_ONLY.slice(1);
   },
-
-  // Strip the version out of the path
-  // When static assets reach S3 they will still have the version
-  // in the path, which is perfect because that's where the assets
-  // will be on the S3 bucket.
   async rewrites() {
-    // Rewrites needed in both Prod and Dev
     const afterFilesAlways = [
-      // Api Calls
       {
         source: `${BASE_VERSION_ONLY}/api/:path*`,
         destination: `/api/:path*`,
@@ -65,39 +90,18 @@ module.exports = {
       };
     }
 
-    // Local Development Rewrites
     return {
       beforeFiles: [
         {
-          // Static Assets
-          // Next.js evaluates the `source` path after removing `basePath`
-          // A request for `/release/0.0.0/_next/static/...` will be rewritten
-          // to `/0.0.0/_next/static/...` before the `source` is looked up for a match.
-          // This is why we need to use `BASE_VERSION_ONLY` here instead of `BASE_PREFIX_APP_WITH_VERSION`
-          // The destination similarly does not need to repeat the `basePath` because
-          // Next.js is already adding it to any resulting URL.
           source: `${BASE_VERSION_ONLY}/_next/static/:path*`,
           destination: `/_next/static/:path*`,
         },
         {
-          // Other statics including favicon
           source: `${BASE_VERSION_ONLY}/static/:path*`,
           destination: `/static/:path*`,
-        },
-        {
-          // Images
-          source: `${BASE_VERSION_ONLY}/images/:query*`,
-          destination: `/_next/image/:query*`,
         },
       ],
       afterFiles: [...afterFilesAlways],
     };
-  },
-  webpack: (config, { dev, isServer }) => {
-    if (isServer && config.name === 'server' && !dev) {
-      config.optimization.minimize = true;
-    }
-
-    return config;
   },
 };
