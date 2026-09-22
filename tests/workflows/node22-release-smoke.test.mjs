@@ -65,6 +65,20 @@ test('jsii packaging workflows stay runner-native and npm-only', () => {
   assert.match(releaseWorkflow, /publib-npm/);
 });
 
+test('the jsii workflow checks API compatibility without an ad-hoc npm install', () => {
+  const jsiiWorkflow = fs.readFileSync(path.join(repoRoot, '.github', 'workflows', 'jsii.yml'), 'utf8');
+
+  assert.match(jsiiWorkflow, /node scripts\/package-manager\/check-api-compat\.mjs/);
+  assert.match(
+    jsiiWorkflow,
+    /TARBALL_POPULATION_JSON:\s+\$\{\{\s*steps\.tarball_population\.outputs\.report_json\s*\}\}\s*\n\s*run: node scripts\/package-manager\/check-api-compat\.mjs/,
+  );
+  // jsii-diff resolves `npm:` specs with a bare `npm install` (no lockfile, no
+  // cooldown, scripts enabled), and projen's `compat` task uses one.
+  assert.doesNotMatch(jsiiWorkflow, /jsii-diff\s+npm:/);
+  assert.doesNotMatch(jsiiWorkflow, /projen compat|run compat/);
+});
+
 test('direct setup-node usage disables package-manager auto-cache', () => {
   const directSetupNodeWorkflowFiles = [
     '.github/workflows/r_version.yml',

@@ -43,6 +43,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
 
 // The published construct bundles the built Next.js app and static assets.
 project.package.addField('files', [
+  '.jsii',
   'API.md',
   'README.md',
   'lib/*.js',
