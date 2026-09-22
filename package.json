@@ -18,7 +18,8 @@
   ],
   "pnpm": {
     "overrides": {
-      "class-transformer": "0.5.1"
+      "class-transformer": "0.5.1",
+      "next@15.5.25>postcss": "8.5.28"
     }
   },
   "scripts": {
