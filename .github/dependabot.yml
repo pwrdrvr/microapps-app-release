@@ -40,6 +40,27 @@ updates:
         update-types:
           - "version-update:semver-major"
 
+      # aws-cdk-lib and constructs are the published construct's peer
+      # dependencies. .projenrc.js sets `cdkVersion` as the peer floor, and
+      # projen pins the devDependency to that same floor so the construct is
+      # compiled against the oldest release it claims to support. cdk-stack
+      # stays in lockstep so the ghpublic deploy runs one copy of aws-cdk-lib.
+      #
+      # A Dependabot bump edits package.json but not .projenrc.js, which splits
+      # dev from peer and reverts on the next `npx projen`. It can also outrun
+      # the root `aws-cdk` CLI: #125 (2.269.0) passed CI, where deploy is
+      # skipped for Dependabot, but would have failed `cdk deploy` on main
+      # because CLI 2.1117 can't read cloud-assembly schema 54.
+      #
+      # Raising the floor is a consumer-visible change. Do it deliberately:
+      # edit `cdkVersion` in .projenrc.js, bump the root `aws-cdk` CLI in the
+      # same change if the schema major moves, and ship it as a minor release.
+      #
+      # This covers version updates. A security alert can still open a PR, so
+      # dismiss alerts whose vulnerable module the construct doesn't use.
+      - dependency-name: "aws-cdk-lib"
+      - dependency-name: "constructs"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
