@@ -66,7 +66,7 @@ jobs:
 
       - name: Publish Tarball Population Report Check
         if: github.event_name == 'pull_request' && steps.tarball_population.outputs.report_markdown != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
