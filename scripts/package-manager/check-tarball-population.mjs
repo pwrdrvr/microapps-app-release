@@ -13,13 +13,13 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const rootDir = process.cwd();
-const workDir = mkdtempSync(path.join(tmpdir(), 'tarball-population-'));
-const publishedDir = path.join(workDir, 'published');
-const localDir = path.join(workDir, 'local');
-mkdirSync(publishedDir, { recursive: true });
-mkdirSync(localDir, { recursive: true });
+// Created by runCli(), so importing this module for its tests touches no disk.
+let workDir;
+let publishedDir;
+let localDir;
 
 const outputJson =
   process.env.TARBALL_POPULATION_JSON ?? path.join(rootDir, 'tarball-population.json');
@@ -33,6 +33,14 @@ const baselineDir = process.env.TARBALL_POPULATION_BASELINE_DIR ?? null;
 // the whole app as removed. Payload packaging is covered by the deploy workflows.
 const APP_PAYLOAD_PREFIX = 'lib/microapps-app-release/';
 
+// Paths the tarball must contain whatever the published baseline holds. `.jsii`
+// is the jsii assembly: JS/TS consumers never load it, but Construct Hub,
+// jsii-diff and any jsii library depending on this one read it from the npm
+// tarball. A `files` allow-list silently dropped it from every release from
+// 0.3.0 through 0.6.0. Once a baseline includes it, the diff below would only
+// report its removal as metadata drift, so its absence is checked separately.
+const REQUIRED_PATHS = ['.jsii'];
+
 function isAppPayloadPath(filePath) {
   return filePath.startsWith(APP_PAYLOAD_PREFIX);
 }
@@ -44,31 +52,39 @@ const pkg = {
   localTarballName: 'microapps-app-release-cdk',
 };
 
-if (baselineDir) {
-  mkdirSync(baselineDir, { recursive: true });
-}
+function runCli() {
+  if (baselineDir) {
+    mkdirSync(baselineDir, { recursive: true });
+  }
 
-if (process.argv.includes('--print-baseline-cache-key')) {
-  console.log(`${pkg.id}-${getPublishedVersionOrPlaceholder(pkg.npmSpec)}`);
-  process.exit(0);
-}
+  if (process.argv.includes('--print-baseline-cache-key')) {
+    console.log(`${pkg.id}-${getPublishedVersionOrPlaceholder(pkg.npmSpec)}`);
+    return;
+  }
 
-try {
-  const result = comparePackage(pkg);
-  const report = {
-    overallStatus: result.status,
-    generatedAt: new Date().toISOString(),
-    workDir,
-    packages: [result],
-  };
+  workDir = mkdtempSync(path.join(tmpdir(), 'tarball-population-'));
+  publishedDir = path.join(workDir, 'published');
+  localDir = path.join(workDir, 'local');
+  mkdirSync(publishedDir, { recursive: true });
+  mkdirSync(localDir, { recursive: true });
 
-  writeFileSync(outputJson, `${JSON.stringify(report, null, 2)}\n`);
-  writeFileSync(outputMarkdown, renderMarkdown(report));
+  try {
+    const result = comparePackage(pkg);
+    const report = {
+      overallStatus: result.status,
+      generatedAt: new Date().toISOString(),
+      workDir,
+      packages: [result],
+    };
 
-  console.log(renderConsoleSummary(report));
-} finally {
-  if (process.env.KEEP_TARBALL_POPULATION_WORKDIR !== '1') {
-    rmSync(workDir, { recursive: true, force: true });
+    writeFileSync(outputJson, `${JSON.stringify(report, null, 2)}\n`);
+    writeFileSync(outputMarkdown, renderMarkdown(report));
+
+    console.log(renderConsoleSummary(report));
+  } finally {
+    if (process.env.KEEP_TARBALL_POPULATION_WORKDIR !== '1') {
+      rmSync(workDir, { recursive: true, force: true });
+    }
   }
 }
 
@@ -93,41 +109,67 @@ function comparePackage(currentPkg) {
       localSymlinkCount: 0,
       addedPaths: [],
       removedPaths: [],
+      missingRequiredPaths: [],
     };
   }
 
   const publishedBaseline = preparePublishedBaseline(currentPkg, publishedVersion);
   const localTarballPath = prepareLocalTarball(currentPkg);
-  const localFiles = listTarballFiles(localTarballPath);
-  const comparedPublishedFiles = publishedBaseline.files.filter(
-    (filePath) => !isAppPayloadPath(filePath),
-  );
+  const population = comparePopulations({
+    publishedFiles: publishedBaseline.files,
+    localFiles: listTarballFiles(localTarballPath),
+    publishedSymlinkCount: publishedBaseline.symlinkCount,
+    localSymlinkCount: countTarballSymlinks(localTarballPath),
+  });
+
+  return {
+    id: currentPkg.id,
+    npmSpec: currentPkg.npmSpec,
+    status: population.status,
+    reason: population.reason,
+    publishedVersion,
+    publishedTarballPath: publishedBaseline.tarballPath,
+    localTarballPath,
+    publishedFileCount: population.publishedFileCount,
+    localFileCount: population.localFileCount,
+    skippedPayloadPaths: population.skippedPayloadPaths,
+    publishedSymlinkCount: population.publishedSymlinkCount,
+    localSymlinkCount: population.localSymlinkCount,
+    addedPaths: population.addedPaths,
+    removedPaths: population.removedPaths,
+    missingRequiredPaths: population.missingRequiredPaths,
+  };
+}
+
+// Compares two tarball file lists (paths relative to `package/`).
+export function comparePopulations({
+  publishedFiles,
+  localFiles,
+  publishedSymlinkCount = 0,
+  localSymlinkCount = 0,
+}) {
+  const comparedPublishedFiles = publishedFiles.filter((filePath) => !isAppPayloadPath(filePath));
   const comparedLocalFiles = localFiles.filter((filePath) => !isAppPayloadPath(filePath));
   const skippedPayloadPaths =
-    publishedBaseline.files.length -
+    publishedFiles.length -
     comparedPublishedFiles.length +
     (localFiles.length - comparedLocalFiles.length);
   const publishedSet = new Set(comparedPublishedFiles);
   const localSet = new Set(comparedLocalFiles);
   const addedPaths = comparedLocalFiles.filter((filePath) => !publishedSet.has(filePath));
   const removedPaths = comparedPublishedFiles.filter((filePath) => !localSet.has(filePath));
-  const publishedSymlinkCount = publishedBaseline.symlinkCount;
-  const localSymlinkCount = countTarballSymlinks(localTarballPath);
-  const changedPaths = [...addedPaths, ...removedPaths];
-  const status = classifyStatus({
-    changedPaths,
+  const missingRequiredPaths = REQUIRED_PATHS.filter((filePath) => !localSet.has(filePath));
+  const findings = {
+    changedPaths: [...addedPaths, ...removedPaths],
+    missingRequiredPaths,
     publishedSymlinkCount,
     localSymlinkCount,
-  });
+  };
+  const status = classifyStatus(findings);
 
   return {
-    id: currentPkg.id,
-    npmSpec: currentPkg.npmSpec,
     status,
-    reason: statusReason(status, changedPaths, publishedSymlinkCount, localSymlinkCount),
-    publishedVersion,
-    publishedTarballPath: publishedBaseline.tarballPath,
-    localTarballPath,
+    reason: statusReason(status, findings),
     publishedFileCount: comparedPublishedFiles.length,
     localFileCount: comparedLocalFiles.length,
     skippedPayloadPaths,
@@ -135,6 +177,7 @@ function comparePackage(currentPkg) {
     localSymlinkCount,
     addedPaths,
     removedPaths,
+    missingRequiredPaths,
   };
 }
 
@@ -255,8 +298,16 @@ function countTarballSymlinks(tarballPath) {
     .filter((line) => line.startsWith('l')).length;
 }
 
-function classifyStatus({ changedPaths, publishedSymlinkCount, localSymlinkCount }) {
+function classifyStatus({
+  changedPaths,
+  missingRequiredPaths,
+  publishedSymlinkCount,
+  localSymlinkCount,
+}) {
   if (publishedSymlinkCount > 0 || localSymlinkCount > 0) {
+    return 'red';
+  }
+  if (missingRequiredPaths.length > 0) {
     return 'red';
   }
   if (changedPaths.length === 0) {
@@ -268,9 +319,15 @@ function classifyStatus({ changedPaths, publishedSymlinkCount, localSymlinkCount
   return 'red';
 }
 
-function statusReason(status, changedPaths, publishedSymlinkCount, localSymlinkCount) {
+function statusReason(
+  status,
+  { changedPaths, missingRequiredPaths, publishedSymlinkCount, localSymlinkCount },
+) {
   if (publishedSymlinkCount > 0 || localSymlinkCount > 0) {
     return 'Tarball contains symlinks';
+  }
+  if (missingRequiredPaths.length > 0) {
+    return `Required files missing from the new tarball: ${missingRequiredPaths.join(', ')}`;
   }
   if (status === 'green') {
     return 'File population matches the published tarball';
@@ -281,8 +338,11 @@ function statusReason(status, changedPaths, publishedSymlinkCount, localSymlinkC
   return `Runtime file population changed: ${changedPaths.join(', ')}`;
 }
 
-function isMetadataOnlyPath(filePath) {
-  return /^(README(\..+)?|CHANGELOG(\..+)?|LICENSE(\..+)?|LICENCE(\..+)?|NOTICE(\..+)?)$/i.test(
+// Files no runtime code loads. The package-root `.jsii` belongs here so that
+// restoring it against a baseline that lacks it (0.6.0 and earlier) does not
+// block; REQUIRED_PATHS is what stops it being dropped again.
+export function isMetadataOnlyPath(filePath) {
+  return /^(README(\..+)?|CHANGELOG(\..+)?|LICENSE(\..+)?|LICENCE(\..+)?|NOTICE(\..+)?|\.jsii)$/i.test(
     filePath,
   );
 }
@@ -327,6 +387,14 @@ function renderMarkdown(report) {
       `<details><summary>${statusIcon(currentPkg.status)} \`${currentPkg.npmSpec}\` details</summary>`,
     );
     lines.push('');
+
+    if (currentPkg.missingRequiredPaths.length > 0) {
+      lines.push('Required paths missing from new tarball:');
+      for (const filePath of currentPkg.missingRequiredPaths) {
+        lines.push(`- \`${filePath}\``);
+      }
+      lines.push('');
+    }
 
     if (currentPkg.addedPaths.length > 0) {
       lines.push('Added paths in new tarball:');
@@ -460,4 +528,11 @@ function resolvePnpmCommand() {
     command: 'pnpm',
     args: [],
   };
+}
+
+const isCliEntrypoint =
+  process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isCliEntrypoint) {
+  runCli();
 }

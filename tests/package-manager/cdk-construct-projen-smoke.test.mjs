@@ -40,3 +40,19 @@ test('cdk-construct pins the JS-only pnpm, projen, cdk, and node floor', () => {
   assert.ok(!('package:dotnet' in packageJson.scripts));
   assert.deepEqual(packageJson.jsii.targets, {});
 });
+
+test('cdk-construct publishes its jsii assembly', () => {
+  const projenrc = fs.readFileSync(
+    path.join(repoRoot, 'packages', 'cdk-construct', '.projenrc.js'),
+    'utf8',
+  );
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.join(repoRoot, 'packages', 'cdk-construct', 'package.json'), 'utf8'),
+  );
+
+  // `files` overrides the generated .npmignore (which does say `!.jsii`), so the
+  // assembly ships only if it is listed here. Without it Construct Hub and
+  // jsii-diff can't read the package. 0.3.0 through 0.6.0 shipped without it.
+  assert.ok(packageJson.files.includes('.jsii'), 'package.json files must include .jsii');
+  assert.match(projenrc, /addField\('files', \[\s*'\.jsii',/);
+});

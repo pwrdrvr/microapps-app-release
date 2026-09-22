@@ -90,6 +90,7 @@
     }
   },
   "files": [
+    ".jsii",
     "API.md",
     "README.md",
     "lib/*.js",

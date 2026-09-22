@@ -129,6 +129,15 @@ jobs:
           OVERALL_STATUS: ${{ steps.tarball_population.outputs.overall_status }}
           REPORT_MARKDOWN: ${{ steps.tarball_population.outputs.report_markdown }}
 
+      # jsii-diff against the published tarball fetched above. Not projen's
+      # `compat` task, whose `npm:` spec makes jsii-diff run an unpinned
+      # `npm install` on the runner; see the script header. Skips until a
+      # release that ships `.jsii` is published.
+      - name: Check API Compatibility
+        env:
+          TARBALL_POPULATION_JSON: ${{ steps.tarball_population.outputs.report_json }}
+        run: node scripts/package-manager/check-api-compat.mjs
+
       - name: Fail on Runtime Tarball Drift
         if: steps.tarball_population.outputs.overall_status == 'red'
         run: |
