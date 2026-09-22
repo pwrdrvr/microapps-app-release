@@ -34,7 +34,7 @@ jobs:
           echo "key=$(node scripts/package-manager/check-tarball-population.mjs --print-baseline-cache-key)" >> $GITHUB_OUTPUT
 
       - name: Restore Published Tarball Baselines
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ runner.temp }}/tarball-population-baselines
           key: tarball-population-baselines-${{ runner.os }}-${{ steps.tarball_baseline_key.outputs.key }}
