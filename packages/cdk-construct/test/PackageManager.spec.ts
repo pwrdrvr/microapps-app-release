@@ -13,7 +13,7 @@ describe('cdk-construct package manager configuration', () => {
     const projenrc = readPackageFile('.projenrc.js');
 
     expect(projenrc).toContain('packageManager: javascript.NodePackageManager.PNPM');
-    expect(projenrc).toContain("pnpmVersion: '10'");
+    expect(projenrc).toContain("pnpmVersion: '10.29.3'");
     expect(projenrc).toContain("minNodeVersion: '22.0.0'");
   });
 });

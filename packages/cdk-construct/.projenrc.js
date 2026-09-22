@@ -7,7 +7,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   authorOrganization: true,
   description:
     'Release app for the MicroApps framework, by PwrDrvr LLC. Provides the ability to control which version of an app is launched.',
-  cdkVersion: '2.248.0',
+  cdkVersion: '2.269.0',
   cdkVersionPinning: false,
   copyrightOwner: 'PwrDrvr LLC',
   copyrightPeriod: '2020',
@@ -17,10 +17,12 @@ const project = new awscdk.AwsCdkConstructLibrary({
   releaseToNpm: true,
   npmAccess: javascript.NpmAccess.PUBLIC,
   packageManager: javascript.NodePackageManager.PNPM,
-  pnpmVersion: '10',
+  pnpmVersion: '10.29.3',
   addPackageManagerToDevEngines: false,
   minNodeVersion: '22.0.0',
-  jsiiVersion: '^5.9.36',
+  jsiiVersion: '~5.9.54',
+  projenVersion: '0.103.23',
+  typescriptVersion: '~5.9.3',
   projenrcTs: false,
   repositoryUrl: 'https://github.com/pwrdrvr/microapps-app-release',
   homepage: 'https://github.com/pwrdrvr/microapps-app-release',
@@ -31,15 +33,18 @@ const project = new awscdk.AwsCdkConstructLibrary({
   devDeps: [
     '@types/yargs@^16.0.0',
     '@types/jest@^26.0.24',
-    'eslint-import-resolver-typescript@^2.7.1',
+    'eslint-import-resolver-typescript@^4.4.4',
     'eslint-plugin-import@^2.32.0',
-    'jsii-diff@^1.127.0',
-    'jsii-docgen@^10.11.15',
-    'jsii-pacmak@^1.127.0',
-    'jsii-rosetta@^5.9.38',
+    'jsii-diff@^1.140.0',
+    'jsii-docgen@^10.12.6',
+    'jsii-pacmak@^1.140.0',
+    'jsii-rosetta@~5.9.66',
   ],
   peerDeps: [],
 });
+
+// These components supply their own defaults after devDeps are processed.
+project.addDevDeps('jsii-rosetta@~5.9.66', 'eslint-plugin-import@^2.32.0');
 
 // The published construct bundles the built Next.js app and static assets.
 project.package.addField('files', [
