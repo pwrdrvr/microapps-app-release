@@ -44,7 +44,7 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: pwrdrvr/configure-nodejs@v1
 
@@ -86,7 +86,7 @@ jobs:
       name: ghpublic
       url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}-storybook/${{ needs.version.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: pwrdrvr/configure-nodejs@v1
 
@@ -153,7 +153,7 @@ jobs:
       name: ghpublic
       url: https://apps.ghpublic.pwrdrvr.com/${{ env.APP_NAME }}?appver=${{ needs.version.outputs.packageVersion }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: pwrdrvr/configure-nodejs@v1
 
