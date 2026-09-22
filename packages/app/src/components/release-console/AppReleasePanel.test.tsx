@@ -115,4 +115,34 @@ describe('AppReleasePanel', () => {
 
     expect(screen.queryByRole('status')).toBeNull();
   });
+
+  test('keeps a refused revert visible after the banner is gone', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(okResponse());
+    const { rerender } = render(panel('0.5.2'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Roll back 0.4.7' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll back to 0.4.7' }));
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
+    rerender(panel('0.4.7'));
+
+    // Someone else moved the default to 0.5.3 before the revert landed.
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 409,
+      json: async () => ({
+        error: 'The release default changed to 0.5.3 (expected 0.4.7). Nothing was written.',
+        actualDefault: '0.5.3',
+      }),
+    } as Response);
+    fireEvent.click(screen.getByRole('button', { name: 'Revert to 0.5.2' }));
+    await waitFor(() => expect(refresh).toHaveBeenCalledTimes(2));
+
+    // The refresh brings 0.5.3 back, which unmounts the banner that held the revert.
+    rerender(panel('0.5.3'));
+
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Revert not applied: The release default changed to 0.5.3',
+    );
+  });
 });

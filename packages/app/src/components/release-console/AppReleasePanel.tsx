@@ -23,17 +23,20 @@ function formatClock(date: Date) {
 function ChangeBanner({
   appName,
   change,
+  error,
   onDismiss,
   onReverted,
+  onRevertFailed,
 }: {
   appName: string;
   change: AppliedDefaultChange;
+  error: string | null;
   onDismiss: () => void;
   onReverted: (change: AppliedDefaultChange) => void;
+  onRevertFailed: (error: string | null) => void;
 }) {
   const router = useRouter();
   const [isReverting, startRevert] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const revertTo = change.from;
 
   function revert() {
@@ -41,7 +44,7 @@ function ChangeBanner({
       return;
     }
 
-    setError(null);
+    onRevertFailed(null);
     startRevert(async () => {
       const result = await postDefaultVersion({
         appName,
@@ -53,7 +56,7 @@ function ChangeBanner({
         if (result.ok) {
           onReverted({ from: change.to, to: revertTo, at: new Date() });
         } else {
-          setError(result.error);
+          onRevertFailed(result.error);
         }
 
         router.refresh();
@@ -113,6 +116,9 @@ export function AppReleasePanel({
 }) {
   const [request, setRequest] = useState<DefaultChangeRequest | null>(null);
   const [applied, setApplied] = useState<AppliedDefaultChange | null>(null);
+  // Held here, not in the banner: a refused revert (409) refreshes to a default the
+  // banner no longer describes, which unmounts it along with anything it held.
+  const [revertError, setRevertError] = useState<string | null>(null);
   const [rulesHeight, setRulesHeight] = useRulesHeight();
   const versionsRef = useRef<HTMLDivElement>(null);
   const rulesRef = useRef<HTMLElement>(null);
@@ -191,9 +197,18 @@ export function AppReleasePanel({
         <ChangeBanner
           appName={appName}
           change={visibleChange}
-          onDismiss={() => setApplied(null)}
+          error={revertError}
+          onDismiss={() => {
+            setApplied(null);
+            setRevertError(null);
+          }}
           onReverted={setApplied}
+          onRevertFailed={setRevertError}
         />
+      ) : revertError ? (
+        <div className="rc-note danger rc-alert" role="alert">
+          Revert not applied: {revertError}
+        </div>
       ) : null}
 
       <VersionList
@@ -229,6 +244,7 @@ export function AppReleasePanel({
           onClose={() => setRequest(null)}
           onApplied={(change) => {
             setApplied(change);
+            setRevertError(null);
             setRequest(null);
           }}
         />

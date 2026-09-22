@@ -6,7 +6,10 @@ import { cn } from '@/lib/utils';
 const STORAGE_KEY = 'rc-rules-height';
 /** Below this the rules panel is not worth showing; the handle snaps back to auto. */
 export const MIN_RULES_HEIGHT = 72;
-/** Leave the versions list at least this much, however far the handle is dragged. */
+/**
+ * Leave the versions list at least this much, however far the handle is dragged.
+ * release-console.css enforces the same floor for a stored height from a taller window.
+ */
 const MIN_VERSIONS_HEIGHT = 160;
 const KEYBOARD_STEP = 24;
 

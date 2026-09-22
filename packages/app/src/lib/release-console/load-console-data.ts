@@ -22,6 +22,7 @@ import { buildReleaseConsoleData } from './normalize-records';
 // BatchGetItem accepts at most 100 keys per request.
 const BATCH_GET_LIMIT = 100;
 const SUMMARY_QUERY_CONCURRENCY = 8;
+const UNPROCESSED_RETRY_DELAYS_MS = [0, 50, 200];
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
@@ -59,8 +60,17 @@ async function loadDefaultVersions(appNames: string[]) {
       .slice(start, start + BATCH_GET_LIMIT)
       .map((appName) => ({ PK: partitionKeyFor(appName), SK: 'rules' }));
 
-    // DynamoDB may hand back unprocessed keys under load; retry those a couple of times.
-    for (let attempt = 0; keys && keys.length > 0 && attempt < 3; attempt += 1) {
+    // DynamoDB hands back unprocessed keys when it is throttling, so an immediate
+    // retry is likely to be throttled too; back off before each retry.
+    for (
+      let attempt = 0;
+      keys && keys.length > 0 && attempt < UNPROCESSED_RETRY_DELAYS_MS.length;
+      attempt += 1
+    ) {
+      if (UNPROCESSED_RETRY_DELAYS_MS[attempt] > 0) {
+        await new Promise((resolve) => setTimeout(resolve, UNPROCESSED_RETRY_DELAYS_MS[attempt]));
+      }
+
       const response: BatchGetCommandOutput = await documentClient.send(
         new BatchGetCommand({
           RequestItems: {

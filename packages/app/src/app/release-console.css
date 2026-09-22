@@ -348,6 +348,7 @@
 }
 .rc-banner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   margin: 14px 24px 0;
@@ -990,6 +991,15 @@
   flex-direction: column;
   min-height: 0;
 }
+/* A stored height can come from a taller window. Letting the panel shrink, while
+   the versions list keeps the same 160px floor the drag enforces, stops that
+   height from squeezing the versions list to nothing. */
+.rc-rules.is-sized {
+  flex: 0 1 auto;
+}
+.rc-pane:has(> .rc-rules.is-sized) > .rc-table {
+  min-height: 160px;
+}
 /* Once the operator has set a height, the table takes whatever the bar leaves. */
 .rc-rules.is-sized .rc-rules-table {
   max-height: none;
@@ -1224,6 +1234,9 @@
   }
   .rc-rules.is-sized {
     height: auto !important;
+  }
+  .rc-pane:has(> .rc-rules.is-sized) > .rc-table {
+    min-height: 0;
   }
   .rc-rules .rc-bar {
     padding: 18px 16px 10px;
