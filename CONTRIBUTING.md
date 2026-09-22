@@ -69,8 +69,24 @@ blocking are listed in `ignoredBuiltDependencies` with a note on what each
 script does. A new dependency that wants to run one will fail the install rather
 than slip through; add it to whichever list is right, with a reason.
 
-This repo's own `postinstall` hooks (patch-package, in the root and in
-`packages/app`) are workspace scripts and are unaffected.
+## Legacy publishing and lint dependencies
+
+The root `@pwrdrvr/microapps-publish` CLI is still used by the app build,
+publishing/preflight, and PR cleanup workflows. Its version is retained to keep
+those command interfaces stable. Root ESLint also remains in use for the app and
+CDK stack; the construct has its own lint tooling.
+
+The root `pnpm.overrides` pins compatible security fixes for these legacy trees.
+Selectors are limited to the affected major or parent where APIs differ across
+versions (notably js-yaml, minimatch, brace-expansion, and ajv). Review and remove
+these pins when their parent dependencies are upgraded. All pinned releases must
+pass `pnpm deps:maturity`; do not exempt an override from the seven-day cooldown.
+
+The publisher still pins AWS SDK 3.78.0, which brings fast-xml-parser 3 and uuid 8.
+Remaining advisories are GHSA-x3cc-x39p-42qx and GHSA-gh4j-gqv2-49f6
+(fast-xml-parser), and GHSA-w5hq-g745-h8pq (uuid). These require a publisher/SDK
+migration with publish/delete integration testing; forcing a new XML parser
+major into the old SDK changes its API and is not a compatible security patch.
 
 ## Trying out `esbuild` on `server.js`
 
