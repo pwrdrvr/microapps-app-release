@@ -20,12 +20,9 @@
     "overrides": {
       "class-transformer": "0.5.1",
       "next@15.5.25>postcss": "8.5.28",
-      "convict@6": "6.2.5",
-      "convict-format-with-validator>validator": "13.15.22",
       "js-yaml@3": "3.15.2",
       "js-yaml@4": "4.3.2",
       "lodash@4": "4.18.1",
-      "@oclif/core>ejs": "3.1.10",
       "braces@3": "3.0.3",
       "micromatch@4": "4.0.8",
       "picomatch@2": "2.3.2",
@@ -34,9 +31,7 @@
       "minimatch@7": "7.4.8",
       "brace-expansion@1": "1.1.18",
       "brace-expansion@2": "2.1.4",
-      "cross-spawn@6": "6.0.6",
       "cross-spawn@7": "7.0.6",
-      "semver@5": "5.7.2",
       "word-wrap": "1.2.5",
       "ts-node>diff": "4.0.4",
       "ajv@6": "6.14.0",
@@ -77,7 +72,6 @@
     ]
   },
   "devDependencies": {
-    "@pwrdrvr/microapps-publish": "0.4.0-alpha.5",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
     "aws-cdk": "^2.1141.0",
@@ -87,6 +81,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
     "prettier": "^2.2.1",
+    "pwrdrvr": "1.1.2",
     "rimraf": "4.4.0",
     "ts-node": "10.9.1",
     "typescript": "4.9.5"
