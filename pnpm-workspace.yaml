@@ -30,8 +30,6 @@ minimumReleaseAgeExclude: []
 # executes code on the machine that installs it, so the empty allowlist below is
 # the policy: nothing in node_modules gets to run code at install time.
 #
-# This repo's own `postinstall` hooks (patch-package, in the root and in
-# packages/app) are workspace scripts, not dependency scripts, and are unaffected.
 onlyBuiltDependencies: []
 
 # The scripts pnpm is currently blocking, declared so the set is reviewed rather

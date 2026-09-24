@@ -38,16 +38,9 @@
     "dev": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} pnpm --filter @pwrdrvr/microapps-app-release dev",
     "lint": "pnpm exec eslint ./packages/app ./packages/cdk-stack --ext .ts --ext .tsx && pnpm --filter @pwrdrvr/microapps-app-release-cdk run eslint",
     "lint-and-fix": "pnpm exec eslint ./packages/app ./packages/cdk-stack --ext .ts --ext .tsx --fix && pnpm --filter @pwrdrvr/microapps-app-release-cdk run eslint -- --fix",
-    "postinstall": "if [ -d node_modules/next ]; then patch-package --patch-dir ./patches/; else echo 'Skipping root patches'; fi",
     "start:app:next": "NODE_CONFIG_ENV=${NODE_CONFIG_ENV:-dev} DATABASE_TABLE_NAME=${DATABASE_TABLE_NAME:-microapps-dev} pnpm --filter @pwrdrvr/microapps-app-release start",
     "test:repo-tools": "node --test tests/package-manager/*.test.mjs tests/supply-chain/*.test.mjs tests/workflows/*.test.mjs scripts/*.test.mjs",
     "install:node-prune": "curl -sf https://gobinaries.com/tj/node-prune | sh"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -62,7 +55,6 @@
     ]
   },
   "devDependencies": {
-    "@pwrdrvr/microapps-publish": "0.4.0-alpha.5",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
     "aws-cdk": "^2.1141.0",
@@ -71,9 +63,8 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
-    "npm-force-resolutions": "^0.0.10",
-    "patch-package": "6.5.1",
     "prettier": "^2.2.1",
+    "pwrdrvr": "1.1.2",
     "rimraf": "4.4.0",
     "ts-node": "10.9.1",
     "typescript": "4.9.5"
