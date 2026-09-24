@@ -76,10 +76,9 @@ and PR cleanup workflows. It replaces the legacy `@pwrdrvr/microapps-publish`
 package and allows current AWS SDK releases instead of pinning SDK 3.78.0.
 
 Root ESLint remains in use for the app and CDK stack; the construct has its own
-lint tooling. The root `pnpm.overrides` pins compatible security fixes for
-remaining shared tooling dependencies. Selectors are limited to the affected
-major or parent where APIs differ across versions. Review and remove these pins
-when their parent dependencies are upgraded. All releases must pass
+lint tooling. Compatible security updates are recorded in `pnpm-lock.yaml`
+without additional transitive overrides. The existing class-transformer and
+Next/PostCSS overrides remain unchanged. All releases must pass
 `pnpm deps:maturity`; do not exempt an override from the seven-day cooldown.
 
 ## Trying out `esbuild` on `server.js`
