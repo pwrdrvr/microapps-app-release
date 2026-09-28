@@ -55,4 +55,5 @@ test('cdk-construct publishes its jsii assembly', () => {
   // jsii-diff can't read the package. 0.3.0 through 0.6.0 shipped without it.
   assert.ok(packageJson.files.includes('.jsii'), 'package.json files must include .jsii');
   assert.match(projenrc, /addField\('files', \[\s*'\.jsii',/);
+  assert.ok(packageJson.keywords.includes('aws-cdk'), 'Construct Hub requires the aws-cdk keyword');
 });

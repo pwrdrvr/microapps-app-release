@@ -66,6 +66,7 @@
   },
   "pnpm": {},
   "keywords": [
+    "aws-cdk",
     "awscdk",
     "cdk",
     "microapps"

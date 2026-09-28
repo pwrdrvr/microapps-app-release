@@ -28,7 +28,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   homepage: 'https://github.com/pwrdrvr/microapps-app-release',
   stability: 'stable',
   jest: false,
-  keywords: ['awscdk', 'cdk', 'microapps'],
+  keywords: ['aws-cdk', 'awscdk', 'cdk', 'microapps'],
   docgen: true,
   devDeps: [
     '@types/yargs@^16.0.0',
