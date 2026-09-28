@@ -86,7 +86,7 @@ jobs:
 
       - name: Preflight Check Version - App
         run: |
-          pnpm exec microapps-publish preflight \
+          pnpm exec pwrdrvr preflight \
             --app-name ${APP_NAME} \
             --new-version ${{ needs.version.outputs.packageVersion }} \
             --deployer-lambda-name ${DEPLOYER_LAMBDA_NAME} \
@@ -107,7 +107,7 @@ jobs:
 
       - name: Publish to MicroApps - App
         run: |
-          pnpm exec microapps-publish publish \
+          pnpm exec pwrdrvr publish \
             --app-name ${APP_NAME} \
             --type lambda-url \
             --startup-type direct \

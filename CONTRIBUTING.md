@@ -69,8 +69,17 @@ blocking are listed in `ignoredBuiltDependencies` with a note on what each
 script does. A new dependency that wants to run one will fail the install rather
 than slip through; add it to whichever list is right, with a reason.
 
-This repo's own `postinstall` hooks (patch-package, in the root and in
-`packages/app`) are workspace scripts and are unaffected.
+## Publishing and lint dependencies
+
+The root `pwrdrvr@1.1.2` CLI is used by the app build, publishing/preflight,
+and PR cleanup workflows. It replaces the legacy `@pwrdrvr/microapps-publish`
+package and allows current AWS SDK releases instead of pinning SDK 3.78.0.
+
+Root ESLint remains in use for the app and CDK stack; the construct has its own
+lint tooling. Compatible security updates are recorded in `pnpm-lock.yaml`
+without additional transitive overrides. The existing class-transformer and
+Next/PostCSS overrides remain unchanged. All releases must pass
+`pnpm deps:maturity`; do not exempt an override from the seven-day cooldown.
 
 ## Trying out `esbuild` on `server.js`
 

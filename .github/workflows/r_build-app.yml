@@ -55,7 +55,7 @@ jobs:
 
       - name: Apply Next.js Version
         working-directory: packages/app/
-        run: pnpm exec microapps-publish nextjs-version -n "${{ inputs.packageVersion }}"
+        run: pnpm exec pwrdrvr nextjs-version -n "${{ inputs.packageVersion }}"
 
       - name: Restore Next.js Build Cache
         uses: actions/cache@v6
