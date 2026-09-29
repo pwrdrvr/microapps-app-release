@@ -9,11 +9,11 @@ function readPackageFile(relativePath: string) {
 }
 
 describe('cdk-construct package manager configuration', () => {
-  it('pins pnpm and node 22 in the projen source', () => {
+  it('pins pnpm and node 24 in the projen source', () => {
     const projenrc = readPackageFile('.projenrc.js');
 
     expect(projenrc).toContain('packageManager: javascript.NodePackageManager.PNPM');
     expect(projenrc).toContain("pnpmVersion: '10.29.3'");
-    expect(projenrc).toContain("minNodeVersion: '22.0.0'");
+    expect(projenrc).toContain("minNodeVersion: '24.0.0'");
   });
 });

@@ -18,11 +18,11 @@ test('cdk-construct pins the JS-only pnpm, projen, cdk, and node floor', () => {
 
   assert.match(projenrc, /packageManager:\s+javascript\.NodePackageManager\.PNPM/);
   assert.match(projenrc, /pnpmVersion:\s+'10.29.3'/);
-  assert.match(projenrc, /minNodeVersion:\s+'22\.0\.0'/);
+  assert.match(projenrc, /minNodeVersion:\s+'24\.0\.0'/);
   assert.doesNotMatch(projenrc, /publishToPypi/);
   assert.doesNotMatch(projenrc, /publishToNuget/);
   assert.doesNotMatch(projenrc, /publishToMaven/);
-  assert.equal(packageJson.engines.node, '>= 22.0.0');
+  assert.equal(packageJson.engines.node, '>= 24.0.0');
   assert.equal(packageJson.packageManager, 'pnpm@10.29.3');
   assert.equal(packageJson.devEngines, undefined);
   assert.equal(packageJson.devDependencies.projen, '0.103.23');

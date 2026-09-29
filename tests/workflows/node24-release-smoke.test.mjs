@@ -24,7 +24,7 @@ const installBearingWorkflowFiles = [
   '.github/workflows/release.yml',
 ];
 
-test('workflow baselines stay on node 22 and avoid npm-era release plumbing', () => {
+test('workflow baselines stay on node 24 and avoid npm-era release plumbing', () => {
   for (const relativePath of workflowFiles) {
     const workflow = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
 
@@ -40,6 +40,7 @@ test('workflow baselines stay on node 22 and avoid npm-era release plumbing', ()
   for (const relativePath of installBearingWorkflowFiles) {
     const workflow = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.match(workflow, /uses:\s+pwrdrvr\/configure-nodejs@v1/);
+    assert.match(workflow, /uses:\s+pwrdrvr\/configure-nodejs@v1\s*\n\s*with:\s*\n\s*node-version:\s*24\.x/);
   }
 });
 
@@ -83,11 +84,13 @@ test('direct setup-node usage disables package-manager auto-cache', () => {
   const directSetupNodeWorkflowFiles = [
     '.github/workflows/r_version.yml',
     '.github/workflows/release.yml',
+    '.github/workflows/supply-chain.yml',
   ];
 
   for (const relativePath of directSetupNodeWorkflowFiles) {
     const workflow = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.match(workflow, /package-manager-cache:\s*false/);
+    assert.match(workflow, /node-version:\s*24\.x/);
   }
 });
 
@@ -108,13 +111,13 @@ test('release workflows propagate prerelease metadata through to npm publishing'
   assert.match(releaseWorkflow, /NPM_DIST_TAG:\s+\$\{\{\s*needs\.version\.outputs\.npmDistTag\s*\}\}/);
 });
 
-test('the construct runtime baseline is nodejs22.x', () => {
+test('the construct runtime baseline is nodejs24.x', () => {
   const source = fs.readFileSync(
     path.join(repoRoot, 'packages', 'cdk-construct', 'src', 'index.ts'),
     'utf8',
   );
 
-  assert.match(source, /nodejs22\.x/);
+  assert.match(source, /nodejs24\.x/);
 });
 
 test('the app packaging workflow materializes pnpm standalone dependencies before zipping', () => {

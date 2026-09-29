@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
   "engines": {
-    "node": ">= 22.0.0"
+    "node": ">= 24.0.0"
   },
   "scripts": {
     "build": "NODE_ENV=production next build",
@@ -45,7 +45,7 @@
   "devDependencies": {
     "@testing-library/react": "^16.3.0",
     "@types/lambda-log": "^2.2.0",
-    "@types/node": "^22.15.18",
+    "@types/node": "^24.13.6",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/semver": "^7.3.4",

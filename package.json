@@ -11,7 +11,7 @@
   "homepage": "https://github.com/pwrdrvr/microapps-core#readme",
   "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc",
   "engines": {
-    "node": ">= 22.0.0"
+    "node": ">= 24.0.0"
   },
   "workspaces": [
     "packages/*"
@@ -64,7 +64,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
     "prettier": "^2.2.1",
-    "pwrdrvr": "1.1.2",
+    "pwrdrvr": "1.2.0",
     "rimraf": "4.4.0",
     "ts-node": "10.9.1",
     "typescript": "4.9.5"

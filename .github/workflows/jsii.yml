@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pwrdrvr/configure-nodejs@v1
+        with:
+          node-version: 24.x
 
       - name: Build with JSII
         run: pnpm --filter @pwrdrvr/microapps-app-release-cdk run build:jsii-release

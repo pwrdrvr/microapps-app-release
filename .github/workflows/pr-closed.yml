@@ -32,6 +32,8 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pwrdrvr/configure-nodejs@v1
+        with:
+          node-version: 24.x
 
       - name: Extract Current NPM Version
         run: |
