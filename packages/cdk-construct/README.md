@@ -20,21 +20,24 @@ Repo development uses Node 22 and `pnpm`. See `CONTRIBUTING.md` for local setup 
 
 # Screenshot
 
-![Main View Screenshot of App](https://raw.githubusercontent.com/pwrdrvr/microapps-app-release/main/assets/images/app-main.png)
+![Release console showing the versions and rules for the release app](https://github.com/user-attachments/assets/d6993ffa-2cf2-42dc-948a-5710976dee84)
 
 # Try the App
 
-[Launch the App](https://dukw9jtyq2dwo.cloudfront.net/prefix/release/)
+[Launch the App](https://apps.ghpublic.pwrdrvr.com/release) (no login needed)
 
 # Video Preview of the App
 
-![Video Preview of App](https://raw.githubusercontent.com/pwrdrvr/microapps-app-release/main/assets/videos/app-overview.gif)
+![Animated walkthrough of the release console](https://github.com/user-attachments/assets/c4a66876-9de5-49d9-a623-00386b63f0a6)
 
 # Functionality
 
-- Lists all deployed applications
-- Shows all versions and rules per application
-- Allows setting the `default` rule (pointer to version) for each application
+- Lists all deployed applications, with a badge on any app that has a newer release than its live default
+- Shows all versions and rules per application, and each version's position relative to the live default
+- Hides PR and other prerelease builds by default (toggle `Releases` / `All`)
+- Provides preview links for each version, so a version can be checked before it is made live
+- Allows promoting a version, or rolling back, by changing the `default` rule (pointer to version) for each application
+- Asks for confirmation before changing the default, detects conflicting concurrent changes, and offers a one-click revert
 
 # Installation
 
