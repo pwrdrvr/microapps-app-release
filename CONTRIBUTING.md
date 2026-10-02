@@ -71,7 +71,7 @@ than slip through; add it to whichever list is right, with a reason.
 
 ## Publishing and lint dependencies
 
-The root `pwrdrvr@1.1.2` CLI is used by the app build, publishing/preflight,
+The root `pwrdrvr@1.2.0` CLI is used by the app build, publishing/preflight,
 and PR cleanup workflows. It replaces the legacy `@pwrdrvr/microapps-publish`
 package and allows current AWS SDK releases instead of pinning SDK 3.78.0.
 

@@ -9,7 +9,7 @@
   "author": "PwrDrvr LLC",
   "license": "MIT",
   "engines": {
-    "node": ">= 22.0.0"
+    "node": ">= 24.0.0"
   },
   "scripts": {
     "build": "tsc --build tsconfig.json",
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@pwrdrvr/microapps-app-release-cdk": "workspace:*",
     "@types/jest": "^26.0.10",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.13.6",
     "@types/source-map-support": "^0.5.3",
     "aws-cdk-lib": "2.269.0",
     "constructs": "10.5.1",
