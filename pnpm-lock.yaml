@@ -22,7 +22,7 @@ importers:
         version: 4.33.0(eslint@7.32.0)(typescript@4.9.5)
       aws-cdk:
         specifier: ^2.1141.0
-        version: 2.1141.0
+        version: 2.1143.0
       eslint:
         specifier: ^7.20.0
         version: 7.32.0
@@ -2264,8 +2264,8 @@ packages:
       - yaml
       - mime-types
 
-  aws-cdk@2.1141.0:
-    resolution: {integrity: sha512-RIKueAoFNYUot/VmlUzPUbecxNCtLzJFqpy/O+vTpjrvDn4k2Uiu9Y/QlVlQzaSJw0qqNNY6ldusJVdkX8aBNA==}
+  aws-cdk@2.1143.0:
+    resolution: {integrity: sha512-bTbgEmNuN6UMDAyhGFWOAnriafSu7j0cAjaFKRw1/WEs6RE5g062D2v2+YE8Dw6qw7RgNGQPH5Nv47TsK5kZSQ==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
 
@@ -7593,7 +7593,7 @@ snapshots:
       '@aws-cdk/cloud-assembly-schema': 54.23.0
       constructs: 10.5.1
 
-  aws-cdk@2.1141.0: {}
+  aws-cdk@2.1143.0: {}
 
   balanced-match@1.0.2: {}
 
